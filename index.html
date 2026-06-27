@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
+    <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- Pako para descargar guías .gz -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     
     <style>
@@ -345,10 +347,12 @@
 </head>
 <body>
 
+    <!-- Sección del Video y Controles Flotantes Inteligentes -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
             
+            <!-- Capa Única de Controles Estilo Cine -->
             <div class="custom-controls" id="custom-controls-layer">
                 <div class="timeline-container" id="timeline-wrapper">
                     <span class="time-display" id="time-current">00:00</span>
@@ -374,6 +378,7 @@
         </div>
     </div>
 
+    <!-- Mensajes de Error -->
     <div style="display:flex; justify-content:center;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -384,13 +389,16 @@
         </div>
     </div>
 
+    <!-- Menú de Selección de Apartado Principal -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 Televisión en Directo</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Películas y Sagas Propias</button>
     </div>
 
+    <!-- Contenido Principal -->
     <div id="content-section">
         
+        <!-- Panel de Administración de Listas de TV -->
         <div class="panel" id="panel-tv-config">
             <h3>Administrar Listas e IPTV</h3>
             <div class="input-block">
@@ -410,11 +418,13 @@
             </div>
         </div>
 
+        <!-- Info de Contenido / Ficha TMDB -->
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
             <div id="epg-info">Selecciona cualquier canal o película de abajo para comenzar.</div>
         </div>
 
+        <!-- Barra Unificada de Filtrado y Buscador -->
         <div class="filter-bar">
             <div class="filter-item" id="category-filter-wrapper">
                 <label for="category-select"><strong id="category-label-text">Filtrar por Categoría:</strong></label>
@@ -426,7 +436,8 @@
             <div class="filter-item" id="saga-select-wrapper" style="display: none;">
                 <label for="saga-select"><strong>Seleccionar Colección / Saga:</strong></label>
                 <select id="saga-select" onchange="loadLocalSaga()">
-                    </select>
+                    <!-- Automatizado -->
+                </select>
             </div>
 
             <div class="filter-item">
@@ -435,6 +446,7 @@
             </div>
         </div>
 
+        <!-- Rejilla de canales / películas -->
         <div id="channel-grid"></div>
     </div>
 
@@ -455,9 +467,16 @@
             { name: "Colección Blue Sky", file: "Coleccion Blue Sky.m3u" }
         ];
 
-        const EPG_URLS = [
-            'https://www.tdtchannels.com/epg/TV.xml.gz',
-            'https://epgshare01.online/epgshare01/epg_ripper_ES1.xml.gz'
+        // MEJORADO: Estructura con puente Proxy y ruta de respaldo en tu carpeta local
+        const EPG_SOURCES = [
+            { 
+                name: "TDTChannels (Remoto)", 
+                url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.tdtchannels.com/epg/TV.xml.gz') 
+            },
+            { 
+                name: "Guía Local (listas/epg.xml.gz)", 
+                url: 'listas/epg.xml.gz' 
+            }
         ];
 
         const TMDB_API_KEY = '8057a54a57714cade319b15e4fc0c3b4';
@@ -570,14 +589,12 @@
                     Tu navegador está intentando leer la lista en esta URL exacta:<br>
                     <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
                     <strong>Cómo solucionarlo rápidamente:</strong><br>
-                    1️⃣ Haz <strong>clic en el enlace verde de arriba</strong>. Si te sale un error <em>"404 Not Found"</em> en GitHub, es la prueba de que el archivo no está guardado ahí.<br>
-                    2️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>listas</code> (todo en minúsculas).<br>
-                    3️⃣ Revisa que el nombre del archivo coincida letra por letra (por ejemplo, fíjate si pusiste <code>Coleccion Pixar.m3u</code> con o sin tilde en la 'o').
+                    1️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>listas</code> (todo en minúsculas).<br>
+                    2️⃣ Revisa que el nombre del archivo coincida letra por letra.
                 </div>`;
             }
         }
 
-        // --- MEJORADO: Detector visual inteligente para la sección de TV ---
         async function loadM3UFromUrl() {
             const url = m3uUrlInput.value.trim();
             if (!url) return alert("Escribe una URL.");
@@ -595,11 +612,54 @@
                     El sistema está intentando leer el archivo de canales en esta dirección:<br>
                     <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
                     <strong>Cómo solucionarlo:</strong><br>
-                    1️⃣ Haz <strong>clic en el enlace verde de arriba</strong>.<br>
-                    2️⃣ Si te sale un error <em>"404 Not Found"</em>, significa que tu archivo no está subido en la carpeta <code>listas</code> o no se llama exactamente <code>tv.m3u</code> (comprueba si lo escribiste en mayúsculas como <code>TV.m3u</code>).<br>
-                    3️⃣ Si al hacer clic ves el texto interno del archivo correctamente, significa que tu navegador guardó un error viejo en caché. Limpiala pulsando <code>CTRL + F5</code>.
+                    1️⃣ Verifica que tu archivo esté subido en la carpeta <code>listas</code> y se llame exactamente <code>tv.m3u</code> (todo en minúsculas).
                 </div>`;
             }
+        }
+
+        // CORRECCIÓN Y MEJORA: Lector inteligente con soporte Proxy Bypass y local para EPG
+        async function loadAllEPGs() {
+            epgStatusList.innerHTML = '';
+            epgInfoElement.innerText = "Sincronizando fuentes de programación...";
+            
+            const promises = EPG_SOURCES.map(async (source) => {
+                const li = document.createElement('li');
+                li.innerText = `⏳ Cargando ${source.name}...`;
+                epgStatusList.appendChild(li);
+                
+                try {
+                    const response = await fetch(source.url);
+                    if (!response.ok) throw new Error();
+                    
+                    let xmlText = '';
+                    const arrayBuffer = await response.arrayBuffer();
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    
+                    // Comprobación de bytes mágicos (0x1F, 0x8B) para saber si es un GZIP real
+                    if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) {
+                        xmlText = pako.ungzip(uint8Array, { to: 'string' });
+                    } else {
+                        // Si el proxy o el servidor ya lo entrega descomprimido, lo decodificamos directo
+                        const decoder = new TextDecoder("utf-8");
+                        xmlText = decoder.decode(uint8Array);
+                    }
+                    
+                    xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+                    if(xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error();
+                    
+                    epgDocs.push(xmlDoc);
+                    li.innerText = `✅ ${source.name} sincronizado.`;
+                    li.style.color = "#4CAF50";
+                } catch (e) {
+                    li.innerText = `❌ ${source.name} no disponible (Bloqueo CORS o archivo ausente).`;
+                    li.style.color = "#f44336";
+                }
+            });
+            
+            await Promise.all(promises);
+            epgInfoElement.innerText = "Elige un canal o película de la lista.";
         }
 
         // --- MANEJO DE CONTROLES ---
@@ -702,38 +762,6 @@
                 vlcBtn.onclick = () => { window.location.href = `vlc://${currentMediaUrl}`; };
                 copyBtn.onclick = () => { navigator.clipboard.writeText(currentMediaUrl); alert("¡Enlace copiado!"); };
             };
-        }
-
-        async function loadAllEPGs() {
-            epgStatusList.innerHTML = '';
-            epgInfoElement.innerText = "Sincronizando fuentes de programación...";
-            const promises = EPG_URLS.map(async (url) => {
-                const name = url.split('/').pop(); 
-                const li = document.createElement('li');
-                li.innerText = `⏳ Cargando ${name}...`;
-                epgStatusList.appendChild(li);
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error();
-                    let xmlText = '';
-                    if (url.endsWith('.gz')) {
-                        const arrayBuffer = await response.arrayBuffer();
-                        xmlText = pako.ungzip(new Uint8Array(arrayBuffer), { to: 'string' });
-                    } else { xmlText = await response.text(); }
-                    xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-                    if(xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error();
-                    epgDocs.push(xmlDoc);
-                    li.innerText = `✅ ${name} sincronizado.`;
-                    li.style.color = "#4CAF50";
-                } catch (e) {
-                    li.innerText = `❌ ${name} no disponible.`;
-                    li.style.color = "#f44336";
-                }
-            });
-            await Promise.all(promises);
-            epgInfoElement.innerText = "Elige un canal o película de la lista.";
         }
 
         function loadM3UFromFile(event) {
