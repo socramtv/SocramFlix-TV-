@@ -392,11 +392,11 @@
     <div id="content-section">
         
         <div class="panel" id="panel-tv-config">
-            <h3>Administrar Listas e IPTV Pública</h3>
+            <h3>Administrar Listas e IPTV</h3>
             <div class="input-block">
-                <label><strong>Cargar desde enlace remoto (URL)</strong></label>
+                <label><strong>Ruta de la lista actual</strong></label>
                 <div class="input-row">
-                    <input type="text" id="m3u-url-input" placeholder="Pegar enlace M3U aquí..." value="https://www.tdtchannels.com/lists/tv.m3u">
+                    <input type="text" id="m3u-url-input" placeholder="Pegar enlace M3U aquí..." value="listas/tv.m3u">
                     <button onclick="loadM3UFromUrl()">Cargar</button>
                 </div>
             </div>
@@ -543,7 +543,6 @@
             }
         }
 
-        // CORRECCIÓN: Ahora apunta a tu carpeta "listas/" en plural
         function buildSagaDropdown() {
             sagaSelect.innerHTML = '';
             REPO_SAGAS.forEach(saga => {
@@ -574,6 +573,31 @@
                     1️⃣ Haz <strong>clic en el enlace verde de arriba</strong>. Si te sale un error <em>"404 Not Found"</em> en GitHub, es la prueba de que el archivo no está guardado ahí.<br>
                     2️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>listas</code> (todo en minúsculas).<br>
                     3️⃣ Revisa que el nombre del archivo coincida letra por letra (por ejemplo, fíjate si pusiste <code>Coleccion Pixar.m3u</code> con o sin tilde en la 'o').
+                </div>`;
+            }
+        }
+
+        // --- MEJORADO: Detector visual inteligente para la sección de TV ---
+        async function loadM3UFromUrl() {
+            const url = m3uUrlInput.value.trim();
+            if (!url) return alert("Escribe una URL.");
+            const absoluteUrl = new URL(url, window.location.href).href;
+            
+            try {
+                const response = await fetch(encodeURI(url));
+                if (!response.ok) throw new Error();
+                const text = await response.text();
+                processM3UText(text);
+            } catch (e) {
+                channelGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align:left; background:#2c1a1a; border:1px solid #f44336; padding:20px; border-radius:8px; line-height:1.6;">
+                    <strong style="color:#f44336; font-size:1.1rem;">⚠️ No se pudo cargar la lista de TV</strong><br><br>
+                    El sistema está intentando leer el archivo de canales en esta dirección:<br>
+                    <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
+                    <strong>Cómo solucionarlo:</strong><br>
+                    1️⃣ Haz <strong>clic en el enlace verde de arriba</strong>.<br>
+                    2️⃣ Si te sale un error <em>"404 Not Found"</em>, significa que tu archivo no está subido en la carpeta <code>listas</code> o no se llama exactamente <code>tv.m3u</code> (comprueba si lo escribiste en mayúsculas como <code>TV.m3u</code>).<br>
+                    3️⃣ Si al hacer clic ves el texto interno del archivo correctamente, significa que tu navegador guardó un error viejo en caché. Limpiala pulsando <code>CTRL + F5</code>.
                 </div>`;
             }
         }
@@ -640,7 +664,6 @@
             }
         }
 
-        // ... [El resto de las funciones auxiliares se mantienen idénticas para no alterar el funcionamiento] ...
         function formatTime(seconds) {
             if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
             const h = Math.floor(seconds / 3600);
@@ -711,18 +734,6 @@
             });
             await Promise.all(promises);
             epgInfoElement.innerText = "Elige un canal o película de la lista.";
-        }
-
-        async function loadM3UFromUrl() {
-            const url = m3uUrlInput.value.trim();
-            if (!url) return alert("Escribe una URL.");
-            try {
-                const response = await fetch(url);
-                const text = await response.text();
-                processM3UText(text);
-            } catch (e) {
-                channelGrid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#f44336;">Error de CORS. Sube el archivo .m3u si estás haciendo pruebas locales.</div>`;
-            }
         }
 
         function loadM3UFromFile(event) {
