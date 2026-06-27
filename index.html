@@ -6,8 +6,6 @@
     <title>SocramFlix+ Pro</title>
     <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <!-- Pako para descargar guías .gz -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     
     <style>
         body {
@@ -467,18 +465,8 @@
             { name: "Colección Blue Sky", file: "Coleccion Blue Sky.m3u" }
         ];
 
-        // MEJORADO: Estructura con puente Proxy y ruta de respaldo en tu carpeta local
-        const EPG_SOURCES = [
-            { 
-                name: "TDTChannels (Remoto)", 
-                url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.tdtchannels.com/epg/TV.xml.gz') 
-            },
-            { 
-                name: "Guía Local (listas/epg.xml.gz)", 
-                url: 'listas/epg.xml.gz' 
-            }
-        ];
-
+        // Lógica limpia y directa: Lee tu archivo epg.xml local
+        const EPG_URL_LOCAL = 'listas/epg.xml';
         const TMDB_API_KEY = '8057a54a57714cade319b15e4fc0c3b4';
 
         const video = document.getElementById('video');
@@ -512,13 +500,13 @@
 
         let currentSection = 'tv'; 
         let channels = [];
-        let epgDocs = [];
+        let xmlEpgDoc = null;
         let hlsInstance = null;
         let currentMediaUrl = "";
 
         async function init() {
             buildSagaDropdown();
-            await loadAllEPGs();
+            await loadLocalEPG();
             loadM3UFromUrl(); 
             setupPlayerErrorHandling();
             setupPlayerListeners();
@@ -617,49 +605,37 @@
             }
         }
 
-        // CORRECCIÓN Y MEJORA: Lector inteligente con soporte Proxy Bypass y local para EPG
-        async function loadAllEPGs() {
+        // NUEVA LÓGICA DIRECTA: Carga el XML descomprimido local de manera limpia y sin intermediarios
+        async function loadLocalEPG() {
             epgStatusList.innerHTML = '';
-            epgInfoElement.innerText = "Sincronizando fuentes de programación...";
+            const li = document.createElement('li');
+            li.innerText = `⏳ Buscando listas/epg.xml...`;
+            epgStatusList.appendChild(li);
             
-            const promises = EPG_SOURCES.map(async (source) => {
-                const li = document.createElement('li');
-                li.innerText = `⏳ Cargando ${source.name}...`;
-                epgStatusList.appendChild(li);
+            try {
+                const response = await fetch(EPG_URL_LOCAL);
+                if (!response.ok) throw new Error("NoEncontrado");
                 
-                try {
-                    const response = await fetch(source.url);
-                    if (!response.ok) throw new Error();
-                    
-                    let xmlText = '';
-                    const arrayBuffer = await response.arrayBuffer();
-                    const uint8Array = new Uint8Array(arrayBuffer);
-                    
-                    // Comprobación de bytes mágicos (0x1F, 0x8B) para saber si es un GZIP real
-                    if (uint8Array[0] === 0x1F && uint8Array[1] === 0x8B) {
-                        xmlText = pako.ungzip(uint8Array, { to: 'string' });
-                    } else {
-                        // Si el proxy o el servidor ya lo entrega descomprimido, lo decodificamos directo
-                        const decoder = new TextDecoder("utf-8");
-                        xmlText = decoder.decode(uint8Array);
-                    }
-                    
-                    xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-                    if(xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error();
-                    
-                    epgDocs.push(xmlDoc);
-                    li.innerText = `✅ ${source.name} sincronizado.`;
-                    li.style.color = "#4CAF50";
-                } catch (e) {
-                    li.innerText = `❌ ${source.name} no disponible (Bloqueo CORS o archivo ausente).`;
-                    li.style.color = "#f44336";
+                let xmlText = await response.text();
+                // Limpiar caracteres "&" sueltos que rompen el lector XML nativo
+                xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(xmlText, "application/xml");
+                
+                if (doc.getElementsByTagName("parsererror").length > 0) {
+                    throw new Error("ErrorFormatoXML");
                 }
-            });
-            
-            await Promise.all(promises);
-            epgInfoElement.innerText = "Elige un canal o película de la lista.";
+                
+                xmlEpgDoc = doc;
+                li.innerText = `✅ Guía epg.xml sincronizada correctamente.`;
+                li.style.color = "#4CAF50";
+                console.log("EPG Local Cargado Correctamente");
+            } catch (e) {
+                li.innerText = `❌ listas/epg.xml no detectado o corrupto. Sube el archivo descomprimido (.xml) a tu repositorio.`;
+                li.style.color = "#f44336";
+                console.error("Error al procesar el archivo EPG:", e);
+            }
         }
 
         // --- MANEJO DE CONTROLES ---
@@ -751,7 +727,7 @@
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
                 const err = video.error;
-                let motivo = "El servidor de streaming rechaza conexiones externas por políticas CORS.";
+                let motivo = "El servidor de streaming de TV rechaza conexiones externas por seguridad de origen.";
                 if (err) {
                     if (err.code === 3) motivo = "Formato incompatible (.mkv o audio AC3 no soportados nativamente por navegadores).";
                     else if (err.code === 4) motivo = "El enlace ha expirado o el archivo no se encuentra disponible.";
@@ -952,28 +928,29 @@
         }
 
         function updateEPGDisplay(channel) {
-            if (epgDocs.length === 0) return;
+            if (!xmlEpgDoc) {
+                epgInfoElement.innerText = "La guía de programación (EPG) no se cargó correctamente. Revisa que exista listas/epg.xml.";
+                return;
+            }
             const channelId = channel.epgId || channel.name;
             const now = new Date();
-            let currentProgramTitle = "Programación de TV no disponible para este canal.";
+            let currentProgramTitle = "Programación de TV no disponible para este canal actualmente.";
 
-            for (let xmlDoc of epgDocs) {
-                const programmes = xmlDoc.querySelectorAll(`programme[channel="${channelId}"]`);
-                if (programmes.length > 0) {
-                    for (let prog of programmes) {
-                        const startAttr = prog.getAttribute('start');
-                        const stopAttr = prog.getAttribute('stop');
-                        if (startAttr && stopAttr) {
-                            const startTime = parseEPGDate(startAttr);
-                            const stopTime = parseEPGDate(stopAttr);
-                            if (now >= startTime && now <= stopTime) {
-                                const titleNode = prog.querySelector('title');
-                                const descNode = prog.querySelector('desc');
-                                currentProgramTitle = titleNode ? titleNode.textContent : "Sin título";
-                                if (descNode) currentProgramTitle += ` - ${descNode.textContent}`;
-                                epgInfoElement.innerText = currentProgramTitle;
-                                return;
-                            }
+            const programmes = xmlEpgDoc.querySelectorAll(`programme[channel="${channelId}"]`);
+            if (programmes.length > 0) {
+                for (let prog of programmes) {
+                    const startAttr = prog.getAttribute('start');
+                    const stopAttr = prog.getAttribute('stop');
+                    if (startAttr && stopAttr) {
+                        const startTime = parseEPGDate(startAttr);
+                        const stopTime = parseEPGDate(stopAttr);
+                        if (now >= startTime && now <= stopTime) {
+                            const titleNode = prog.querySelector('title');
+                            const descNode = prog.querySelector('desc');
+                            currentProgramTitle = titleNode ? titleNode.textContent : "Sin título";
+                            if (descNode) currentProgramTitle += ` - ${descNode.textContent}`;
+                            epgInfoElement.innerText = currentProgramTitle;
+                            return;
                         }
                     }
                 }
