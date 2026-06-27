@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
-    <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <!-- Pako para descargar guías .gz -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     
     <style>
@@ -347,12 +345,10 @@
 </head>
 <body>
 
-    <!-- Sección del Video y Controles Flotantes Inteligentes -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
             
-            <!-- Capa Única de Controles Estilo Cine -->
             <div class="custom-controls" id="custom-controls-layer">
                 <div class="timeline-container" id="timeline-wrapper">
                     <span class="time-display" id="time-current">00:00</span>
@@ -378,7 +374,6 @@
         </div>
     </div>
 
-    <!-- Mensajes de Error -->
     <div style="display:flex; justify-content:center;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -389,16 +384,13 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Apartado Principal -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 Televisión en Directo</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Películas y Sagas Propias</button>
     </div>
 
-    <!-- Contenido Principal -->
     <div id="content-section">
         
-        <!-- Panel de Administración de Listas de TV (Solo visible en Modo TV) -->
         <div class="panel" id="panel-tv-config">
             <h3>Administrar Listas e IPTV Pública</h3>
             <div class="input-block">
@@ -418,15 +410,12 @@
             </div>
         </div>
 
-        <!-- Info de Contenido / Ficha TMDB -->
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
             <div id="epg-info">Selecciona cualquier canal o película de abajo para comenzar.</div>
         </div>
 
-        <!-- Barra Unificada de Filtrado y Buscador -->
         <div class="filter-bar">
-            <!-- Selector dinámico de categoría interna del M3U -->
             <div class="filter-item" id="category-filter-wrapper">
                 <label for="category-select"><strong id="category-label-text">Filtrar por Categoría:</strong></label>
                 <select id="category-select">
@@ -434,12 +423,10 @@
                 </select>
             </div>
 
-            <!-- Selector EXCLUSIVO de tus Sagas de GitHub (Solo visible en modo Películas) -->
             <div class="filter-item" id="saga-select-wrapper" style="display: none;">
                 <label for="saga-select"><strong>Seleccionar Colección / Saga:</strong></label>
                 <select id="saga-select" onchange="loadLocalSaga()">
-                    <!-- Se rellena con tus 13 archivos automáticamente -->
-                </select>
+                    </select>
             </div>
 
             <div class="filter-item">
@@ -448,7 +435,6 @@
             </div>
         </div>
 
-        <!-- Rejilla de canales / películas -->
         <div id="channel-grid"></div>
     </div>
 
@@ -519,16 +505,13 @@
             setupPlayerListeners();
         }
 
-        // CORRECCIÓN: Limpieza profunda al cambiar de pestaña
         function changeSection(section) {
             currentSection = section;
             document.getElementById('tab-tv').classList.toggle('active', section === 'tv');
             document.getElementById('tab-movies').classList.toggle('active', section === 'movies');
             
-            // 1. Resetear el cuadro de búsqueda interna
             searchInput.value = "";
             
-            // 2. Detener inmediatamente la reproducción de TV (audio y streaming)
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
@@ -538,18 +521,15 @@
             video.load();
             currentMediaUrl = "";
             
-            // 3. Apagar forzadamente los letreros flotantes de la TV ("En Directo", barra, etc)
             timelineWrapper.style.display = "none";
             liveIndicator.style.display = "none";
             errorBox.style.display = "none";
             
-            // 4. Resetear la memoria interna y limpiar la pantalla provisionalmente
             channels = [];
             categorySelect.innerHTML = '<option value="">Cargando catálogo...</option>';
             channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#aaa;">Cambiando de sección...</div>';
             epgInfoElement.innerText = "Selecciona cualquier contenido de abajo para comenzar.";
 
-            // 5. Mostrar u ocultar controles específicos según sección
             if (section === 'tv') {
                 panelTvConfig.style.display = "block";
                 sagaSelectWrapper.style.display = "none";
@@ -573,17 +553,29 @@
             });
         }
 
+        // MEJORADO: Ahora te dice la dirección exacta que falla
         async function loadLocalSaga() {
             const fileUrl = sagaSelect.value;
-            channelGrid.innerHTML = '<div>Abriendo colección de películas...</div>';
+            // Genera la dirección web exacta que busca el navegador
+            const absoluteUrl = new URL(fileUrl, window.location.href).href;
+            
+            channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#aaa;">Buscando lista en tu repositorio de GitHub...</div>';
             try {
-                const response = await fetch(fileUrl);
+                // encodeURI asegura que los espacios en blanco se procesen correctamente como %20
+                const response = await fetch(encodeURI(fileUrl));
                 if(!response.ok) throw new Error();
                 const text = await response.text();
                 processM3UText(text);
             } catch (e) {
-                channelGrid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#f44336; padding:20px;">
-                    <strong>Error al cargar la saga local:</strong> Verifica que la carpeta se llame exactamente <code>lista</code> en GitHub y contenga los archivos .m3u correspondientes.
+                channelGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align:left; background:#2c1a1a; border:1px solid #f44336; padding:20px; border-radius:8px; line-height:1.6;">
+                    <strong style="color:#f44336; font-size:1.1rem;">⚠️ No se encuentra el archivo .m3u</strong><br><br>
+                    Tu navegador está intentando leer la lista en esta URL exacta:<br>
+                    <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
+                    <strong>Cómo solucionarlo rápidamente:</strong><br>
+                    1️⃣ Haz <strong>clic en el enlace verde de arriba</strong>. Si te sale un error <em>"404 Not Found"</em> en GitHub, es la prueba de que el archivo no está guardado ahí.<br>
+                    2️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>lista</code> (todo en minúsculas).<br>
+                    3️⃣ Revisa que el nombre del archivo coincida letra por letra (por ejemplo, fíjate si pusiste <code>Coleccion Pixar.m3u</code> con o sin tilde en la 'o').
                 </div>`;
             }
         }
