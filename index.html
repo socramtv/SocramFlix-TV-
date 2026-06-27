@@ -543,25 +543,23 @@
             }
         }
 
+        // CORRECCIÓN: Ahora apunta a tu carpeta "listas/" en plural
         function buildSagaDropdown() {
             sagaSelect.innerHTML = '';
             REPO_SAGAS.forEach(saga => {
                 const opt = document.createElement('option');
-                opt.value = `lista/${saga.file}`; 
+                opt.value = `listas/${saga.file}`; 
                 opt.innerText = saga.name;
                 sagaSelect.appendChild(opt);
             });
         }
 
-        // MEJORADO: Ahora te dice la dirección exacta que falla
         async function loadLocalSaga() {
             const fileUrl = sagaSelect.value;
-            // Genera la dirección web exacta que busca el navegador
             const absoluteUrl = new URL(fileUrl, window.location.href).href;
             
             channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#aaa;">Buscando lista en tu repositorio de GitHub...</div>';
             try {
-                // encodeURI asegura que los espacios en blanco se procesen correctamente como %20
                 const response = await fetch(encodeURI(fileUrl));
                 if(!response.ok) throw new Error();
                 const text = await response.text();
@@ -574,7 +572,7 @@
                     <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
                     <strong>Cómo solucionarlo rápidamente:</strong><br>
                     1️⃣ Haz <strong>clic en el enlace verde de arriba</strong>. Si te sale un error <em>"404 Not Found"</em> en GitHub, es la prueba de que el archivo no está guardado ahí.<br>
-                    2️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>lista</code> (todo en minúsculas).<br>
+                    2️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>listas</code> (todo en minúsculas).<br>
                     3️⃣ Revisa que el nombre del archivo coincida letra por letra (por ejemplo, fíjate si pusiste <code>Coleccion Pixar.m3u</code> con o sin tilde en la 'o').
                 </div>`;
             }
@@ -642,6 +640,7 @@
             }
         }
 
+        // ... [El resto de las funciones auxiliares se mantienen idénticas para no alterar el funcionamiento] ...
         function formatTime(seconds) {
             if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
             const h = Math.floor(seconds / 3600);
@@ -682,7 +681,6 @@
             };
         }
 
-        // --- INTERFAZ Y PROCESADO M3U ---
         async function loadAllEPGs() {
             epgStatusList.innerHTML = '';
             epgInfoElement.innerText = "Sincronizando fuentes de programación...";
