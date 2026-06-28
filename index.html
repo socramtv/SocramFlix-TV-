@@ -169,7 +169,6 @@
         }
         .btn-cast:hover { background: #3498db; color: #fff; }
 
-        /* NUEVO: Diseño de pestañas principales en 2 filas y más grandes */
         .navigation-tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -379,7 +378,7 @@
         </div>
     </div>
 
-    <!-- Mensajes Informativos / Lanzadores Alternativos -->
+    <!-- Mensajes Informativos -->
     <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -515,12 +514,13 @@
                 mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
-                await loadLocalEPG('listas/star+.xml');
+                await loadLocalEPG('listas/epg-es.xml'); // Modificado para usar epg-es.xml
                 loadM3UFromUrl('listas/star+.m3u');
             } else if (section === 'runtime') {
                 mainBody.className = "body-runtime-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
+                await loadLocalEPG('listas/epg-es.xml'); // Añadido epg-es.xml aquí también
                 loadM3UFromUrl('listas/TV RuntimeTV.m3u');
             } else {
                 mainBody.className = "body-movie-mode";
