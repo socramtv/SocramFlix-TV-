@@ -173,32 +173,43 @@
         }
         .btn-cast:hover { background: #3498db; color: #fff; }
 
-        /* Selector de Apartado Principal (TV vs Pelis) */
+        /* Selector de Apartado Principal (Modificado para 3 pestañas fluidas) */
         .navigation-tabs {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             margin: 15px auto 5px auto;
             max-width: 1000px;
-            width: 90%;
+            width: 95%;
         }
         .tab-button {
             flex: 1;
             background: #1e1e1e;
             color: #aaa;
             border: 1px solid #2d2d2d;
-            padding: 12px;
-            font-size: 1rem;
+            padding: 12px 6px;
+            font-size: 0.95rem;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .tab-button.active {
             background: #4CAF50;
             color: white;
             border-color: #4CAF50;
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Ajuste móvil para las pestañas */
+        @media (max-width: 480px) {
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 10px 4px;
+            }
         }
 
         /* Resto de la Interfaz */
@@ -221,11 +232,6 @@
             margin-bottom: 12px;
             font-size: 1rem;
             color: #4CAF50;
-        }
-
-        /* Panel de configuración oculto */
-        #panel-tv-config {
-            display: none !important;
         }
 
         .filter-bar {
@@ -266,7 +272,7 @@
 
         .now-playing { font-weight: bold; color: #4CAF50; margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Rejilla Base de Canales (Por defecto / TV) */
+        /* Rejilla Base de Canales (Por defecto / TV / Premium) */
         #channel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -299,8 +305,9 @@
             padding: 1px;
         }
         
-        /* Ajuste de imagen específico para logos de canales de TV */
-        .body-tv-mode .channel-card img {
+        /* Ajuste de imagen para logos de canales de TV tradicionales y Premium */
+        .body-tv-mode .channel-card img,
+        .body-premium-mode .channel-card img {
             width: 50px;
             height: 50px;
             object-fit: contain;
@@ -316,32 +323,29 @@
             overflow: hidden; 
         }
 
-        /* ==========================================================================
-           CORRECCIÓN COMPLETA: Modo Películas (2 por fila fijas y bien grandes)
-           ========================================================================== */
+        /* Modo Películas (2 por fila fijas y bien grandes) */
         .body-movie-mode #channel-grid {
-            grid-template-columns: repeat(2, 1fr); /* 2 fijas por fila */
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
         .body-movie-mode .channel-card {
             padding: 14px 10px;
         }
         .body-movie-mode .channel-card img {
-            width: 100%;           /* Se adapta al 100% de su mitad de pantalla */
-            max-width: 180px;      /* Límite máximo para que no se deforme en tablets o PC */
+            width: 100%;
+            max-width: 180px;
             height: auto;
-            aspect-ratio: 2 / 3;   /* Relación de aspecto perfecta de cartelera */
+            aspect-ratio: 2 / 3;
             object-fit: cover;
             border-radius: 8px;
             box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
         }
         .body-movie-mode .channel-card span {
-            font-size: 0.95rem;    /* Texto equilibrado y legible */
+            font-size: 0.95rem;
             font-weight: 600;
             margin-top: 6px;
             line-height: 1.3;
         }
-        /* ========================================================================== */
         
         #player-error-box { display: none; background: #c0392b; color: #fff; padding: 12px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.9rem; }
         #alt-actions { display: none; margin-top: 8px; gap: 10px; justify-content: center; }
@@ -398,19 +402,15 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Apartado Principal -->
+    <!-- Menú de Selección de Pestañas (Añadida la pestaña Premium) -->
     <div class="navigation-tabs">
-        <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 Televisión en Directo</button>
-        <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Películas y Sagas Propias</button>
+        <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
+        <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Canales Premium</button>
+        <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
 
     <!-- Contenido Principal -->
     <div id="content-section">
-        
-        <!-- Contenedor técnico oculto para preservar ruta interna -->
-        <div id="panel-tv-config">
-            <input type="text" id="m3u-url-input" value="listas/tv.m3u">
-        </div>
 
         <!-- Info de Contenido / EPG / Ficha TMDB -->
         <div id="epg-container" class="panel">
@@ -461,7 +461,6 @@
             { name: "Colección Blue Sky", file: "Coleccion Blue Sky.m3u" }
         ];
 
-        const EPG_URL_LOCAL = 'listas/epg.xml';
         const TMDB_API_KEY = '8057a54a57714cade319b15e4fc0c3b4';
 
         const video = document.getElementById('video');
@@ -479,7 +478,6 @@
         const categorySelect = document.getElementById('category-select');
         const searchInput = document.getElementById('search-input');
         const epgInfoElement = document.getElementById('epg-info');
-        const m3uUrlInput = document.getElementById('m3u-url-input');
         const mainBody = document.getElementById('main-body');
         
         const errorBox = document.getElementById('player-error-box');
@@ -500,15 +498,17 @@
 
         async function init() {
             buildSagaDropdown();
-            await loadLocalEPG();
-            loadM3UFromUrl(); 
+            await loadLocalEPG('listas/epg.xml'); // Carga por defecto la de TV común
+            loadM3UFromUrl('listas/tv.m3u'); 
             setupPlayerErrorHandling();
             setupPlayerListeners();
         }
 
-        function changeSection(section) {
+        // Modificado para alternar dinámicamente entre las 3 secciones y sincronizar sus EPGs
+        async function changeSection(section) {
             currentSection = section;
             document.getElementById('tab-tv').classList.toggle('active', section === 'tv');
+            document.getElementById('tab-premium').classList.toggle('active', section === 'premium');
             document.getElementById('tab-movies').classList.toggle('active', section === 'movies');
             
             searchInput.value = "";
@@ -535,7 +535,14 @@
                 mainBody.className = "body-tv-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
-                loadM3UFromUrl();
+                await loadLocalEPG('listas/epg.xml');
+                loadM3UFromUrl('listas/tv.m3u');
+            } else if (section === 'premium') {
+                mainBody.className = "body-premium-mode"; // Comparte estética limpia de logos de TV
+                sagaSelectWrapper.style.display = "none";
+                categoryLabelText.innerText = "Filtrar por Categoría:";
+                await loadLocalEPG('listas/star+.xml');  // Cambia a la guía Premium
+                loadM3UFromUrl('listas/star+.m3u');    // Carga la lista Premium
             } else {
                 mainBody.className = "body-movie-mode";
                 sagaSelectWrapper.style.display = "flex";
@@ -567,8 +574,8 @@
             }
         }
 
-        async function loadM3UFromUrl() {
-            const url = m3uUrlInput.value.trim();
+        // Modificado para recibir la URL dinámicamente según la sección activa
+        async function loadM3UFromUrl(url) {
             if (!url) return;
             try {
                 const response = await fetch(encodeURI(url));
@@ -576,21 +583,23 @@
                 const text = await response.text();
                 processM3UText(text);
             } catch (e) {
-                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:10px;">⚠️ Error al cargar listas/tv.m3u automáticamente.</div>`;
+                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:10px;">⚠️ Error al cargar la lista: ${url}</div>`;
             }
         }
 
-        async function loadLocalEPG() {
+        // Modificado para recibir la ruta del archivo xml de guía correspondiente
+        async function loadLocalEPG(url) {
             try {
-                const response = await fetch(EPG_URL_LOCAL);
+                const response = await fetch(url);
                 if (!response.ok) throw new Error();
                 let xmlText = await response.text();
                 xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
                 const parser = new DOMParser();
                 xmlEpgDoc = parser.parseFromString(xmlText, "application/xml");
-                console.log("EPG Sincronizado");
+                console.log("EPG Sincronizado: " + url);
             } catch (e) {
-                console.error("No se pudo leer el archivo epg.xml");
+                console.error("No se pudo leer la guía: " + url);
+                xmlEpgDoc = null; // Limpia si falla para no cruzar información errónea
             }
         }
 
@@ -766,7 +775,6 @@
             return { cleanQuery, detectedYear };
         }
 
-        // Busca la carátula en TMDB de forma asíncrona para inyectarla en la rejilla
         async function fetchGridIconFromTMDB(rawName, imgElementId) {
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
             let queriesToTry = [cleanQuery];
@@ -918,12 +926,12 @@
 
         function updateEPGDisplay(channel) {
             if (!xmlEpgDoc) {
-                epgInfoElement.innerText = "Guía de programación (EPG) no disponible o archivo listas/epg.xml ausente.";
+                epgInfoElement.innerText = "Guía de programación (EPG) no disponible para esta sección actualmente.";
                 return;
             }
             const channelId = channel.epgId || channel.name;
             const now = new Date();
-            let currentProgramTitle = "Programación de TV no disponible para este canal actualmente.";
+            let currentProgramTitle = "Programación en directo no disponible para este canal actualmente.";
 
             const programmes = xmlEpgDoc.querySelectorAll(`programme[channel="${channelId}"]`);
             if (programmes.length > 0) {
