@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
-    <!-- Hls.js para reproducir streaming m3u8 -->
+    <!-- Hls.js para reproducir streaming m3u8 localmente -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- SDK Oficial de Google Cast para enviar a Chromecast/Smart TV -->
+    <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     
     <style>
         * {
@@ -477,6 +479,20 @@
         let currentMediaUrl = "";
         let originalItemPlaying = null;
 
+        // INICIALIZACIÓN DEL SDK DE GOOGLE CAST
+        window.__onGCastApiAvailable = function(isAvailable) {
+            if (isAvailable) {
+                try {
+                    cast.framework.CastContext.getInstance().setOptions({
+                        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+                        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGINAL_VOLUME
+                    });
+                } catch (e) {
+                    console.error("Error al arrancar el framework de Cast:", e);
+                }
+            }
+        };
+
         async function init() {
             buildSagaDropdown();
             await loadLocalEPG('listas/epg.xml');
@@ -606,24 +622,6 @@
             });
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; videoWrapper.classList.remove('paused'); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; videoWrapper.classList.add('paused'); });
-
-            if (video.remote) {
-                video.remote.addEventListener('connecting', () => {
-                    epgInfoElement.innerHTML = `<div style="color:#3498db; font-weight:bold; font-size:1.1rem; text-align:center; padding:10px;">📺 Conectando con tu pantalla de TV...</div>`;
-                });
-                video.remote.addEventListener('connect', () => {
-                    epgInfoElement.innerHTML = `
-                        <div style="color:#4CAF50; font-weight:bold; font-size:1.1rem; text-align:center; margin-bottom:5px;">📺 ¡Transmitiendo con éxito en la TV!</div>
-                        <div style="text-align:center; color:#bbb; font-size:0.9rem;">El reproductor de tu móvil/PC funciona ahora como mando a distancia.</div>
-                    `;
-                });
-                video.remote.addEventListener('disconnect', () => {
-                    epgInfoElement.innerHTML = `<div style="text-align:center; padding:5px; color:#e67e22;">📺 Transmisión finalizada. Devolviendo señal al reproductor local...</div>`;
-                    if (originalItemPlaying) {
-                        setTimeout(() => { playMedia(originalItemPlaying); }, 800);
-                    }
-                });
-            }
         }
 
         function handleVideoClick(event) {
@@ -664,82 +662,72 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // SISTEMA INTELIGENTE DE TRANSMISIÓN ADAPTADA
+        // CONTROL INTEGRADO CON EL SDK DE GOOGLE CAST
         function sendToTV(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
 
-            // Caso 1: Enlaces AceStream de la sección Premium
+            // Exclusión de AceStream locales
             if (currentMediaUrl.includes('127.0.0.1') || currentMediaUrl.includes('localhost')) {
-                alert("⚠️ Canales Premium (AceStream):\n\nEste canal se procesa localmente en la memoria de este dispositivo (127.0.0.1). Tu TV no puede acceder a él de forma directa.\n\nSolución: Pulsa abajo en el botón naranja 'Abrir en VLC' y envíalo desde ahí usando el icono de Cast de VLC, o duplica la pantalla de tu móvil/PC.");
+                alert("⚠️ Canales Premium (AceStream):\n\nEste canal se procesa en la memoria local de este dispositivo. Tu Smart TV no puede acceder a él de forma directa.\n\nSolución: Pulsa abajo en el botón naranja 'Abrir en VLC' y lánzalo a la TV usando el icono de Cast de la app VLC.");
                 return;
             }
 
-            const isHLSTV = currentMediaUrl.toLowerCase().includes('.m3u8') || currentMediaUrl.toLowerCase().includes('.ts') || currentMediaUrl.toLowerCase().includes('/live/');
+            const isHLS = currentMediaUrl.toLowerCase().includes('.m3u8') || currentMediaUrl.toLowerCase().includes('.ts') || currentMediaUrl.toLowerCase().includes('/live/');
+            const streamMimeType = isHLS ? 'application/x-mpegURL' : 'video/mp4';
 
-            // Caso 2: Emisión en Directo (.m3u8) en navegadores que no lo soportan de forma nativa (Chrome/Edge)
-            if (isHLSTV && !video.canPlayType('application/vnd.apple.mpegurl')) {
-                alert("📢 Transmisión de Canales en Directo:\n\nAl ejecutar la aplicación de forma local, Chrome bloquea el envío de transmisiones en directo (.m3u8) con este botón.\n\nPara ver este canal en tu TV ahora mismo de forma limpia:\n\n1️⃣ Abre el menú de opciones de tu navegador (los tres puntos arriba a la derecha).\n2️⃣ Selecciona 'Transmitir...' (o 'Cast').\n3️⃣ Elige tu televisor y se enviará la pestaña completa con el canal reproduciéndose perfectamente.\n\n💡 Alternativa: También puedes usar el botón naranja 'Abrir en VLC' de abajo.");
-                return;
-            }
+            try {
+                const castContext = cast.framework.CastContext.getInstance();
+                let session = castContext.getCurrentSession();
 
-            // Caso 3: Películas y archivos directos (O navegadores nativos HLS como Safari/iOS)
-            const wasPlaying = !video.paused;
-            const timeBackup = video.currentTime;
-
-            if (hlsInstance) {
-                hlsInstance.detachMedia();
-            }
-
-            video.src = currentMediaUrl;
-            video.load();
-
-            if (video.remote && video.remote.prompt) {
-                video.remote.prompt().then(() => {
-                    setTimeout(() => {
-                        if (video.remote.state !== "connected" && video.remote.state !== "connecting") {
-                            restoreLocalPlayback(wasPlaying, timeBackup);
-                        }
-                    }, 2000);
-                }).catch(() => {
-                    restoreLocalPlayback(wasPlaying, timeBackup);
-                });
-            } else if (video.webkitShowPlaybackTargetPicker) {
-                video.webkitShowPlaybackTargetPicker();
-                setTimeout(() => { restoreLocalPlayback(wasPlaying, timeBackup); }, 2000);
-            } else {
-                alert("Utiliza la función 'Transmitir...' integrada en el menú de los tres puntos de tu navegador para enviar este contenido a tu Smart TV.");
-                restoreLocalPlayback(wasPlaying, timeBackup);
+                if (!session) {
+                    // Si no hay sesión activa, abre el cuadro de diálogo de Chromecast oficial
+                    castContext.requestSession().then(() => {
+                        executeRemoteLoad(streamMimeType);
+                    }).catch(err => {
+                        console.log("Sesión cancelada o fallida, usando fallback");
+                        launchFallbackCast();
+                    });
+                } else {
+                    executeRemoteLoad(streamMimeType);
+                }
+            } catch (err) {
+                // Si el navegador no soporta el SDK o está bloqueado localmente por política de archivo
+                launchFallbackCast();
             }
         }
 
-        function restoreLocalPlayback(wasPlaying, timeBackup) {
-            if (!currentMediaUrl) return;
-            const isHLSTV = currentMediaUrl.toLowerCase().includes('.m3u8') || currentMediaUrl.toLowerCase().includes('.ts') || currentMediaUrl.toLowerCase().includes('/live/');
-            const isDirectVideo = currentSection === 'movies' || currentMediaUrl.toLowerCase().includes('pixeldrain.net') || currentMediaUrl.toLowerCase().includes('.mp4') || currentMediaUrl.toLowerCase().includes('.mkv') || !isHLSTV;
+        function executeRemoteLoad(mimeType) {
+            const session = cast.framework.CastContext.getInstance().getCurrentSession();
+            if (!session) return;
 
-            if (!isDirectVideo) {
-                if (Hls.isSupported()) {
-                    if (!hlsInstance) hlsInstance = new Hls();
-                    hlsInstance.loadSource(currentMediaUrl);
-                    hlsInstance.attachMedia(video);
-                }
-            } else {
-                video.src = currentMediaUrl;
-                video.load();
-            }
-            video.currentTime = timeBackup;
-            if (wasPlaying) video.play().catch(()=>{});
+            const mediaInfo = new chrome.cast.media.MediaInfo(currentMediaUrl, mimeType);
+            const request = new chrome.cast.media.LoadRequest(mediaInfo);
+            
+            epgInfoElement.innerHTML = `<div style="color:#3498db; font-weight:bold; text-align:center; padding:10px;">📺 Conectando y enviando flujo a tu televisor...</div>`;
+            video.pause();
+
+            session.loadMedia(request).then(() => {
+                epgInfoElement.innerHTML = `
+                    <div style="color:#4CAF50; font-weight:bold; font-size:1.1rem; text-align:center; margin-bottom:5px;">📺 ¡Transmitiendo con éxito en la TV!</div>
+                    <div style="text-align:center; color:#bbb; font-size:0.9rem;">Tu dispositivo actual está funcionando ahora como mando a distancia del stream.</div>
+                `;
+            }).catch(err => {
+                epgInfoElement.innerHTML = `<div style="color:#e74c3c; font-weight:bold; text-align:center; padding:10px;">⚠️ El televisor rechazó el enlace directo (Falta de cabeceras CORS en el servidor IPTV).</div>`;
+                alert("La TV no pudo cargar este stream directamente. Esto ocurre si el servidor de la lista IPTV tiene protecciones de seguridad.\n\nSolución definitiva: Usa la opción integrada 'Transmitir...' del menú de tres puntos de Chrome o el botón naranja de VLC.");
+            });
+        }
+
+        function launchFallbackCast() {
+            alert("📢 Envío alternativo mediante pestaña:\n\nComo estás ejecutando la app desde un entorno local, para enviar este canal sin fallos:\n\n1️⃣ Abre el menú de los tres puntos de tu navegador (arriba a la derecha).\n2️⃣ Elige la opción 'Transmitir...' (o 'Cast').\n3️⃣ Selecciona tu pantalla y verás el canal reproduciéndose perfectamente en la TV.");
         }
 
         function setupPlayerErrorHandling() {
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
-                if (video.remote && (video.remote.state === "connected" || video.remote.state === "connecting")) return;
-
                 errorBox.style.backgroundColor = "#c0392b";
                 errorBox.style.borderLeftColor = "#e74c3c";
-                errorText.innerHTML = `<strong>Error de Reproducción:</strong> El navegador no ha podido cargar este stream de manera nativa (puede deberse a bloqueos de origen CORS, falta de búfer en el motor o códec incompatible).`;
+                errorText.innerHTML = `<strong>Error de Reproducción:</strong> El navegador no ha podido cargar este flujo de datos nativamente (CORS, expiración de token o códec de vídeo incompatible).`;
                 errorBox.style.display = "block";
                 altActions.style.display = "flex";
             };
@@ -879,10 +867,10 @@
                     
                     epgInfoElement.innerHTML = `
                         <div style="color: #4CAF50; font-weight: bold; margin-bottom: 5px; font-size:1.05rem;">💎 Enlace AceStream Traducido a HLS Interno</div>
-                        <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Asegúrate de tener la app <strong>Ace Stream Engine</strong> abierta de fondo en este dispositivo para que monte el buffer.</div>
+                        <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Asegúrate de tener la app <strong>Ace Stream Engine</strong> abierta en segundo plano.</div>
                     `;
 
-                    errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Cargando stream interno desde tu motor local. Si notas cortes o no inicia, puedes forzar el reproductor externo.`;
+                    errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Cargando flujo desde el motor local. Si no inicia o se corta, puedes forzar el reproductor de VLC externo.`;
                     errorBox.style.display = "block";
                     altActions.style.display = "flex";
                 }
