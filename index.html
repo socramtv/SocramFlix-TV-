@@ -303,7 +303,8 @@
         
         .body-tv-mode .channel-card img,
         .body-premium-mode .channel-card img,
-        .body-runtime-mode .channel-card img {
+        .body-runtime-mode .channel-card img,
+        .body-rakuten-mode .channel-card img {
             width: 50px;
             height: 50px;
             object-fit: contain;
@@ -389,11 +390,12 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Pestañas (Estructura de 2 filas) -->
+    <!-- Menú de Selección de Pestañas (Estructura de filas adaptable) -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Premium</button>
         <button id="tab-runtime" class="tab-button" onclick="changeSection('runtime')">🎬 Runtime TV</button>
+        <button id="tab-rakuten" class="tab-button" onclick="changeSection('rakuten')">🌟 Rakuten TV</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
 
@@ -487,6 +489,7 @@
             document.getElementById('tab-tv').classList.toggle('active', section === 'tv');
             document.getElementById('tab-premium').classList.toggle('active', section === 'premium');
             document.getElementById('tab-runtime').classList.toggle('active', section === 'runtime');
+            document.getElementById('tab-rakuten').classList.toggle('active', section === 'rakuten');
             document.getElementById('tab-movies').classList.toggle('active', section === 'movies');
             
             searchInput.value = "";
@@ -514,14 +517,20 @@
                 mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
-                await loadLocalEPG('listas/epg-es.xml'); // Modificado para usar epg-es.xml
+                await loadLocalEPG('listas/epg-es.xml');
                 loadM3UFromUrl('listas/star+.m3u');
             } else if (section === 'runtime') {
                 mainBody.className = "body-runtime-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
-                await loadLocalEPG('listas/epg-es.xml'); // Añadido epg-es.xml aquí también
+                await loadLocalEPG('listas/epg-es.xml');
                 loadM3UFromUrl('listas/TV RuntimeTV.m3u');
+            } else if (section === 'rakuten') {
+                mainBody.className = "body-rakuten-mode";
+                sagaSelectWrapper.style.display = "none";
+                categoryLabelText.innerText = "Filtrar por Categoría:";
+                await loadLocalEPG('listas/epg-es.xml');
+                loadM3UFromUrl('listas/TV Rakuten TV.m3u');
             } else {
                 mainBody.className = "body-movie-mode";
                 sagaSelectWrapper.style.display = "flex";
