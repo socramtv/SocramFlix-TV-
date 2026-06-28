@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
-        /* Reset universal para evitar desbordamientos por paddings */
         * {
             box-sizing: border-box;
         }
@@ -24,7 +23,6 @@
             overflow-x: hidden;
         }
 
-        /* Contenedor del Reproductor Premium Estilo Netflix */
         #player-section {
             background: #000;
             width: 100%;
@@ -49,7 +47,6 @@
             display: block;
         }
 
-        /* Capa de controles flotantes sobre el vídeo */
         .custom-controls {
             position: absolute;
             bottom: 0;
@@ -99,7 +96,6 @@
             transform: scale(1.1);
         }
         
-        /* Línea de tiempo interactiva */
         .timeline-container {
             width: 100%;
             display: flex;
@@ -173,7 +169,6 @@
         }
         .btn-cast:hover { background: #3498db; color: #fff; }
 
-        /* Selector de Pestañas */
         .navigation-tabs {
             display: flex;
             justify-content: center;
@@ -211,7 +206,6 @@
             }
         }
 
-        /* Interfaz de Listas */
         #content-section {
             padding: 0 15px 20px 15px;
             max-width: 1000px;
@@ -271,7 +265,6 @@
 
         .now-playing { font-weight: bold; color: #4CAF50; margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Rejilla Base */
         #channel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -321,7 +314,6 @@
             overflow: hidden; 
         }
 
-        /* Modo Películas */
         .body-movie-mode #channel-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
@@ -337,13 +329,11 @@
             box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
         }
         
-        /* Caja de Errores y Acciones Externas */
-        #player-error-box { display: none; background: #c0392b; color: #fff; padding: 15px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.95rem; border-radius: 4px; margin-top: 5px; }
+        #player-error-box { display: none; background: #2980b9; color: #fff; padding: 15px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.95rem; border-radius: 4px; margin-top: 5px; border-left: 5px solid #3498db; }
         #alt-actions { display: none; margin-top: 12px; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .btn-vlc { background: #e67e22; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .btn-alt { background: #34495e; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; }
 
-        /* Ficha TMDB */
         .movie-flex-container { display: flex; gap: 20px; margin-top: 5px; align-items: flex-start; }
         .movie-poster { width: 115px; min-width: 115px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.6); border: 1px solid #444; }
         .movie-text-details h4 { margin: 0 0 6px 0; color: #fff; font-size: 1.3rem; }
@@ -383,7 +373,7 @@
         </div>
     </div>
 
-    <!-- Mensajes de Error / Lanzadores de AceStream Externos -->
+    <!-- Mensajes Informativos / Lanzadores Alternativos -->
     <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -576,7 +566,7 @@
             }
         }
 
-        // --- REPRODUCTOR ---
+        // --- REPRODUCTOR CONTROLES BASES ---
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -644,15 +634,11 @@
         function setupPlayerErrorHandling() {
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
-                const err = video.error;
-                let motivo = "El servidor de streaming rechaza conexiones web por seguridad de origen o formato incompatible.";
-                if (err && err.code === 3) motivo = "Formato incompatible (.mkv o audio AC3 no soportados nativamente por navegadores).";
-                
-                errorText.innerHTML = `<strong>Aviso del Sistema:</strong> ${motivo}`;
+                errorBox.style.backgroundColor = "#c0392b";
+                errorBox.style.borderLeftColor = "#e74c3c";
+                errorText.innerHTML = `<strong>Error de Reproducción:</strong> El navegador no ha podido cargar este stream de manera nativa (puede deberse a bloqueos de origen CORS, falta de búfer en el motor o códec incompatible).`;
                 errorBox.style.display = "block";
                 altActions.style.display = "flex";
-                vlcBtn.onclick = () => { window.location.href = `vlc://${currentMediaUrl}`; };
-                copyBtn.onclick = () => { navigator.clipboard.writeText(currentMediaUrl); alert("¡Enlace copiado!"); };
             };
         }
 
@@ -726,12 +712,9 @@
 
         async function fetchGridIconFromTMDB(rawName, imgElementId) {
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
-            let queriesToTry = [cleanQuery];
-            let data = null;
-            for (let currentQuery of queriesToTry) {
-                if (detectedYear) { data = await fetchFromTMDB(currentQuery, detectedYear); if (data && data.results && data.results.length > 0) break; }
-                data = await fetchFromTMDB(currentQuery, null); if (data && data.results && data.results.length > 0) break;
-            }
+            let data = await fetchFromTMDB(cleanQuery, detectedYear || null);
+            if (!data || !data.results || data.results.length === 0) { data = await fetchFromTMDB(cleanQuery, null); }
+            
             if (data && data.results && data.results.length > 0) {
                 const movie = data.results[0];
                 if (movie.poster_path) {
@@ -763,63 +746,76 @@
             });
         }
 
-        // --- SISTEMA DE REPRODUCCIÓN CORREGIDO E INTELIGENTE PARA ACESTREAM ---
+        // --- SISTEMA INTELIGENTE DE DETECCIÓN Y TRADUCCIÓN A MANIFEST HLS ---
         function playMedia(item) {
+            // Reinicios estandar
             errorBox.style.display = "none";
             altActions.style.display = "none";
-            currentMediaUrl = item.url;
+            errorBox.style.backgroundColor = "#2980b9"; 
+            errorBox.style.borderLeftColor = "#3498db";
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.src = ''; video.load();
 
-            const urlLower = item.url.toLowerCase();
+            let targetUrl = item.url;
+            const urlLower = targetUrl.toLowerCase();
             
-            // FILTRO DETECTOR DE ENLACES ACESTREAM (Local Engine)
-            const isAceStream = urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream');
+            // Comprobamos si es un enlace AceStream (P2P Local)
+            const isAceStream = urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8');
 
             if (isAceStream) {
-                // Modificamos instantáneamente el panel de arriba para instruir al usuario
-                epgInfoElement.innerHTML = `
-                    <div style="color: #e67e22; font-weight: bold; margin-bottom: 5px; font-size:1.05rem;">⚠️ Canal P2P AceStream Detectado</div>
-                    <div style="line-height:1.4;">Para poder ver este canal Premium, asegúrate de tener la app <strong>Ace Stream Engine</strong> abierta en tu dispositivo.<br>
-                    Como los navegadores web no soportan este flujo directamente, usa el menú inferior para enviarlo a tu reproductor externo.</div>
-                `;
+                // Extraemos el Hash ID dinámicamente con una expresión regular estable
+                let aceId = "";
+                const idMatch = targetUrl.match(/[?&]id=([^&]+)/);
+                if (idMatch) {
+                    aceId = idMatch[1];
+                } else {
+                    const rawHashMatch = targetUrl.match(/(?:acestream:\/\/|getstream\?id=|manifest\.m3u8\?id=)?([a-fA-F0-9]{40})/);
+                    if (rawHashMatch) aceId = rawHashMatch[1];
+                }
 
-                // Activamos directamente el panel de lanzamiento externo sin esperar errores tediosos del navegador
-                errorText.innerHTML = `<strong>Acceso Premium Directo:</strong> Transmisión externa lista. Elige una opción para iniciar el stream.`;
-                errorBox.style.display = "block";
-                altActions.style.display = "flex";
-                
-                // Mapeo de botones de salida limpia
-                vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
-                copyBtn.onclick = () => { 
-                    navigator.clipboard.writeText(item.url); 
-                    alert("¡Enlace copiado! Pégalo en VLC, Ace Player o tu reproductor P2P."); 
-                };
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return; // Frenamos la carga interna para evitar logs molestos en consola
+                if (aceId) {
+                    // ¡TRUCO APLICADO!: Convertimos el enlace al endpoint manifest.m3u8 para que el reproductor interno lo intente leer
+                    targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`;
+                    
+                    epgInfoElement.innerHTML = `
+                        <div style="color: #4CAF50; font-weight: bold; margin-bottom: 5px; font-size:1.05rem;">💎 Enlace AceStream Traducido a HLS Interno</div>
+                        <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Asegúrate de tener la app <strong>Ace Stream Engine</strong> abierta de fondo en este dispositivo para que monte el buffer.</div>
+                    `;
+
+                    // Mostramos el banner informativo/asistente por si el buffer local falla
+                    errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Cargando stream interno desde tu motor local. Si notas cortes o no inicia, puedes forzar el reproductor externo.`;
+                    errorBox.style.display = "block";
+                    altActions.style.display = "flex";
+                }
             }
 
-            // Flujo normal de canales IPTV y películas
-            const isHLSTV = urlLower.includes('.m3u8') || urlLower.includes('.ts') || urlLower.includes('/live/');
-            const isDirectVideo = currentSection === 'movies' || urlLower.includes('pixeldrain.net') || urlLower.includes('.mp4') || urlLower.includes('.mkv') || !isHLSTV;
+            // Guardamos la url final de ejecución
+            currentMediaUrl = targetUrl;
+            
+            // Mapeo dinámico de botones de auxilio externos
+            vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
+            copyBtn.onclick = () => { navigator.clipboard.writeText(item.url); alert("¡Enlace original copiado!"); };
+
+            // Enrutamiento de reproducción estándar (el manifest modificado pasará directo por HLS de forma transparente)
+            const isHLSTV = targetUrl.toLowerCase().includes('.m3u8') || targetUrl.toLowerCase().includes('.ts') || targetUrl.toLowerCase().includes('/live/');
+            const isDirectVideo = currentSection === 'movies' || targetUrl.toLowerCase().includes('pixeldrain.net') || targetUrl.toLowerCase().includes('.mp4') || targetUrl.toLowerCase().includes('.mkv') || !isHLSTV;
 
             if (isDirectVideo) {
                 timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none";
-                video.src = item.url; video.load(); video.play().catch(()=>{});
+                video.src = targetUrl; video.load(); video.play().catch(()=>{});
                 searchMovieInTMDB(item.name);
             } else {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
                 if (Hls.isSupported()) {
-                    hlsInstance = new Hls(); hlsInstance.loadSource(item.url); hlsInstance.attachMedia(video);
+                    hlsInstance = new Hls(); hlsInstance.loadSource(targetUrl); hlsInstance.attachMedia(video);
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(()=>{}); });
-                    hlsInstance.on(Hls.Events.ERROR, function(event, data) { if (data.fatal) { video.src = item.url; video.play().catch(()=>{}); } });
+                    hlsInstance.on(Hls.Events.ERROR, function(event, data) { if (data.fatal) { video.src = targetUrl; video.play().catch(()=>{}); } });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = item.url;
+                    video.src = targetUrl;
                     video.addEventListener('loadedmetadata', function() { video.play().catch(()=>{}); });
                 }
-                updateEPGDisplay(item);
+                if (!isAceStream) updateEPGDisplay(item);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -835,9 +831,7 @@
         async function searchMovieInTMDB(rawName) {
             epgInfoElement.innerHTML = "Buscando carátula y detalles en TMDB...";
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
-            let data = null;
-            
-            data = await fetchFromTMDB(cleanQuery, detectedYear || null);
+            let data = await fetchFromTMDB(cleanQuery, detectedYear || null);
             if (!data || !data.results || data.results.length === 0) { data = await fetchFromTMDB(cleanQuery, null); }
 
             if (data && data.results && data.results.length > 0) {
