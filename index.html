@@ -159,16 +159,6 @@
             100% { opacity: 0.6; }
         }
 
-        .btn-cast {
-            color: #3498db;
-            font-weight: bold;
-            border: 1px solid #3498db;
-            border-radius: 4px;
-            padding: 3px 8px;
-            font-size: 0.8rem;
-        }
-        .btn-cast:hover { background: #3498db; color: #fff; }
-
         .navigation-tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -352,7 +342,7 @@
     <!-- Sección del Video -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
-            <video id="video" x-webkit-airplay="allow" preload="auto"></video>
+            <video id="video" preload="auto"></video>
             
             <div class="custom-controls" id="custom-controls-layer">
                 <div class="timeline-container" id="timeline-wrapper">
@@ -371,7 +361,6 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
-                        <button class="control-btn btn-cast" id="cast-btn" onclick="sendToTV(event)">📺 Enviar TV</button>
                         <button class="control-btn" onclick="toggleFullscreen(event)">🔲</button>
                     </div>
                 </div>
@@ -475,7 +464,6 @@
         let xmlEpgDoc = null;
         let hlsInstance = null;
         let currentMediaUrl = "";
-        let originalItemPlaying = null;
 
         async function init() {
             buildSagaDropdown();
@@ -498,7 +486,6 @@
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.pause(); video.src = ''; video.load();
             currentMediaUrl = "";
-            originalItemPlaying = null;
             
             timelineWrapper.style.display = "none";
             liveIndicator.style.display = "none";
@@ -646,31 +633,6 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // GESTIÓN DE ENVÍO NATIVO O CON BYPASS SEGURO
-        function sendToTV(e) {
-            if(e) e.stopPropagation();
-            if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
-
-            // Si hls.js está activo en este momento, rompemos la instancia e inyectamos la URL limpia
-            if (hlsInstance) {
-                hlsInstance.destroy();
-                hlsInstance = null;
-                video.src = currentMediaUrl;
-                video.load();
-            }
-
-            if (video.remote && video.remote.prompt) {
-                video.remote.prompt().catch(() => {
-                    // Si cancelas el menú de transmisión, reactivamos el flujo local automáticamente
-                    if (originalItemPlaying) { playMedia(originalItemPlaying); }
-                });
-            } else if (video.webkitShowPlaybackTargetPicker) {
-                video.webkitShowPlaybackTargetPicker();
-            } else {
-                alert("Para lanzar este contenido usa la función nativa 'Transmitir...' del menú de Chrome.");
-            }
-        }
-
         function setupPlayerErrorHandling() {
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
@@ -795,7 +757,6 @@
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.src = ''; video.load();
 
-            originalItemPlaying = item;
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
             
@@ -826,20 +787,16 @@
             vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
             copyBtn.onclick = () => { navigator.clipboard.writeText(item.url); alert("¡Enlace original copiado!"); };
 
-            // COMPROBACIÓN CRUCIAL: Solo tratamos como HLS puro si el enlace tiene explícitamente el archivo de extensión .m3u8
             const isStrictHLS = targetUrl.toLowerCase().includes('.m3u8');
 
             if (isStrictHLS) {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
                 
-                // REGLA DE ORO PARA EMITIR: Si el navegador soporta HLS de forma nativa (móviles Android, iOS, Safari)
-                // cargamos directo en el source para evitar generar un Blob y que "Enviar TV" funcione al instante.
                 if (video.canPlayType('application/vnd.apple.mpegurl')) {
                     video.src = targetUrl;
                     video.load();
                     video.play().catch(()=>{});
                 } 
-                // Si no tiene soporte nativo (PC de escritorio Chrome/Firefox), usamos hls.js
                 else if (Hls.isSupported()) {
                     hlsInstance = new Hls(); 
                     hlsInstance.loadSource(targetUrl); 
@@ -851,7 +808,6 @@
                 
                 if (!isAceStream) updateEPGDisplay(item);
             } else {
-                // Para películas (.mp4, .mkv, pixeldrain) o canales directos de flujo progresivo directo (.ts)
                 if (currentSection === 'movies' || targetUrl.toLowerCase().includes('pixeldrain.net') || targetUrl.toLowerCase().includes('.mp4') || targetUrl.toLowerCase().includes('.mkv')) {
                     timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none";
                     searchMovieInTMDB(item.name);
