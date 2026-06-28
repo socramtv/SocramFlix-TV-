@@ -218,7 +218,7 @@
             color: #4CAF50;
         }
 
-        /* Ocultado el panel de administración solicitado */
+        /* Ocultado el panel de administración por completo */
         #panel-tv-config {
             display: none !important;
         }
@@ -282,14 +282,21 @@
         }
         .channel-card:hover { background: #2a2a2a; border-color: #444; }
         .channel-card img {
+            width: 65px;
+            height: 90px;
+            object-fit: cover;
+            background: #2a2a2a;
+            border-radius: 6px;
+            padding: 1px;
+        }
+        /* Ajuste visual para logos de TV tradicionales (que suelen ser horizontales o cuadrados) */
+        .body-tv-mode .channel-card img {
             width: 50px;
             height: 50px;
             object-fit: contain;
             background: #fff;
-            border-radius: 6px;
-            padding: 2px;
         }
-        .channel-card span { font-size: 0.85rem; font-weight: 500; }
+        .channel-card span { font-size: 0.85rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         #player-error-box { display: none; background: #c0392b; color: #fff; padding: 12px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.9rem; }
         #alt-actions { display: none; margin-top: 8px; gap: 10px; justify-content: center; }
@@ -302,7 +309,7 @@
         .movie-text-details p { margin: 0; font-size: 0.95rem; color: #d2d2d2; line-height: 1.5; }
     </style>
 </head>
-<body>
+<body class="body-tv-mode" id="main-body">
 
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
@@ -350,7 +357,7 @@
 
     <div id="content-section">
         
-        <div style="display:none;">
+        <div id="panel-tv-config">
             <input type="text" id="m3u-url-input" value="listas/tv.m3u">
         </div>
 
@@ -418,6 +425,7 @@
         const searchInput = document.getElementById('search-input');
         const epgInfoElement = document.getElementById('epg-info');
         const m3uUrlInput = document.getElementById('m3u-url-input');
+        const mainBody = document.getElementById('main-body');
         
         const errorBox = document.getElementById('player-error-box');
         const errorText = document.getElementById('error-text');
@@ -469,10 +477,12 @@
             epgInfoElement.innerText = "Selecciona cualquier contenido de abajo para comenzar.";
 
             if (section === 'tv') {
+                mainBody.className = "body-tv-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
                 loadM3UFromUrl();
             } else {
+                mainBody.className = "body-movie-mode";
                 sagaSelectWrapper.style.display = "flex";
                 categoryLabelText.innerText = "Sub-Categoría Interna:";
                 loadLocalSaga(); 
@@ -529,6 +539,7 @@
             }
         }
 
+        // --- MANEJO DE CONTROLES DEL REPRODUCTOR ---
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -590,7 +601,6 @@
             }
         }
 
-        // Formateador estándar de la línea de tiempo del vídeo
         function formatTime(seconds) {
             if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
             const h = Math.floor(seconds / 3600);
@@ -686,21 +696,76 @@
             renderGrid(filtered);
         }
 
+        // LIMPIEZA DE CADENAS DE TEXTO PARA TMDB
+        function cleanMovieName(rawName) {
+            const yearMatch = rawName.match(/\b(19\d{2}|20[0-2]\d)\b/);
+            const detectedYear = yearMatch ? yearMatch[1] : null;
+
+            let cleanQuery = rawName
+                .replace(/\.(mp4|mkv|avi|webm|mov|ts)$/i, '')
+                .replace(/[🍿🎬🎥📀▶►👇📢🌟✅🎭📺⭐🎞️🍿🔹🔸🔴]/g, '')
+                .replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
+                .replace(/\b(1080p|720p|4k|2k|uhd|hd|sd|x264|h264|x265|h265|hevc|bluray|brrip|bdrip|dvdrip|hdrip|hdtv|webrip|webdl|web|rip|dual|audio|ac3|dts|aac|5\.1|vox|cine|esp|lat|castellano|spanish|sub|subs|subtitulado|multi|hdr|microhd|completa|pelicula|peli|full|torrent|descarga)\b/gi, '')
+                .replace(/[-_.,|:+\/*_]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            return { cleanQuery, detectedYear };
+        }
+
+        // NUEVA FUNCIÓN: Busca la carátula en TMDB de forma asíncrona para la rejilla
+        async function fetchGridIconFromTMDB(rawName, imgElementId) {
+            const { cleanQuery, detectedYear } = cleanMovieName(rawName);
+            let queriesToTry = [cleanQuery];
+            let parts = rawName.split(/[|:-]/);
+            if (parts.length > 1) {
+                let lastChunk = parts[parts.length - 1].replace(/\.(mp4|mkv|avi)$/i, '').replace(/\s+/g, ' ').trim();
+                if (lastChunk && lastChunk !== cleanQuery) queriesToTry.push(lastChunk);
+            }
+
+            let data = null;
+            for (let currentQuery of queriesToTry) {
+                if (detectedYear) {
+                    data = await fetchFromTMDB(currentQuery, detectedYear);
+                    if (data && data.results && data.results.length > 0) break;
+                }
+                data = await fetchFromTMDB(currentQuery, null);
+                if (data && data.results && data.results.length > 0) break;
+            }
+
+            if (data && data.results && data.results.length > 0) {
+                const movie = data.results[0];
+                if (movie.poster_path) {
+                    const targetImg = document.getElementById(imgElementId);
+                    if (targetImg) {
+                        targetImg.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+                    }
+                }
+            }
+        }
+
         function renderGrid(channelList) {
             channelGrid.innerHTML = '';
             if (channelList.length === 0) {
                 channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding: 20px;">No hay contenidos disponibles en este filtro.</div>';
                 return;
             }
-            channelList.forEach(channel => {
+            channelList.forEach((channel, index) => {
                 const card = document.createElement('div');
                 card.className = 'channel-card';
+                const uniqueImgId = `grid-icon-${index}`;
+                
+                // Carga la imagen de la lista inicialmente. Si falla, pone la silueta genérica.
                 card.innerHTML = `
-                    <img src="${channel.logo || 'https://via.placeholder.com/50'}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/50'">
+                    <img id="${uniqueImgId}" src="${channel.logo || 'https://via.placeholder.com/65x90?text=Socram'}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/65x90?text=Sin+Logo'">
                     <span>${channel.name}</span>
                 `;
                 card.onclick = () => playMedia(channel);
                 channelGrid.appendChild(card);
+
+                // Si estamos en la sección películas, intentamos pisar el icono con el de TMDB en segundo plano
+                if (currentSection === 'movies') {
+                    fetchGridIconFromTMDB(channel.name, uniqueImgId);
+                }
             });
         }
 
@@ -760,17 +825,7 @@
 
         async function searchMovieInTMDB(rawName) {
             epgInfoElement.innerHTML = "Buscando carátula y detalles en TMDB...";
-            const yearMatch = rawName.match(/\b(19\d{2}|20[0-2]\d)\b/);
-            const detectedYear = yearMatch ? yearMatch[1] : null;
-
-            let cleanQuery = rawName
-                .replace(/\.(mp4|mkv|avi|webm|mov|ts)$/i, '')
-                .replace(/[🍿🎬🎥📀▶►👇📢🌟✅🎭📺⭐🎞️🍿🔹🔸🔴]/g, '')
-                .replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
-                .replace(/\b(1080p|720p|4k|2k|uhd|hd|sd|x264|h264|x265|h265|hevc|bluray|brrip|bdrip|dvdrip|hdrip|hdtv|webrip|webdl|web|rip|dual|audio|ac3|dts|aac|5\.1|vox|cine|esp|lat|castellano|spanish|sub|subs|subtitulado|multi|hdr|microhd|completa|pelicula|peli|full|torrent|descarga)\b/gi, '')
-                .replace(/[-_.,|:+\/*_]/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
+            const { cleanQuery, detectedYear } = cleanMovieName(rawName);
 
             let queriesToTry = [cleanQuery];
             let parts = rawName.split(/[|:-]/);
@@ -827,14 +882,12 @@
                         const startTime = parseEPGDate(startAttr);
                         const stopTime = parseEPGDate(stopAttr);
                         
-                        // Si la hora actual encaja entre el inicio y fin recalculados localmente
                         if (now >= startTime && now <= stopTime) {
                             const titleNode = prog.querySelector('title');
                             const descNode = prog.querySelector('desc');
                             currentProgramTitle = titleNode ? titleNode.textContent : "Sin título";
                             if (descNode) currentProgramTitle += ` — ${descNode.textContent}`;
                             
-                            // Añadimos el intervalo horario como confirmación visual en pantalla
                             const timeString = ` [${formatEPGTimeLabel(startTime)} - ${formatEPGTimeLabel(stopTime)}]`;
                             epgInfoElement.innerText = currentProgramTitle + timeString;
                             return;
@@ -845,11 +898,10 @@
             epgInfoElement.innerText = currentProgramTitle;
         }
 
-        // LÓGICA DE CORRECCIÓN HORARIA: Convierte la marca temporal con zona horaria del XML a la hora local exacta
+        // CORRECCIÓN HORARIA: Lee la marca del XML y la renderiza adaptada a tu hora local real
         function parseEPGDate(dateStr) {
             const cleanStr = dateStr.trim();
             
-            // Extrae componentes fijos: AAAAMMDDHHMMSS
             const year = parseInt(cleanStr.substr(0, 4), 10);
             const month = parseInt(cleanStr.substr(4, 2), 10) - 1;
             const day = parseInt(cleanStr.substr(6, 2), 10);
@@ -857,10 +909,8 @@
             const minute = parseInt(cleanStr.substr(10, 2), 10);
             const second = parseInt(cleanStr.substr(12, 2), 10);
             
-            // Crea base en formato UTC puro
             const utcDate = new Date(Date.UTC(year, month, day, hour, minute, second));
             
-            // Si el string del XML declara su propio desfase (ej: " +0200" o " +0000")
             if (cleanStr.length > 14) {
                 const tzSign = cleanStr.includes('-') ? -1 : 1;
                 const tzMatch = cleanStr.match(/[\+\-](\d{2})(\d{2})/);
@@ -869,16 +919,12 @@
                     const tzMinutes = parseInt(tzMatch[2], 10);
                     const totalOffsetMinutes = (tzHours * 60 + tzMinutes) * tzSign;
                     
-                    // Contrarresta el offset del XML para asentar la hora de origen en UTC universal
                     utcDate.setMinutes(utcDate.getMinutes() - totalOffsetMinutes);
                 }
             }
-            
-            // Al retornar, el objeto Date se adapta automáticamente al huso horario de tu dispositivo
             return utcDate;
         }
 
-        // Genera la etiqueta visual de las horas (ej: "15:45")
         function formatEPGTimeLabel(dateObj) {
             const hh = String(dateObj.getHours()).padStart(2, '0');
             const mm = String(dateObj.getMinutes()).padStart(2, '0');
