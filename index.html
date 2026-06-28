@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
+    <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
+        /* Reset universal para evitar desbordamientos por paddings */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -15,6 +21,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden; /* Evita cualquier amago de scroll horizontal */
         }
 
         /* Contenedor del Reproductor Premium Estilo Netflix */
@@ -53,7 +60,6 @@
             flex-direction: column;
             gap: 8px;
             padding: 20px 15px 10px 15px;
-            box-sizing: border-box;
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
@@ -197,11 +203,10 @@
 
         /* Resto de la Interfaz */
         #content-section {
-            padding: 0 20px 20px 20px;
+            padding: 0 15px 20px 15px;
             max-width: 1000px;
             margin: 0 auto;
-            width: -webkit-fill-available;
-            width: -moz-available;
+            width: 100%;
         }
 
         .panel {
@@ -266,6 +271,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 12px;
+            width: 100%;
         }
         .channel-card {
             background: #1e1e1e;
@@ -280,6 +286,7 @@
             justify-content: center;
             gap: 8px;
             transition: background 0.2s, border-color 0.2s;
+            width: 100%;
         }
         .channel-card:hover { background: #2a2a2a; border-color: #444; }
         
@@ -310,25 +317,29 @@
         }
 
         /* ==========================================================================
-           NUEVOS ESTILOS: Modo Películas (3 por fila fijas y carátulas grandes)
+           CORRECCIÓN COMPLETA: Modo Películas (2 por fila fijas y bien grandes)
            ========================================================================== */
         .body-movie-mode #channel-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+            grid-template-columns: repeat(2, 1fr); /* 2 fijas por fila */
+            gap: 15px;
         }
         .body-movie-mode .channel-card {
-            padding: 16px 10px;
+            padding: 14px 10px;
         }
         .body-movie-mode .channel-card img {
-            width: 140px;      /* Carátula más grande */
-            height: 200px;     /* Relación de aspecto vertical de cine */
+            width: 100%;           /* Se adapta al 100% de su mitad de pantalla */
+            max-width: 180px;      /* Límite máximo para que no se deforme en tablets o PC */
+            height: auto;
+            aspect-ratio: 2 / 3;   /* Relación de aspecto perfecta de cartelera */
+            object-fit: cover;
             border-radius: 8px;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
         }
         .body-movie-mode .channel-card span {
-            font-size: 1rem;   /* Letra del título de la peli más grande */
+            font-size: 0.95rem;    /* Texto equilibrado y legible */
             font-weight: 600;
-            margin-top: 4px;
+            margin-top: 6px;
+            line-height: 1.3;
         }
         /* ========================================================================== */
         
@@ -345,10 +356,12 @@
 </head>
 <body class="body-tv-mode" id="main-body">
 
+    <!-- Sección del Video y Controles Flotantes Inteligentes -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
             
+            <!-- Capa Única de Controles Estilo Cine -->
             <div class="custom-controls" id="custom-controls-layer">
                 <div class="timeline-container" id="timeline-wrapper">
                     <span class="time-display" id="time-current">00:00</span>
@@ -374,6 +387,7 @@
         </div>
     </div>
 
+    <!-- Mensajes de Error -->
     <div style="display:flex; justify-content:center;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -384,22 +398,27 @@
         </div>
     </div>
 
+    <!-- Menú de Selección de Apartado Principal -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 Televisión en Directo</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Películas y Sagas Propias</button>
     </div>
 
+    <!-- Contenido Principal -->
     <div id="content-section">
         
+        <!-- Contenedor técnico oculto para preservar ruta interna -->
         <div id="panel-tv-config">
             <input type="text" id="m3u-url-input" value="listas/tv.m3u">
         </div>
 
+        <!-- Info de Contenido / EPG / Ficha TMDB -->
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
             <div id="epg-info">Selecciona cualquier canal o película de abajo para comenzar.</div>
         </div>
 
+        <!-- Barra Unificada de Filtrado y Buscador -->
         <div class="filter-bar">
             <div class="filter-item" id="category-filter-wrapper">
                 <label for="category-select"><strong id="category-label-text">Filtrar por Categoría:</strong></label>
@@ -411,7 +430,8 @@
             <div class="filter-item" id="saga-select-wrapper" style="display: none;">
                 <label for="saga-select"><strong>Seleccionar Colección / Saga:</strong></label>
                 <select id="saga-select" onchange="loadLocalSaga()">
-                    </select>
+                    <!-- Automatizado -->
+                </select>
             </div>
 
             <div class="filter-item">
@@ -420,6 +440,7 @@
             </div>
         </div>
 
+        <!-- Rejilla de canales / películas -->
         <div id="channel-grid"></div>
     </div>
 
@@ -787,7 +808,6 @@
                 card.className = 'channel-card';
                 const uniqueImgId = `grid-icon-${index}`;
                 
-                // Carga la imagen por defecto de tu lista. Si falla, recurre al error handler.
                 card.innerHTML = `
                     <img id="${uniqueImgId}" src="${channel.logo || 'https://via.placeholder.com/140x200?text=SocramFlix'}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/140x200?text=Sin+Imagen'">
                     <span>${channel.name}</span>
@@ -795,7 +815,6 @@
                 card.onclick = () => playMedia(channel);
                 channelGrid.appendChild(card);
 
-                // Si está activo el modo películas, intenta pisar el logo local con TMDB en segundo plano
                 if (currentSection === 'movies') {
                     fetchGridIconFromTMDB(channel.name, uniqueImgId);
                 }
@@ -931,7 +950,6 @@
             epgInfoElement.innerText = currentProgramTitle;
         }
 
-        // Convierte el desvío horario nativo del archivo XML de origen a tu hora local real
         function parseEPGDate(dateStr) {
             const cleanStr = dateStr.trim();
             
