@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
-    <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
@@ -343,7 +342,6 @@
 </head>
 <body class="body-tv-mode" id="main-body">
 
-    <!-- Sección del Video -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
@@ -373,7 +371,6 @@
         </div>
     </div>
 
-    <!-- Mensajes Informativos / Lanzadores Alternativos -->
     <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -384,14 +381,12 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Pestañas -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Canales Premium</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
 
-    <!-- Contenido Principal -->
     <div id="content-section">
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
@@ -417,7 +412,9 @@
     </div>
 
     <script>
+        // Repositorio de listas locales (Añadido Runtime TV arriba del todo)
         const REPO_SAGAS = [
+            { name: "Runtime TV", file: "TV RuntimeTV.m3u" },
             { name: "Colección Pixar", file: "Coleccion Pixar.m3u" },
             { name: "Colección DreamWorks Animation", file: "Coleccion DreamWorks Animation.m3u" },
             { name: "Universo DC", file: "Universo DC.m3u" },
@@ -748,7 +745,6 @@
 
         // --- SISTEMA INTELIGENTE DE DETECCIÓN Y TRADUCCIÓN A MANIFEST HLS ---
         function playMedia(item) {
-            // Reinicios estandar
             errorBox.style.display = "none";
             altActions.style.display = "none";
             errorBox.style.backgroundColor = "#2980b9"; 
@@ -760,11 +756,9 @@
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
             
-            // Comprobamos si es un enlace AceStream (P2P Local)
             const isAceStream = urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8');
 
             if (isAceStream) {
-                // Extraemos el Hash ID dinámicamente con una expresión regular estable
                 let aceId = "";
                 const idMatch = targetUrl.match(/[?&]id=([^&]+)/);
                 if (idMatch) {
@@ -775,7 +769,6 @@
                 }
 
                 if (aceId) {
-                    // ¡TRUCO APLICADO!: Convertimos el enlace al endpoint manifest.m3u8 para que el reproductor interno lo intente leer
                     targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`;
                     
                     epgInfoElement.innerHTML = `
@@ -783,21 +776,17 @@
                         <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Asegúrate de tener la app <strong>Ace Stream Engine</strong> abierta de fondo en este dispositivo para que monte el buffer.</div>
                     `;
 
-                    // Mostramos el banner informativo/asistente por si el buffer local falla
                     errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Cargando stream interno desde tu motor local. Si notas cortes o no inicia, puedes forzar el reproductor externo.`;
                     errorBox.style.display = "block";
                     altActions.style.display = "flex";
                 }
             }
 
-            // Guardamos la url final de ejecución
             currentMediaUrl = targetUrl;
             
-            // Mapeo dinámico de botones de auxilio externos
             vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
             copyBtn.onclick = () => { navigator.clipboard.writeText(item.url); alert("¡Enlace original copiado!"); };
 
-            // Enrutamiento de reproducción estándar (el manifest modificado pasará directo por HLS de forma transparente)
             const isHLSTV = targetUrl.toLowerCase().includes('.m3u8') || targetUrl.toLowerCase().includes('.ts') || targetUrl.toLowerCase().includes('/live/');
             const isDirectVideo = currentSection === 'movies' || targetUrl.toLowerCase().includes('pixeldrain.net') || targetUrl.toLowerCase().includes('.mp4') || targetUrl.toLowerCase().includes('.mkv') || !isHLSTV;
 
