@@ -21,7 +21,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            overflow-x: hidden; /* Evita cualquier amago de scroll horizontal */
+            overflow-x: hidden;
         }
 
         /* Contenedor del Reproductor Premium Estilo Netflix */
@@ -173,7 +173,7 @@
         }
         .btn-cast:hover { background: #3498db; color: #fff; }
 
-        /* Selector de Apartado Principal (Modificado para 3 pestañas fluidas) */
+        /* Selector de Pestañas */
         .navigation-tabs {
             display: flex;
             justify-content: center;
@@ -204,7 +204,6 @@
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
-        /* Ajuste móvil para las pestañas */
         @media (max-width: 480px) {
             .tab-button {
                 font-size: 0.8rem;
@@ -212,7 +211,7 @@
             }
         }
 
-        /* Resto de la Interfaz */
+        /* Interfaz de Listas */
         #content-section {
             padding: 0 15px 20px 15px;
             max-width: 1000px;
@@ -272,7 +271,7 @@
 
         .now-playing { font-weight: bold; color: #4CAF50; margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Rejilla Base de Canales (Por defecto / TV / Premium) */
+        /* Rejilla Base */
         #channel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -305,7 +304,6 @@
             padding: 1px;
         }
         
-        /* Ajuste de imagen para logos de canales de TV tradicionales y Premium */
         .body-tv-mode .channel-card img,
         .body-premium-mode .channel-card img {
             width: 50px;
@@ -323,14 +321,12 @@
             overflow: hidden; 
         }
 
-        /* Modo Películas (2 por fila fijas y bien grandes) */
+        /* Modo Películas */
         .body-movie-mode #channel-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
-        .body-movie-mode .channel-card {
-            padding: 14px 10px;
-        }
+        .body-movie-mode .channel-card { padding: 14px 10px; }
         .body-movie-mode .channel-card img {
             width: 100%;
             max-width: 180px;
@@ -340,15 +336,12 @@
             border-radius: 8px;
             box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
         }
-        .body-movie-mode .channel-card span {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-top: 6px;
-            line-height: 1.3;
-        }
         
-        #player-error-box { display: none; background: #c0392b; color: #fff; padding: 12px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.9rem; }
-        #alt-actions { display: none; margin-top: 8px; gap: 10px; justify-content: center; }
+        /* Caja de Errores y Acciones Externas */
+        #player-error-box { display: none; background: #c0392b; color: #fff; padding: 15px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.95rem; border-radius: 4px; margin-top: 5px; }
+        #alt-actions { display: none; margin-top: 12px; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .btn-vlc { background: #e67e22; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .btn-alt { background: #34495e; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; }
 
         /* Ficha TMDB */
         .movie-flex-container { display: flex; gap: 20px; margin-top: 5px; align-items: flex-start; }
@@ -360,12 +353,11 @@
 </head>
 <body class="body-tv-mode" id="main-body">
 
-    <!-- Sección del Video y Controles Flotantes Inteligentes -->
+    <!-- Sección del Video -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
             
-            <!-- Capa Única de Controles Estilo Cine -->
             <div class="custom-controls" id="custom-controls-layer">
                 <div class="timeline-container" id="timeline-wrapper">
                     <span class="time-display" id="time-current">00:00</span>
@@ -383,7 +375,7 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
-                        <button class="control-btn btn-cast" id="cast-btn" onclick="sendToTV(event)" title="Enviar a Smart TV">📺 Enviar TV</button>
+                        <button class="control-btn btn-cast" id="cast-btn" onclick="sendToTV(event)">📺 Enviar TV</button>
                         <button class="control-btn" onclick="toggleFullscreen(event)">🔲</button>
                     </div>
                 </div>
@@ -391,18 +383,18 @@
         </div>
     </div>
 
-    <!-- Mensajes de Error -->
-    <div style="display:flex; justify-content:center;">
+    <!-- Mensajes de Error / Lanzadores de AceStream Externos -->
+    <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
             <div id="alt-actions">
                 <button class="btn-vlc" id="vlc-btn">🧡 Abrir en VLC</button>
-                <button class="btn-alt" id="copy-btn">📋 Copiar Enlace</button>
+                <button class="btn-alt" id="copy-btn">📋 Copiar Enlace Stream</button>
             </div>
         </div>
     </div>
 
-    <!-- Menú de Selección de Pestañas (Añadida la pestaña Premium) -->
+    <!-- Menú de Selección de Pestañas -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Canales Premium</button>
@@ -411,36 +403,26 @@
 
     <!-- Contenido Principal -->
     <div id="content-section">
-
-        <!-- Info de Contenido / EPG / Ficha TMDB -->
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
             <div id="epg-info">Selecciona cualquier canal o película de abajo para comenzar.</div>
         </div>
 
-        <!-- Barra Unificada de Filtrado y Buscador -->
         <div class="filter-bar">
             <div class="filter-item" id="category-filter-wrapper">
                 <label for="category-select"><strong id="category-label-text">Filtrar por Categoría:</strong></label>
-                <select id="category-select">
-                    <option value="">Esperando lista...</option>
-                </select>
+                <select id="category-select"><option value="">Esperando lista...</option></select>
             </div>
-
             <div class="filter-item" id="saga-select-wrapper" style="display: none;">
                 <label for="saga-select"><strong>Seleccionar Colección / Saga:</strong></label>
-                <select id="saga-select" onchange="loadLocalSaga()">
-                    <!-- Automatizado -->
-                </select>
+                <select id="saga-select" onchange="loadLocalSaga()"></select>
             </div>
-
             <div class="filter-item">
                 <label for="search-input"><strong>Buscador Instantáneo:</strong></label>
                 <input type="text" id="search-input" class="search-input-style" placeholder="Escribe para buscar..." oninput="applyFilters()">
             </div>
         </div>
 
-        <!-- Rejilla de canales / películas -->
         <div id="channel-grid"></div>
     </div>
 
@@ -498,13 +480,12 @@
 
         async function init() {
             buildSagaDropdown();
-            await loadLocalEPG('listas/epg.xml'); // Carga por defecto la de TV común
+            await loadLocalEPG('listas/epg.xml');
             loadM3UFromUrl('listas/tv.m3u'); 
             setupPlayerErrorHandling();
             setupPlayerListeners();
         }
 
-        // Modificado para alternar dinámicamente entre las 3 secciones y sincronizar sus EPGs
         async function changeSection(section) {
             currentSection = section;
             document.getElementById('tab-tv').classList.toggle('active', section === 'tv');
@@ -513,13 +494,8 @@
             
             searchInput.value = "";
             
-            if (hlsInstance) {
-                hlsInstance.destroy();
-                hlsInstance = null;
-            }
-            video.pause();
-            video.src = '';
-            video.load();
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+            video.pause(); video.src = ''; video.load();
             currentMediaUrl = "";
             
             timelineWrapper.style.display = "none";
@@ -538,11 +514,11 @@
                 await loadLocalEPG('listas/epg.xml');
                 loadM3UFromUrl('listas/tv.m3u');
             } else if (section === 'premium') {
-                mainBody.className = "body-premium-mode"; // Comparte estética limpia de logos de TV
+                mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
-                await loadLocalEPG('listas/star+.xml');  // Cambia a la guía Premium
-                loadM3UFromUrl('listas/star+.m3u');    // Carga la lista Premium
+                await loadLocalEPG('listas/star+.xml');
+                loadM3UFromUrl('listas/star+.m3u');
             } else {
                 mainBody.className = "body-movie-mode";
                 sagaSelectWrapper.style.display = "flex";
@@ -574,7 +550,6 @@
             }
         }
 
-        // Modificado para recibir la URL dinámicamente según la sección activa
         async function loadM3UFromUrl(url) {
             if (!url) return;
             try {
@@ -587,7 +562,6 @@
             }
         }
 
-        // Modificado para recibir la ruta del archivo xml de guía correspondiente
         async function loadLocalEPG(url) {
             try {
                 const response = await fetch(url);
@@ -596,14 +570,13 @@
                 xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
                 const parser = new DOMParser();
                 xmlEpgDoc = parser.parseFromString(xmlText, "application/xml");
-                console.log("EPG Sincronizado: " + url);
             } catch (e) {
                 console.error("No se pudo leer la guía: " + url);
-                xmlEpgDoc = null; // Limpia si falla para no cruzar información errónea
+                xmlEpgDoc = null;
             }
         }
 
-        // --- MANEJO DE CONTROLES DEL REPRODUCTOR ---
+        // --- REPRODUCTOR ---
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -618,32 +591,20 @@
                     liveIndicator.style.display = "block";
                 }
             });
-
-            video.addEventListener('play', () => { 
-                playPauseBtn.innerText = "⏸"; 
-                videoWrapper.classList.remove('paused');
-            });
-            video.addEventListener('pause', () => { 
-                playPauseBtn.innerText = "▶"; 
-                videoWrapper.classList.add('paused');
-            });
+            video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; videoWrapper.classList.remove('paused'); });
+            video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; videoWrapper.classList.add('paused'); });
         }
 
         function handleVideoClick(event) {
-            if (event.target === video || event.target === videoWrapper) {
-                togglePlay(event);
-            }
+            if (event.target === video || event.target === videoWrapper) { togglePlay(event); }
         }
 
         function togglePlay(e) {
             if(e) e.stopPropagation();
-            if (video.paused) { video.play().catch(()=>{}); } 
-            else { video.pause(); }
+            if (video.paused) { video.play().catch(()=>{}); } else { video.pause(); }
         }
 
-        function seekVideo() {
-            if(isFinite(video.duration)) { video.currentTime = seekBar.value; }
-        }
+        function seekVideo() { if(isFinite(video.duration)) { video.currentTime = seekBar.value; } }
 
         function changeVolume() {
             video.volume = volumeBar.value;
@@ -654,15 +615,8 @@
 
         function toggleMute(e) {
             if(e) e.stopPropagation();
-            if (video.muted) {
-                video.muted = false;
-                muteBtn.innerText = "🔊";
-                volumeBar.value = video.volume;
-            } else {
-                video.muted = true;
-                muteBtn.innerText = "❌";
-                volumeBar.value = 0;
-            }
+            if (video.muted) { video.muted = false; muteBtn.innerText = "🔊"; volumeBar.value = video.volume; } 
+            else { video.muted = true; muteBtn.innerText = "❌"; volumeBar.value = 0; }
         }
 
         function formatTime(seconds) {
@@ -676,8 +630,7 @@
 
         function toggleFullscreen(e) {
             if(e) e.stopPropagation();
-            if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } 
-            else { document.exitFullscreen(); }
+            if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
         function sendToTV(e) {
@@ -685,18 +638,16 @@
             if (!currentMediaUrl) return alert("Primero selecciona un contenido de la lista.");
             if (video.remote && video.remote.prompt) { video.remote.prompt().catch(()=>{}); } 
             else if (video.webkitShowPlaybackTargetPicker) { video.webkitShowPlaybackTargetPicker(); } 
-            else { alert("Tu navegador no soporta Cast nativo. Usa Chrome o Edge."); }
+            else { alert("Tu navegador no soporta Cast nativo. Usa Chrome."); }
         }
 
         function setupPlayerErrorHandling() {
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
                 const err = video.error;
-                let motivo = "El servidor de streaming de TV rechaza conexiones externas por seguridad de origen.";
-                if (err) {
-                    if (err.code === 3) motivo = "Formato incompatible (.mkv o audio AC3 no soportados nativamente por navegadores).";
-                    else if (err.code === 4) motivo = "El enlace ha expirado o el archivo no se encuentra disponible.";
-                }
+                let motivo = "El servidor de streaming rechaza conexiones web por seguridad de origen o formato incompatible.";
+                if (err && err.code === 3) motivo = "Formato incompatible (.mkv o audio AC3 no soportados nativamente por navegadores).";
+                
                 errorText.innerHTML = `<strong>Aviso del Sistema:</strong> ${motivo}`;
                 errorBox.style.display = "block";
                 altActions.style.display = "flex";
@@ -724,7 +675,7 @@
                     const epgIdMatch = line.match(/tvg-id="([^"]+)"/);
                     currentChannel.epgId = epgIdMatch ? epgIdMatch[1] : '';
                     const groupMatch = line.match(/group-title="([^"]+)"/);
-                    currentChannel.category = groupMatch ? groupMatch[1] : 'Otros / Películas';
+                    currentChannel.category = groupMatch ? groupMatch[1] : 'Otros / Canales';
                     const nameParts = line.split(',');
                     currentChannel.name = nameParts[nameParts.length - 1].trim();
                 } else if (line.startsWith('http')) {
@@ -763,44 +714,29 @@
         function cleanMovieName(rawName) {
             const yearMatch = rawName.match(/\b(19\d{2}|20[0-2]\d)\b/);
             const detectedYear = yearMatch ? yearMatch[1] : null;
-
             let cleanQuery = rawName
                 .replace(/\.(mp4|mkv|avi|webm|mov|ts)$/i, '')
                 .replace(/[🍿🎬🎥📀▶►👇📢🌟✅🎭📺⭐🎞️🍿🔹🔸🔴]/g, '')
                 .replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
                 .replace(/\b(1080p|720p|4k|2k|uhd|hd|sd|x264|h264|x265|h265|hevc|bluray|brrip|bdrip|dvdrip|hdrip|hdtv|webrip|webdl|web|rip|dual|audio|ac3|dts|aac|5\.1|vox|cine|esp|lat|castellano|spanish|sub|subs|subtitulado|multi|hdr|microhd|completa|pelicula|peli|full|torrent|descarga)\b/gi, '')
                 .replace(/[-_.,|:+\/*_]/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
+                .replace(/\s+/g, ' ').trim();
             return { cleanQuery, detectedYear };
         }
 
         async function fetchGridIconFromTMDB(rawName, imgElementId) {
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
             let queriesToTry = [cleanQuery];
-            let parts = rawName.split(/[|:-]/);
-            if (parts.length > 1) {
-                let lastChunk = parts[parts.length - 1].replace(/\.(mp4|mkv|avi)$/i, '').replace(/\s+/g, ' ').trim();
-                if (lastChunk && lastChunk !== cleanQuery) queriesToTry.push(lastChunk);
-            }
-
             let data = null;
             for (let currentQuery of queriesToTry) {
-                if (detectedYear) {
-                    data = await fetchFromTMDB(currentQuery, detectedYear);
-                    if (data && data.results && data.results.length > 0) break;
-                }
-                data = await fetchFromTMDB(currentQuery, null);
-                if (data && data.results && data.results.length > 0) break;
+                if (detectedYear) { data = await fetchFromTMDB(currentQuery, detectedYear); if (data && data.results && data.results.length > 0) break; }
+                data = await fetchFromTMDB(currentQuery, null); if (data && data.results && data.results.length > 0) break;
             }
-
             if (data && data.results && data.results.length > 0) {
                 const movie = data.results[0];
                 if (movie.poster_path) {
                     const targetImg = document.getElementById(imgElementId);
-                    if (targetImg) {
-                        targetImg.src = `https://image.tmdb.org/t/p/w300${movie.poster_path}`;
-                    }
+                    if (targetImg) targetImg.src = `https://image.tmdb.org/t/p/w300${movie.poster_path}`;
                 }
             }
         }
@@ -823,48 +759,62 @@
                 card.onclick = () => playMedia(channel);
                 channelGrid.appendChild(card);
 
-                if (currentSection === 'movies') {
-                    fetchGridIconFromTMDB(channel.name, uniqueImgId);
-                }
+                if (currentSection === 'movies') { fetchGridIconFromTMDB(channel.name, uniqueImgId); }
             });
         }
 
+        // --- SISTEMA DE REPRODUCCIÓN CORREGIDO E INTELIGENTE PARA ACESTREAM ---
         function playMedia(item) {
             errorBox.style.display = "none";
             altActions.style.display = "none";
             currentMediaUrl = item.url;
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-            video.src = '';
-            video.load();
+            video.src = ''; video.load();
 
             const urlLower = item.url.toLowerCase();
-            const isHLSTV = urlLower.includes('.m3u8') || urlLower.includes('.ts') || urlLower.includes('/live/');
             
-            const isDirectVideo = currentSection === 'movies' || 
-                                  urlLower.includes('pixeldrain.net') || 
-                                  urlLower.includes('.mp4') || 
-                                  urlLower.includes('.mkv') || 
-                                  !isHLSTV;
+            // FILTRO DETECTOR DE ENLACES ACESTREAM (Local Engine)
+            const isAceStream = urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream');
+
+            if (isAceStream) {
+                // Modificamos instantáneamente el panel de arriba para instruir al usuario
+                epgInfoElement.innerHTML = `
+                    <div style="color: #e67e22; font-weight: bold; margin-bottom: 5px; font-size:1.05rem;">⚠️ Canal P2P AceStream Detectado</div>
+                    <div style="line-height:1.4;">Para poder ver este canal Premium, asegúrate de tener la app <strong>Ace Stream Engine</strong> abierta en tu dispositivo.<br>
+                    Como los navegadores web no soportan este flujo directamente, usa el menú inferior para enviarlo a tu reproductor externo.</div>
+                `;
+
+                // Activamos directamente el panel de lanzamiento externo sin esperar errores tediosos del navegador
+                errorText.innerHTML = `<strong>Acceso Premium Directo:</strong> Transmisión externa lista. Elige una opción para iniciar el stream.`;
+                errorBox.style.display = "block";
+                altActions.style.display = "flex";
+                
+                // Mapeo de botones de salida limpia
+                vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
+                copyBtn.onclick = () => { 
+                    navigator.clipboard.writeText(item.url); 
+                    alert("¡Enlace copiado! Pégalo en VLC, Ace Player o tu reproductor P2P."); 
+                };
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return; // Frenamos la carga interna para evitar logs molestos en consola
+            }
+
+            // Flujo normal de canales IPTV y películas
+            const isHLSTV = urlLower.includes('.m3u8') || urlLower.includes('.ts') || urlLower.includes('/live/');
+            const isDirectVideo = currentSection === 'movies' || urlLower.includes('pixeldrain.net') || urlLower.includes('.mp4') || urlLower.includes('.mkv') || !isHLSTV;
 
             if (isDirectVideo) {
-                timelineWrapper.style.display = "flex";
-                liveIndicator.style.display = "none";
-                video.src = item.url;
-                video.load();
-                video.play().catch(()=>{});
+                timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none";
+                video.src = item.url; video.load(); video.play().catch(()=>{});
                 searchMovieInTMDB(item.name);
             } else {
-                timelineWrapper.style.display = "none";
-                liveIndicator.style.display = "block";
+                timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
                 if (Hls.isSupported()) {
-                    hlsInstance = new Hls();
-                    hlsInstance.loadSource(item.url);
-                    hlsInstance.attachMedia(video);
+                    hlsInstance = new Hls(); hlsInstance.loadSource(item.url); hlsInstance.attachMedia(video);
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(()=>{}); });
-                    hlsInstance.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.fatal) { video.src = item.url; video.play().catch(()=>{}); }
-                    });
+                    hlsInstance.on(Hls.Events.ERROR, function(event, data) { if (data.fatal) { video.src = item.url; video.play().catch(()=>{}); } });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                     video.src = item.url;
                     video.addEventListener('loadedmetadata', function() { video.play().catch(()=>{}); });
@@ -878,31 +828,17 @@
             try {
                 let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=es-ES`;
                 if (year) url += `&year=${year}`;
-                const res = await fetch(url);
-                return res.ok ? await res.json() : null;
+                const res = await fetch(url); return res.ok ? await res.json() : null;
             } catch (e) { return null; }
         }
 
         async function searchMovieInTMDB(rawName) {
             epgInfoElement.innerHTML = "Buscando carátula y detalles en TMDB...";
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
-
-            let queriesToTry = [cleanQuery];
-            let parts = rawName.split(/[|:-]/);
-            if (parts.length > 1) {
-                let lastChunk = parts[parts.length - 1].replace(/\.(mp4|mkv|avi)$/i, '').replace(/\s+/g, ' ').trim();
-                if (lastChunk && lastChunk !== cleanQuery) queriesToTry.push(lastChunk);
-            }
-
             let data = null;
-            for (let currentQuery of queriesToTry) {
-                if (detectedYear) {
-                    data = await fetchFromTMDB(currentQuery, detectedYear);
-                    if (data && data.results && data.results.length > 0) break;
-                }
-                data = await fetchFromTMDB(currentQuery, null);
-                if (data && data.results && data.results.length > 0) break;
-            }
+            
+            data = await fetchFromTMDB(cleanQuery, detectedYear || null);
+            if (!data || !data.results || data.results.length === 0) { data = await fetchFromTMDB(cleanQuery, null); }
 
             if (data && data.results && data.results.length > 0) {
                 const movie = data.results[0];
@@ -919,16 +855,11 @@
                         </div>
                     </div>
                 `;
-            } else {
-                epgInfoElement.innerHTML = `<div><strong>Archivo:</strong> ${rawName}</div>`;
-            }
+            } else { epgInfoElement.innerHTML = `<div><strong>Archivo:</strong> ${rawName}</div>`; }
         }
 
         function updateEPGDisplay(channel) {
-            if (!xmlEpgDoc) {
-                epgInfoElement.innerText = "Guía de programación (EPG) no disponible para esta sección actualmente.";
-                return;
-            }
+            if (!xmlEpgDoc) { epgInfoElement.innerText = "Guía de programación (EPG) no disponible actualmente."; return; }
             const channelId = channel.epgId || channel.name;
             const now = new Date();
             let currentProgramTitle = "Programación en directo no disponible para este canal actualmente.";
@@ -941,13 +872,11 @@
                     if (startAttr && stopAttr) {
                         const startTime = parseEPGDate(startAttr);
                         const stopTime = parseEPGDate(stopAttr);
-                        
                         if (now >= startTime && now <= stopTime) {
                             const titleNode = prog.querySelector('title');
                             const descNode = prog.querySelector('desc');
                             currentProgramTitle = titleNode ? titleNode.textContent : "Sin título";
                             if (descNode) currentProgramTitle += ` — ${descNode.textContent}`;
-                            
                             const timeString = ` [${formatEPGTimeLabel(startTime)} - ${formatEPGTimeLabel(stopTime)}]`;
                             epgInfoElement.innerText = currentProgramTitle + timeString;
                             return;
@@ -960,24 +889,19 @@
 
         function parseEPGDate(dateStr) {
             const cleanStr = dateStr.trim();
-            
             const year = parseInt(cleanStr.substr(0, 4), 10);
             const month = parseInt(cleanStr.substr(4, 2), 10) - 1;
             const day = parseInt(cleanStr.substr(6, 2), 10);
             const hour = parseInt(cleanStr.substr(8, 2), 10);
             const minute = parseInt(cleanStr.substr(10, 2), 10);
             const second = parseInt(cleanStr.substr(12, 2), 10);
-            
             const utcDate = new Date(Date.UTC(year, month, day, hour, minute, second));
-            
             if (cleanStr.length > 14) {
                 const tzSign = cleanStr.includes('-') ? -1 : 1;
                 const tzMatch = cleanStr.match(/[\+\-](\d{2})(\d{2})/);
                 if (tzMatch) {
-                    const tzHours = parseInt(tzMatch[1], 10);
-                    const tzMinutes = parseInt(tzMatch[2], 10);
+                    const tzHours = parseInt(tzMatch[1], 10); const tzMinutes = parseInt(tzMatch[2], 10);
                     const totalOffsetMinutes = (tzHours * 60 + tzMinutes) * tzSign;
-                    
                     utcDate.setMinutes(utcDate.getMinutes() - totalOffsetMinutes);
                 }
             }
@@ -985,9 +909,7 @@
         }
 
         function formatEPGTimeLabel(dateObj) {
-            const hh = String(dateObj.getHours()).padStart(2, '0');
-            const mm = String(dateObj.getMinutes()).padStart(2, '0');
-            return `${hh}:${mm}`;
+            return `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
         }
 
         window.onload = init;
