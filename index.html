@@ -6,6 +6,8 @@
     <title>SocramFlix+ Pro</title>
     <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- SDK Oficial de Google Cast para enviar a la TV de forma estable -->
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     
     <style>
         * {
@@ -390,7 +392,7 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Pestañas (Estructura de filas adaptable) -->
+    <!-- Menú de Selección de Pestañas -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Premium</button>
@@ -475,6 +477,16 @@
         let xmlEpgDoc = null;
         let hlsInstance = null;
         let currentMediaUrl = "";
+
+        // Inicializar Framework de Google Cast
+        window.__onGCastApiAvailable = function(isAvailable) {
+            if (isAvailable && window.cast) {
+                cast.framework.CastContext.getInstance().setOptions({
+                    receiverApplicationId: chrome.cast.media.DEFAULT_RECEIVER_APPLICATION_ID,
+                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+                });
+            }
+        };
 
         async function init() {
             buildSagaDropdown();
@@ -644,12 +656,56 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
+        // CONTROL MEJORADO DE ENVÍO A TV (Google Cast SDK + Native Fallback)
         function sendToTV(e) {
             if(e) e.stopPropagation();
-            if (!currentMediaUrl) return alert("Primero selecciona un contenido de la lista.");
-            if (video.remote && video.remote.prompt) { video.remote.prompt().catch(()=>{}); } 
-            else if (video.webkitShowPlaybackTargetPicker) { video.webkitShowPlaybackTargetPicker(); } 
-            else { alert("Tu navegador no soporta Cast nativo. Usa Chrome."); }
+            if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
+
+            // Si el SDK oficial de Google Cast está activo (Chrome / Edge / Android)
+            if (window.cast && cast.framework) {
+                const castContext = cast.framework.CastContext.getInstance();
+                const session = castContext.getCurrentSession();
+
+                if (!session) {
+                    castContext.requestSession().then(() => {
+                        const currentSession = castContext.getInstance().getCurrentSession();
+                        if (currentSession) launchCastMedia(currentSession);
+                    }).catch(err => {
+                        console.log("Sesión Cast cancelada o fallida, usando fallback nativo...", err);
+                        executeNativeFallback();
+                    });
+                    return;
+                } else {
+                    launchCastMedia(session);
+                    return;
+                }
+            }
+            executeNativeFallback();
+        }
+
+        function launchCastMedia(session) {
+            let mimeType = 'application/x-mpegURL'; // HLS por defecto para m3u8
+            if (currentMediaUrl.toLowerCase().includes('.mp4')) mimeType = 'video/mp4';
+            if (currentMediaUrl.toLowerCase().includes('.mkv')) mimeType = 'video/xmkv';
+
+            const mediaInfo = new chrome.cast.media.MediaInfo(currentMediaUrl, mimeType);
+            const request = new chrome.cast.media.LoadRequest(mediaInfo);
+            
+            session.loadMedia(request).then(() => {
+                console.log('¡Enviado a Smart TV con éxito!');
+            }).catch(err => {
+                alert("Error al transferir la reproducción a la TV.");
+            });
+        }
+
+        function executeNativeFallback() {
+            if (video.remote && video.remote.prompt) { 
+                video.remote.prompt().catch(()=>{}); 
+            } else if (video.webkitShowPlaybackTargetPicker) { 
+                video.webkitShowPlaybackTargetPicker(); 
+            } else { 
+                alert("Tu navegador no soporta transmisiones automatizadas. Si usas Chrome o Edge, pulsa en los 3 puntos del navegador -> 'Guardar y compartir' -> 'Enviar...'"); 
+            }
         }
 
         function setupPlayerErrorHandling() {
