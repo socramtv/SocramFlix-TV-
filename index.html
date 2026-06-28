@@ -474,7 +474,7 @@
             
             timelineWrapper.style.display = "none";
             liveIndicator.style.display = "none";
-            castBtn.style.display = "none"; // Ocultar siempre al cambiar de sección
+            castBtn.style.display = "none"; 
             
             channels = [];
             categorySelect.innerHTML = '<option value="">Cargando catálogo...</option>';
@@ -564,7 +564,11 @@
 
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
-                if (video.duration && isFinite(video.duration) && video.duration > 0) {
+                if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
+                    // Si detecta duracion pero no estamos en pelis, se asume que es una emision directa estructurada
+                    timelineWrapper.style.display = "none";
+                    liveIndicator.style.display = "block";
+                } else if (video.duration && isFinite(video.duration) && video.duration > 0) {
                     timelineWrapper.style.display = "flex";
                     liveIndicator.style.display = "none";
                     seekBar.max = video.duration;
@@ -618,14 +622,12 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // Función encargada del envío a TV externa
         function sendToCast(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) {
                 alert("Primero selecciona una película para enviar.");
                 return;
             }
-            // Intenta abrir el flujo de vídeo usando la app externa Web Video Cast si está instalada en el móvil
             const castIntentUrl = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
             window.location.href = castIntentUrl;
         }
@@ -736,12 +738,11 @@
 
         function playMedia(item) {
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-            video.src = ''; video.load();
+            video.pause(); video.src = ''; video.load();
 
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
             
-            // Tratamiento de enlaces AceStream locales
             const isAceStream = urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8');
 
             if (isAceStream) {
@@ -763,17 +764,19 @@
 
             currentMediaUrl = targetUrl;
 
-            // Filtro estricto para mostrar el botón de Cast SOLO en películas y sagas
+            // Mostrar el botón de Cast SOLO en la sección de películas
             if (currentSection === 'movies') {
                 castBtn.style.display = "block";
             } else {
                 castBtn.style.display = "none";
             }
 
-            const isStrictHLS = targetUrl.toLowerCase().includes('.m3u8');
+            // Las listas de Runtime, Rakuten y canales de TV son flujos HLS (.m3u8) directo
+            const isHLSFeed = targetUrl.includes('.m3u8') || currentSection === 'tv' || currentSection === 'premium' || currentSection === 'runtime' || currentSection === 'rakuten';
 
-            if (isStrictHLS) {
-                timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
+            if (isHLSFeed) {
+                timelineWrapper.style.display = "none"; 
+                liveIndicator.style.display = "block";
                 
                 if (video.canPlayType('application/vnd.apple.mpegurl')) {
                     video.src = targetUrl;
@@ -781,7 +784,10 @@
                     video.play().catch(()=>{});
                 } 
                 else if (Hls.isSupported()) {
-                    hlsInstance = new Hls(); 
+                    hlsInstance = new Hls({
+                        maxMaxBufferLength: 10,
+                        enableWorker: true
+                    }); 
                     hlsInstance.loadSource(targetUrl); 
                     hlsInstance.attachMedia(video);
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(()=>{}); });
@@ -791,7 +797,7 @@
                 
                 if (!isAceStream) updateEPGDisplay(item);
             } else {
-                if (currentSection === 'movies' || targetUrl.toLowerCase().includes('pixeldrain.net') || targetUrl.toLowerCase().includes('.mp4') || targetUrl.toLowerCase().includes('.mkv')) {
+                if (currentSection === 'movies' || targetUrl.includes('pixeldrain.net') || targetUrl.includes('.mp4') || targetUrl.includes('.mkv')) {
                     timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none";
                     searchMovieInTMDB(item.name);
                 } else {
