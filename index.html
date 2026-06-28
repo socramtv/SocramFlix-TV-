@@ -169,28 +169,32 @@
         }
         .btn-cast:hover { background: #3498db; color: #fff; }
 
+        /* NUEVO: Diseño de pestañas principales en 2 filas y más grandes */
         .navigation-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin: 15px auto 5px auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px auto 10px auto;
             max-width: 1000px;
             width: 95%;
         }
         .tab-button {
-            flex: 1;
             background: #1e1e1e;
             color: #aaa;
             border: 1px solid #2d2d2d;
-            padding: 12px 4px;
-            font-size: 0.9rem;
+            padding: 16px 10px;
+            font-size: 1.1rem;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         .tab-button.active {
             background: #4CAF50;
@@ -200,10 +204,10 @@
         }
 
         @media (max-width: 480px) {
-            .navigation-tabs { gap: 4px; }
+            .navigation-tabs { gap: 8px; }
             .tab-button {
-                font-size: 0.75rem;
-                padding: 10px 2px;
+                font-size: 0.95rem;
+                padding: 14px 6px;
             }
         }
 
@@ -386,10 +390,10 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Pestañas (Botón Runtime TV añadido afuera) -->
+    <!-- Menú de Selección de Pestañas (Estructura de 2 filas) -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
-        <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Canales Premium</button>
+        <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Premium</button>
         <button id="tab-runtime" class="tab-button" onclick="changeSection('runtime')">🎬 Runtime TV</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
@@ -420,7 +424,6 @@
     </div>
 
     <script>
-        // Repositorio de listas locales (Runtime TV removido de aquí por pasar a pestaña propia)
         const REPO_SAGAS = [
             { name: "Colección Pixar", file: "Coleccion Pixar.m3u" },
             { name: "Colección DreamWorks Animation", file: "Coleccion DreamWorks Animation.m3u" },
@@ -576,7 +579,6 @@
             }
         }
 
-        // --- REPRODUCTOR CONTROLES BASES ---
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -756,7 +758,6 @@
             });
         }
 
-        // --- SISTEMA DE REPRODUCCIÓN ---
         function playMedia(item) {
             errorBox.style.display = "none";
             altActions.style.display = "none";
