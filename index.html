@@ -361,7 +361,7 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
-                        <!-- El botón solo aparecerá en películas y sagas -->
+                        <!-- Botón para enviar tanto películas como AceStreams -->
                         <button class="control-btn" id="cast-btn" onclick="sendToCast(event)" title="Enviar a TV">📺 Enviar TV</button>
                         <button class="control-btn" onclick="toggleFullscreen(event)">🔲</button>
                     </div>
@@ -565,7 +565,6 @@
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
-                    // Si detecta duracion pero no estamos en pelis, se asume que es una emision directa estructurada
                     timelineWrapper.style.display = "none";
                     liveIndicator.style.display = "block";
                 } else if (video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -625,7 +624,7 @@
         function sendToCast(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) {
-                alert("Primero selecciona una película para enviar.");
+                alert("Primero selecciona un contenido para enviar.");
                 return;
             }
             const castIntentUrl = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
@@ -764,14 +763,13 @@
 
             currentMediaUrl = targetUrl;
 
-            // Mostrar el botón de Cast SOLO en la sección de películas
-            if (currentSection === 'movies') {
+            // Mostrar el botón de Cast si es una película O si es un enlace AceStream
+            if (currentSection === 'movies' || isAceStream) {
                 castBtn.style.display = "block";
             } else {
                 castBtn.style.display = "none";
             }
 
-            // Las listas de Runtime, Rakuten y canales de TV son flujos HLS (.m3u8) directo
             const isHLSFeed = targetUrl.includes('.m3u8') || currentSection === 'tv' || currentSection === 'premium' || currentSection === 'runtime' || currentSection === 'rakuten';
 
             if (isHLSFeed) {
