@@ -6,8 +6,6 @@
     <title>SocramFlix+ Pro</title>
     <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <!-- SDK Oficial de Google Cast para enviar a la TV de forma estable -->
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     
     <style>
         * {
@@ -477,16 +475,7 @@
         let xmlEpgDoc = null;
         let hlsInstance = null;
         let currentMediaUrl = "";
-
-        // Inicializar Framework de Google Cast
-        window.__onGCastApiAvailable = function(isAvailable) {
-            if (isAvailable && window.cast) {
-                cast.framework.CastContext.getInstance().setOptions({
-                    receiverApplicationId: chrome.cast.media.DEFAULT_RECEIVER_APPLICATION_ID,
-                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-                });
-            }
-        };
+        let originalItemPlaying = null;
 
         async function init() {
             buildSagaDropdown();
@@ -509,6 +498,7 @@
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.pause(); video.src = ''; video.load();
             currentMediaUrl = "";
+            originalItemPlaying = null;
             
             timelineWrapper.style.display = "none";
             liveIndicator.style.display = "none";
@@ -616,6 +606,25 @@
             });
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; videoWrapper.classList.remove('paused'); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; videoWrapper.classList.add('paused'); });
+
+            // Detectores de transmisión externa nativa (Para feedback en pantalla)
+            if (video.remote) {
+                video.remote.addEventListener('connecting', () => {
+                    epgInfoElement.innerHTML = `<div style="color:#3498db; font-weight:bold; font-size:1.1rem; text-align:center; padding:10px;">📺 Conectando con tu pantalla de TV...</div>`;
+                });
+                video.remote.addEventListener('connect', () => {
+                    epgInfoElement.innerHTML = `
+                        <div style="color:#4CAF50; font-weight:bold; font-size:1.1rem; text-align:center; margin-bottom:5px;">📺 ¡Transmitiendo con éxito en la TV!</div>
+                        <div style="text-align:center; color:#bbb; font-size:0.9rem;">El reproductor de tu móvil/PC funciona ahora como mando a distancia.</div>
+                    `;
+                });
+                video.remote.addEventListener('disconnect', () => {
+                    epgInfoElement.innerHTML = `<div style="text-align:center; padding:5px; color:#e67e22;">📺 Transmisión finalizada. Devolviendo señal al reproductor local...</div>`;
+                    if (originalItemPlaying) {
+                        setTimeout(() => { playMedia(originalItemPlaying); }, 800);
+                    }
+                });
+            }
         }
 
         function handleVideoClick(event) {
@@ -656,61 +665,76 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // CONTROL MEJORADO DE ENVÍO A TV (Google Cast SDK + Native Fallback)
+        // CONTROL INTEGRADO DE ENVÍO A TV NATIVO INTERCAMBIABLE (Source-Swapping)
         function sendToTV(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
 
-            // Si el SDK oficial de Google Cast está activo (Chrome / Edge / Android)
-            if (window.cast && cast.framework) {
-                const castContext = cast.framework.CastContext.getInstance();
-                const session = castContext.getCurrentSession();
+            // Filtro de control para enlaces AceStream locales
+            if (currentMediaUrl.includes('127.0.0.1') || currentMediaUrl.includes('localhost')) {
+                alert("⚠️ Los canales Premium (AceStream) se ejecutan localmente en la memoria de este dispositivo (127.0.0.1).\n\nTu TV no puede entrar a la memoria de tu móvil/PC. Para ver este canal en la tele, pulsa en 'Abrir en VLC' y lánzalo desde allí, o usa la función nativa de 'Duplicar Pantalla Completa' de tu dispositivo.");
+                return;
+            }
 
-                if (!session) {
-                    castContext.requestSession().then(() => {
-                        const currentSession = castContext.getInstance().getCurrentSession();
-                        if (currentSession) launchCastMedia(currentSession);
-                    }).catch(err => {
-                        console.log("Sesión Cast cancelada o fallida, usando fallback nativo...", err);
-                        executeNativeFallback();
-                    });
-                    return;
-                } else {
-                    launchCastMedia(session);
-                    return;
+            const wasPlaying = !video.paused;
+            const timeBackup = video.currentTime;
+
+            // Desmontamos hls.js momentáneamente si estaba activo para eliminar el Blob falso
+            if (hlsInstance) {
+                hlsInstance.detachMedia();
+            }
+
+            // Forzamos la inyección de la URL de red REAL directa en la etiqueta video
+            video.src = currentMediaUrl;
+            video.load();
+
+            // Lanzamos el menú de transmisión nativo del sistema operativo (Chromecast, Smart TV, AirPlay)
+            if (video.remote && video.remote.prompt) {
+                video.remote.prompt().then(() => {
+                    // Si el usuario sale del menú sin conectar, restauramos el comportamiento local
+                    setTimeout(() => {
+                        if (video.remote.state !== "connected" && video.remote.state !== "connecting") {
+                            restoreLocalPlayback(wasPlaying, timeBackup);
+                        }
+                    }, 2000);
+                }).catch(() => {
+                    restoreLocalPlayback(wasPlaying, timeBackup);
+                });
+            } else if (video.webkitShowPlaybackTargetPicker) {
+                // Alternativa compatible para ecosistemas iOS / Apple Safari (AirPlay nativo)
+                video.webkitShowPlaybackTargetPicker();
+                setTimeout(() => { restoreLocalPlayback(wasPlaying, timeBackup); }, 2000);
+            } else {
+                alert("Tu navegador no soporta transmisiones directas automatizadas desde archivos locales.\n\nPrueba lo siguiente: Haz clic derecho sobre la pantalla del video y pulsa 'Enviar...', o despliega el menú de opciones superior de tu navegador y busca 'Transmitir / Enviar...'");
+                restoreLocalPlayback(wasPlaying, timeBackup);
+            }
+        }
+
+        function restoreLocalPlayback(wasPlaying, timeBackup) {
+            if (!currentMediaUrl) return;
+            const isHLSTV = currentMediaUrl.toLowerCase().includes('.m3u8') || currentMediaUrl.toLowerCase().includes('.ts') || currentMediaUrl.toLowerCase().includes('/live/');
+            const isDirectVideo = currentSection === 'movies' || currentMediaUrl.toLowerCase().includes('pixeldrain.net') || currentMediaUrl.toLowerCase().includes('.mp4') || currentMediaUrl.toLowerCase().includes('.mkv') || !isHLSTV;
+
+            if (!isDirectVideo) {
+                if (Hls.isSupported()) {
+                    if (!hlsInstance) hlsInstance = new Hls();
+                    hlsInstance.loadSource(currentMediaUrl);
+                    hlsInstance.attachMedia(video);
                 }
+            } else {
+                video.src = currentMediaUrl;
+                video.load();
             }
-            executeNativeFallback();
-        }
-
-        function launchCastMedia(session) {
-            let mimeType = 'application/x-mpegURL'; // HLS por defecto para m3u8
-            if (currentMediaUrl.toLowerCase().includes('.mp4')) mimeType = 'video/mp4';
-            if (currentMediaUrl.toLowerCase().includes('.mkv')) mimeType = 'video/xmkv';
-
-            const mediaInfo = new chrome.cast.media.MediaInfo(currentMediaUrl, mimeType);
-            const request = new chrome.cast.media.LoadRequest(mediaInfo);
-            
-            session.loadMedia(request).then(() => {
-                console.log('¡Enviado a Smart TV con éxito!');
-            }).catch(err => {
-                alert("Error al transferir la reproducción a la TV.");
-            });
-        }
-
-        function executeNativeFallback() {
-            if (video.remote && video.remote.prompt) { 
-                video.remote.prompt().catch(()=>{}); 
-            } else if (video.webkitShowPlaybackTargetPicker) { 
-                video.webkitShowPlaybackTargetPicker(); 
-            } else { 
-                alert("Tu navegador no soporta transmisiones automatizadas. Si usas Chrome o Edge, pulsa en los 3 puntos del navegador -> 'Guardar y compartir' -> 'Enviar...'"); 
-            }
+            video.currentTime = timeBackup;
+            if (wasPlaying) video.play().catch(()=>{});
         }
 
         function setupPlayerErrorHandling() {
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
+                // Si el error salta mientras se intenta conectar a la TV de forma nativa, ignoramos el cuadro rojo local
+                if (video.remote && (video.remote.state === "connected" || video.remote.state === "connecting")) return;
+
                 errorBox.style.backgroundColor = "#c0392b";
                 errorBox.style.borderLeftColor = "#e74c3c";
                 errorText.innerHTML = `<strong>Error de Reproducción:</strong> El navegador no ha podido cargar este stream de manera nativa (puede deberse a bloqueos de origen CORS, falta de búfer en el motor o códec incompatible).`;
@@ -832,6 +856,7 @@
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.src = ''; video.load();
 
+            originalItemPlaying = item;
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
             
