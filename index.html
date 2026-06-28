@@ -607,7 +607,6 @@
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; videoWrapper.classList.remove('paused'); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; videoWrapper.classList.add('paused'); });
 
-            // Detectores de transmisión externa nativa (Para feedback en pantalla)
             if (video.remote) {
                 video.remote.addEventListener('connecting', () => {
                     epgInfoElement.innerHTML = `<div style="color:#3498db; font-weight:bold; font-size:1.1rem; text-align:center; padding:10px;">📺 Conectando con tu pantalla de TV...</div>`;
@@ -665,33 +664,38 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // CONTROL INTEGRADO DE ENVÍO A TV NATIVO INTERCAMBIABLE (Source-Swapping)
+        // SISTEMA INTELIGENTE DE TRANSMISIÓN ADAPTADA
         function sendToTV(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
 
-            // Filtro de control para enlaces AceStream locales
+            // Caso 1: Enlaces AceStream de la sección Premium
             if (currentMediaUrl.includes('127.0.0.1') || currentMediaUrl.includes('localhost')) {
-                alert("⚠️ Los canales Premium (AceStream) se ejecutan localmente en la memoria de este dispositivo (127.0.0.1).\n\nTu TV no puede entrar a la memoria de tu móvil/PC. Para ver este canal en la tele, pulsa en 'Abrir en VLC' y lánzalo desde allí, o usa la función nativa de 'Duplicar Pantalla Completa' de tu dispositivo.");
+                alert("⚠️ Canales Premium (AceStream):\n\nEste canal se procesa localmente en la memoria de este dispositivo (127.0.0.1). Tu TV no puede acceder a él de forma directa.\n\nSolución: Pulsa abajo en el botón naranja 'Abrir en VLC' y envíalo desde ahí usando el icono de Cast de VLC, o duplica la pantalla de tu móvil/PC.");
                 return;
             }
 
+            const isHLSTV = currentMediaUrl.toLowerCase().includes('.m3u8') || currentMediaUrl.toLowerCase().includes('.ts') || currentMediaUrl.toLowerCase().includes('/live/');
+
+            // Caso 2: Emisión en Directo (.m3u8) en navegadores que no lo soportan de forma nativa (Chrome/Edge)
+            if (isHLSTV && !video.canPlayType('application/vnd.apple.mpegurl')) {
+                alert("📢 Transmisión de Canales en Directo:\n\nAl ejecutar la aplicación de forma local, Chrome bloquea el envío de transmisiones en directo (.m3u8) con este botón.\n\nPara ver este canal en tu TV ahora mismo de forma limpia:\n\n1️⃣ Abre el menú de opciones de tu navegador (los tres puntos arriba a la derecha).\n2️⃣ Selecciona 'Transmitir...' (o 'Cast').\n3️⃣ Elige tu televisor y se enviará la pestaña completa con el canal reproduciéndose perfectamente.\n\n💡 Alternativa: También puedes usar el botón naranja 'Abrir en VLC' de abajo.");
+                return;
+            }
+
+            // Caso 3: Películas y archivos directos (O navegadores nativos HLS como Safari/iOS)
             const wasPlaying = !video.paused;
             const timeBackup = video.currentTime;
 
-            // Desmontamos hls.js momentáneamente si estaba activo para eliminar el Blob falso
             if (hlsInstance) {
                 hlsInstance.detachMedia();
             }
 
-            // Forzamos la inyección de la URL de red REAL directa en la etiqueta video
             video.src = currentMediaUrl;
             video.load();
 
-            // Lanzamos el menú de transmisión nativo del sistema operativo (Chromecast, Smart TV, AirPlay)
             if (video.remote && video.remote.prompt) {
                 video.remote.prompt().then(() => {
-                    // Si el usuario sale del menú sin conectar, restauramos el comportamiento local
                     setTimeout(() => {
                         if (video.remote.state !== "connected" && video.remote.state !== "connecting") {
                             restoreLocalPlayback(wasPlaying, timeBackup);
@@ -701,11 +705,10 @@
                     restoreLocalPlayback(wasPlaying, timeBackup);
                 });
             } else if (video.webkitShowPlaybackTargetPicker) {
-                // Alternativa compatible para ecosistemas iOS / Apple Safari (AirPlay nativo)
                 video.webkitShowPlaybackTargetPicker();
                 setTimeout(() => { restoreLocalPlayback(wasPlaying, timeBackup); }, 2000);
             } else {
-                alert("Tu navegador no soporta transmisiones directas automatizadas desde archivos locales.\n\nPrueba lo siguiente: Haz clic derecho sobre la pantalla del video y pulsa 'Enviar...', o despliega el menú de opciones superior de tu navegador y busca 'Transmitir / Enviar...'");
+                alert("Utiliza la función 'Transmitir...' integrada en el menú de los tres puntos de tu navegador para enviar este contenido a tu Smart TV.");
                 restoreLocalPlayback(wasPlaying, timeBackup);
             }
         }
@@ -732,7 +735,6 @@
         function setupPlayerErrorHandling() {
             video.onerror = function() {
                 if (!video.src && currentMediaUrl === "") return;
-                // Si el error salta mientras se intenta conectar a la TV de forma nativa, ignoramos el cuadro rojo local
                 if (video.remote && (video.remote.state === "connected" || video.remote.state === "connecting")) return;
 
                 errorBox.style.backgroundColor = "#c0392b";
