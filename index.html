@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
+    <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
@@ -171,7 +172,7 @@
         .navigation-tabs {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             margin: 15px auto 5px auto;
             max-width: 1000px;
             width: 95%;
@@ -181,8 +182,8 @@
             background: #1e1e1e;
             color: #aaa;
             border: 1px solid #2d2d2d;
-            padding: 12px 6px;
-            font-size: 0.95rem;
+            padding: 12px 4px;
+            font-size: 0.9rem;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
@@ -199,9 +200,10 @@
         }
 
         @media (max-width: 480px) {
+            .navigation-tabs { gap: 4px; }
             .tab-button {
-                font-size: 0.8rem;
-                padding: 10px 4px;
+                font-size: 0.75rem;
+                padding: 10px 2px;
             }
         }
 
@@ -297,7 +299,8 @@
         }
         
         .body-tv-mode .channel-card img,
-        .body-premium-mode .channel-card img {
+        .body-premium-mode .channel-card img,
+        .body-runtime-mode .channel-card img {
             width: 50px;
             height: 50px;
             object-fit: contain;
@@ -342,6 +345,7 @@
 </head>
 <body class="body-tv-mode" id="main-body">
 
+    <!-- Sección del Video -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
@@ -371,6 +375,7 @@
         </div>
     </div>
 
+    <!-- Mensajes Informativos / Lanzadores Alternativos -->
     <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -381,12 +386,15 @@
         </div>
     </div>
 
+    <!-- Menú de Selección de Pestañas (Botón Runtime TV añadido afuera) -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Canales Premium</button>
+        <button id="tab-runtime" class="tab-button" onclick="changeSection('runtime')">🎬 Runtime TV</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
 
+    <!-- Contenido Principal -->
     <div id="content-section">
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
@@ -412,9 +420,8 @@
     </div>
 
     <script>
-        // Repositorio de listas locales (Añadido Runtime TV arriba del todo)
+        // Repositorio de listas locales (Runtime TV removido de aquí por pasar a pestaña propia)
         const REPO_SAGAS = [
-            { name: "Runtime TV", file: "TV RuntimeTV.m3u" },
             { name: "Colección Pixar", file: "Coleccion Pixar.m3u" },
             { name: "Colección DreamWorks Animation", file: "Coleccion DreamWorks Animation.m3u" },
             { name: "Universo DC", file: "Universo DC.m3u" },
@@ -477,6 +484,7 @@
             currentSection = section;
             document.getElementById('tab-tv').classList.toggle('active', section === 'tv');
             document.getElementById('tab-premium').classList.toggle('active', section === 'premium');
+            document.getElementById('tab-runtime').classList.toggle('active', section === 'runtime');
             document.getElementById('tab-movies').classList.toggle('active', section === 'movies');
             
             searchInput.value = "";
@@ -506,6 +514,11 @@
                 categoryLabelText.innerText = "Filtrar por Categoría:";
                 await loadLocalEPG('listas/star+.xml');
                 loadM3UFromUrl('listas/star+.m3u');
+            } else if (section === 'runtime') {
+                mainBody.className = "body-runtime-mode";
+                sagaSelectWrapper.style.display = "none";
+                categoryLabelText.innerText = "Filtrar por Categoría:";
+                loadM3UFromUrl('listas/TV RuntimeTV.m3u');
             } else {
                 mainBody.className = "body-movie-mode";
                 sagaSelectWrapper.style.display = "flex";
@@ -743,7 +756,7 @@
             });
         }
 
-        // --- SISTEMA INTELIGENTE DE DETECCIÓN Y TRADUCCIÓN A MANIFEST HLS ---
+        // --- SISTEMA DE REPRODUCCIÓN ---
         function playMedia(item) {
             errorBox.style.display = "none";
             altActions.style.display = "none";
