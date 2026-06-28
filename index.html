@@ -218,7 +218,7 @@
             color: #4CAF50;
         }
 
-        /* Ocultado el panel de administración por completo */
+        /* Panel de configuración oculto */
         #panel-tv-config {
             display: none !important;
         }
@@ -261,7 +261,7 @@
 
         .now-playing { font-weight: bold; color: #4CAF50; margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Rejilla de Canales */
+        /* Rejilla Base de Canales (Por defecto / TV) */
         #channel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -279,8 +279,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: background 0.2s, border-color 0.2s;
         }
         .channel-card:hover { background: #2a2a2a; border-color: #444; }
+        
         .channel-card img {
             width: 65px;
             height: 90px;
@@ -289,14 +291,46 @@
             border-radius: 6px;
             padding: 1px;
         }
-        /* Ajuste visual para logos de TV tradicionales (que suelen ser horizontales o cuadrados) */
+        
+        /* Ajuste de imagen específico para logos de canales de TV */
         .body-tv-mode .channel-card img {
             width: 50px;
             height: 50px;
             object-fit: contain;
             background: #fff;
         }
-        .channel-card span { font-size: 0.85rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .channel-card span { 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+
+        /* ==========================================================================
+           NUEVOS ESTILOS: Modo Películas (3 por fila fijas y carátulas grandes)
+           ========================================================================== */
+        .body-movie-mode #channel-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        .body-movie-mode .channel-card {
+            padding: 16px 10px;
+        }
+        .body-movie-mode .channel-card img {
+            width: 140px;      /* Carátula más grande */
+            height: 200px;     /* Relación de aspecto vertical de cine */
+            border-radius: 8px;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+        }
+        .body-movie-mode .channel-card span {
+            font-size: 1rem;   /* Letra del título de la peli más grande */
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        /* ========================================================================== */
         
         #player-error-box { display: none; background: #c0392b; color: #fff; padding: 12px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.9rem; }
         #alt-actions { display: none; margin-top: 8px; gap: 10px; justify-content: center; }
@@ -696,7 +730,6 @@
             renderGrid(filtered);
         }
 
-        // LIMPIEZA DE CADENAS DE TEXTO PARA TMDB
         function cleanMovieName(rawName) {
             const yearMatch = rawName.match(/\b(19\d{2}|20[0-2]\d)\b/);
             const detectedYear = yearMatch ? yearMatch[1] : null;
@@ -712,7 +745,7 @@
             return { cleanQuery, detectedYear };
         }
 
-        // NUEVA FUNCIÓN: Busca la carátula en TMDB de forma asíncrona para la rejilla
+        // Busca la carátula en TMDB de forma asíncrona para inyectarla en la rejilla
         async function fetchGridIconFromTMDB(rawName, imgElementId) {
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
             let queriesToTry = [cleanQuery];
@@ -737,7 +770,7 @@
                 if (movie.poster_path) {
                     const targetImg = document.getElementById(imgElementId);
                     if (targetImg) {
-                        targetImg.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+                        targetImg.src = `https://image.tmdb.org/t/p/w300${movie.poster_path}`;
                     }
                 }
             }
@@ -754,15 +787,15 @@
                 card.className = 'channel-card';
                 const uniqueImgId = `grid-icon-${index}`;
                 
-                // Carga la imagen de la lista inicialmente. Si falla, pone la silueta genérica.
+                // Carga la imagen por defecto de tu lista. Si falla, recurre al error handler.
                 card.innerHTML = `
-                    <img id="${uniqueImgId}" src="${channel.logo || 'https://via.placeholder.com/65x90?text=Socram'}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/65x90?text=Sin+Logo'">
+                    <img id="${uniqueImgId}" src="${channel.logo || 'https://via.placeholder.com/140x200?text=SocramFlix'}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/140x200?text=Sin+Imagen'">
                     <span>${channel.name}</span>
                 `;
                 card.onclick = () => playMedia(channel);
                 channelGrid.appendChild(card);
 
-                // Si estamos en la sección películas, intentamos pisar el icono con el de TMDB en segundo plano
+                // Si está activo el modo películas, intenta pisar el logo local con TMDB en segundo plano
                 if (currentSection === 'movies') {
                     fetchGridIconFromTMDB(channel.name, uniqueImgId);
                 }
@@ -898,7 +931,7 @@
             epgInfoElement.innerText = currentProgramTitle;
         }
 
-        // CORRECCIÓN HORARIA: Lee la marca del XML y la renderiza adaptada a tu hora local real
+        // Convierte el desvío horario nativo del archivo XML de origen a tu hora local real
         function parseEPGDate(dateStr) {
             const cleanStr = dateStr.trim();
             
