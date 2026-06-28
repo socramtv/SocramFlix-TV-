@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
+    <!-- Hls.js para reproducir streaming m3u8 en navegadores sin soporte nativo -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
@@ -348,6 +349,7 @@
 </head>
 <body class="body-tv-mode" id="main-body">
 
+    <!-- Sección del Video -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
@@ -377,6 +379,7 @@
         </div>
     </div>
 
+    <!-- Mensajes Informativos -->
     <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -387,6 +390,7 @@
         </div>
     </div>
 
+    <!-- Menú de Selección de Pestañas -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Premium</button>
@@ -395,6 +399,7 @@
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
 
+    <!-- Contenido Principal -->
     <div id="content-section">
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
@@ -641,13 +646,12 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // GESTIÓN DE ENVÍO CORREGIDA (BYPASS DE BLOB PARA HLS)
+        // GESTIÓN DE ENVÍO NATIVO O CON BYPASS SEGURO
         function sendToTV(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
 
-            // TRUCO TÉCNICO: Si hls.js está activo, video.src es un "blob:" local invisible para la TV.
-            // Desacoplamos hls.js un segundo e inyectamos la URL real para que Chrome transmita el texto limpio.
+            // Si hls.js está activo en este momento, rompemos la instancia e inyectamos la URL limpia
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
@@ -657,10 +661,8 @@
 
             if (video.remote && video.remote.prompt) {
                 video.remote.prompt().catch(() => {
-                    // Si el usuario cancela el menú de Cast o falla, reactivamos el stream local para que no se quede colgado
-                    if (originalItemPlaying) {
-                        playMedia(originalItemPlaying);
-                    }
+                    // Si cancelas el menú de transmisión, reactivamos el flujo local automáticamente
+                    if (originalItemPlaying) { playMedia(originalItemPlaying); }
                 });
             } else if (video.webkitShowPlaybackTargetPicker) {
                 video.webkitShowPlaybackTargetPicker();
@@ -674,7 +676,7 @@
                 if (!video.src && currentMediaUrl === "") return;
                 errorBox.style.backgroundColor = "#c0392b";
                 errorBox.style.borderLeftColor = "#e74c3c";
-                errorText.innerHTML = `<strong>Error de Reproducción:</strong> El navegador no ha podido cargar este stream de manera nativa (CORS, token IPTV caducado o códec incompatible).`;
+                errorText.innerHTML = `<strong>Aviso de Reproducción:</strong> El navegador no puede abrir este flujo de forma nativa en tu PC (códec TS directo, CORS o token IPTV caducado). Usa los accesos externos alternativos de aquí abajo:`;
                 errorBox.style.display = "block";
                 altActions.style.display = "flex";
             };
@@ -797,6 +799,7 @@
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
             
+            // Tratamiento de enlaces AceStream locales
             const isAceStream = urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8');
 
             if (isAceStream) {
@@ -811,9 +814,9 @@
                     targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`;
                     epgInfoElement.innerHTML = `
                         <div style="color: #4CAF50; font-weight: bold; margin-bottom: 5px; font-size:1.05rem;">💎 Enlace AceStream Traducido a HLS Interno</div>
-                        <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Recuerda tener la app de <strong>Ace Stream Engine</strong> activa en segundo plano en este equipo.</div>
+                        <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Recuerda tener la app de <strong>Ace Stream Engine</strong> activa en segundo plano.</div>
                     `;
-                    errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Flujo levantado desde tu motor local. Si notas cortes, arrástralo directamente a tu VLC externo.`;
+                    errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Flujo levantado desde tu motor local. Si notas cortes, puedes arrástralo directamente a tu VLC externo.`;
                     errorBox.style.display = "block"; altActions.style.display = "flex";
                 }
             }
@@ -823,24 +826,43 @@
             vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
             copyBtn.onclick = () => { navigator.clipboard.writeText(item.url); alert("¡Enlace original copiado!"); };
 
-            const isHLSTV = targetUrl.toLowerCase().includes('.m3u8') || targetUrl.toLowerCase().includes('.ts') || targetUrl.toLowerCase().includes('/live/');
-            const isDirectVideo = currentSection === 'movies' || targetUrl.toLowerCase().includes('pixeldrain.net') || targetUrl.toLowerCase().includes('.mp4') || targetUrl.toLowerCase().includes('.mkv') || !isHLSTV;
+            // COMPROBACIÓN CRUCIAL: Solo tratamos como HLS puro si el enlace tiene explícitamente el archivo de extensión .m3u8
+            const isStrictHLS = targetUrl.toLowerCase().includes('.m3u8');
 
-            if (isDirectVideo) {
-                timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none";
-                video.src = targetUrl; video.load(); video.play().catch(()=>{});
-                searchMovieInTMDB(item.name);
-            } else {
+            if (isStrictHLS) {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
-                if (Hls.isSupported()) {
-                    hlsInstance = new Hls(); hlsInstance.loadSource(targetUrl); hlsInstance.attachMedia(video);
-                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(()=>{}); });
-                    hlsInstance.on(Hls.Events.ERROR, function(event, data) { if (data.fatal) { video.src = targetUrl; video.play().catch(()=>{}); } });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                
+                // REGLA DE ORO PARA EMITIR: Si el navegador soporta HLS de forma nativa (móviles Android, iOS, Safari)
+                // cargamos directo en el source para evitar generar un Blob y que "Enviar TV" funcione al instante.
+                if (video.canPlayType('application/vnd.apple.mpegurl')) {
                     video.src = targetUrl;
-                    video.addEventListener('loadedmetadata', function() { video.play().catch(()=>{}); });
+                    video.load();
+                    video.play().catch(()=>{});
+                } 
+                // Si no tiene soporte nativo (PC de escritorio Chrome/Firefox), usamos hls.js
+                else if (Hls.isSupported()) {
+                    hlsInstance = new Hls(); 
+                    hlsInstance.loadSource(targetUrl); 
+                    hlsInstance.attachMedia(video);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() { video.play().catch(()=>{}); });
+                } else {
+                    video.src = targetUrl; video.load(); video.play().catch(()=>{});
                 }
+                
                 if (!isAceStream) updateEPGDisplay(item);
+            } else {
+                // Para películas (.mp4, .mkv, pixeldrain) o canales directos de flujo progresivo directo (.ts)
+                if (currentSection === 'movies' || targetUrl.toLowerCase().includes('pixeldrain.net') || targetUrl.toLowerCase().includes('.mp4') || targetUrl.toLowerCase().includes('.mkv')) {
+                    timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none";
+                    searchMovieInTMDB(item.name);
+                } else {
+                    timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
+                    if (!isAceStream) updateEPGDisplay(item);
+                }
+                
+                video.src = targetUrl; 
+                video.load(); 
+                video.play().catch(()=>{});
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
