@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
-    <!-- Hls.js para reproducir streaming m3u8 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
@@ -219,48 +218,9 @@
             color: #4CAF50;
         }
 
-        .input-block {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        .input-block:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-
-        .input-row { display: flex; gap: 10px; margin-top: 5px; }
-        input[type="text"] {
-            flex: 1;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover { background: #45a049; }
-        
-        .btn-alt { background: #008CBA; }
-        .btn-alt:hover { background: #007B9A; }
-        .btn-vlc { background: #e67e22; }
-        .btn-vlc:hover { background: #d35400; }
-
-        input[type="file"] {
-            background: #2a2a2a;
-            color: #fff;
-            padding: 5px;
-            border-radius: 6px;
-            border: 1px solid #444;
-            cursor: pointer;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 5px;
+        /* Ocultado el panel de administración solicitado */
+        #panel-tv-config {
+            display: none !important;
         }
 
         .filter-bar {
@@ -299,7 +259,6 @@
             font-size: 0.95rem;
         }
 
-        #epg-status-list { font-size: 0.8rem; color: #aaa; margin: 5px 0 0 0; padding-left: 20px; }
         .now-playing { font-weight: bold; color: #4CAF50; margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* Rejilla de Canales */
@@ -345,12 +304,10 @@
 </head>
 <body>
 
-    <!-- Sección del Video y Controles Flotantes Inteligentes -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
             
-            <!-- Capa Única de Controles Estilo Cine -->
             <div class="custom-controls" id="custom-controls-layer">
                 <div class="timeline-container" id="timeline-wrapper">
                     <span class="time-display" id="time-current">00:00</span>
@@ -376,7 +333,6 @@
         </div>
     </div>
 
-    <!-- Mensajes de Error -->
     <div style="display:flex; justify-content:center;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -387,42 +343,22 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Apartado Principal -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 Televisión en Directo</button>
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Películas y Sagas Propias</button>
     </div>
 
-    <!-- Contenido Principal -->
     <div id="content-section">
         
-        <!-- Panel de Administración de Listas de TV -->
-        <div class="panel" id="panel-tv-config">
-            <h3>Administrar Listas e IPTV</h3>
-            <div class="input-block">
-                <label><strong>Ruta de la lista actual</strong></label>
-                <div class="input-row">
-                    <input type="text" id="m3u-url-input" placeholder="Pegar enlace M3U aquí..." value="listas/tv.m3u">
-                    <button onclick="loadM3UFromUrl()">Cargar</button>
-                </div>
-            </div>
-            <div class="input-block">
-                <label for="m3u-file-input"><strong>Subir archivo .m3u manual</strong></label>
-                <input type="file" id="m3u-file-input" accept=".m3u,.m3u8" onchange="loadM3UFromFile(event)">
-            </div>
-            <div style="margin-top: 10px;">
-                <strong style="font-size:0.85rem;">Guías EPG Activas:</strong>
-                <ul id="epg-status-list"></ul>
-            </div>
+        <div style="display:none;">
+            <input type="text" id="m3u-url-input" value="listas/tv.m3u">
         </div>
 
-        <!-- Info de Contenido / Ficha TMDB -->
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
             <div id="epg-info">Selecciona cualquier canal o película de abajo para comenzar.</div>
         </div>
 
-        <!-- Barra Unificada de Filtrado y Buscador -->
         <div class="filter-bar">
             <div class="filter-item" id="category-filter-wrapper">
                 <label for="category-select"><strong id="category-label-text">Filtrar por Categoría:</strong></label>
@@ -434,8 +370,7 @@
             <div class="filter-item" id="saga-select-wrapper" style="display: none;">
                 <label for="saga-select"><strong>Seleccionar Colección / Saga:</strong></label>
                 <select id="saga-select" onchange="loadLocalSaga()">
-                    <!-- Automatizado -->
-                </select>
+                    </select>
             </div>
 
             <div class="filter-item">
@@ -444,7 +379,6 @@
             </div>
         </div>
 
-        <!-- Rejilla de canales / películas -->
         <div id="channel-grid"></div>
     </div>
 
@@ -465,7 +399,6 @@
             { name: "Colección Blue Sky", file: "Coleccion Blue Sky.m3u" }
         ];
 
-        // Lógica limpia y directa: Lee tu archivo epg.xml local
         const EPG_URL_LOCAL = 'listas/epg.xml';
         const TMDB_API_KEY = '8057a54a57714cade319b15e4fc0c3b4';
 
@@ -484,7 +417,6 @@
         const categorySelect = document.getElementById('category-select');
         const searchInput = document.getElementById('search-input');
         const epgInfoElement = document.getElementById('epg-info');
-        const epgStatusList = document.getElementById('epg-status-list');
         const m3uUrlInput = document.getElementById('m3u-url-input');
         
         const errorBox = document.getElementById('player-error-box');
@@ -493,7 +425,6 @@
         const vlcBtn = document.getElementById('vlc-btn');
         const copyBtn = document.getElementById('copy-btn');
 
-        const panelTvConfig = document.getElementById('panel-tv-config');
         const sagaSelectWrapper = document.getElementById('saga-select-wrapper');
         const sagaSelect = document.getElementById('saga-select');
         const categoryLabelText = document.getElementById('category-label-text');
@@ -538,12 +469,10 @@
             epgInfoElement.innerText = "Selecciona cualquier contenido de abajo para comenzar.";
 
             if (section === 'tv') {
-                panelTvConfig.style.display = "block";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Filtrar por Categoría:";
                 loadM3UFromUrl();
             } else {
-                panelTvConfig.style.display = "none";
                 sagaSelectWrapper.style.display = "flex";
                 categoryLabelText.innerText = "Sub-Categoría Interna:";
                 loadLocalSaga(); 
@@ -562,83 +491,44 @@
 
         async function loadLocalSaga() {
             const fileUrl = sagaSelect.value;
-            const absoluteUrl = new URL(fileUrl, window.location.href).href;
-            
-            channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#aaa;">Buscando lista en tu repositorio de GitHub...</div>';
+            channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#aaa;">Buscando lista en tu repositorio...</div>';
             try {
                 const response = await fetch(encodeURI(fileUrl));
                 if(!response.ok) throw new Error();
                 const text = await response.text();
                 processM3UText(text);
             } catch (e) {
-                channelGrid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align:left; background:#2c1a1a; border:1px solid #f44336; padding:20px; border-radius:8px; line-height:1.6;">
-                    <strong style="color:#f44336; font-size:1.1rem;">⚠️ No se encuentra el archivo .m3u</strong><br><br>
-                    Tu navegador está intentando leer la lista en esta URL exacta:<br>
-                    <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
-                    <strong>Cómo solucionarlo rápidamente:</strong><br>
-                    1️⃣ Revisa en tu GitHub que la carpeta se llame exactamente <code>listas</code> (todo en minúsculas).<br>
-                    2️⃣ Revisa que el nombre del archivo coincida letra por letra.
-                </div>`;
+                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:10px;">⚠️ Error: No se localizó la saga seleccionada.</div>`;
             }
         }
 
         async function loadM3UFromUrl() {
             const url = m3uUrlInput.value.trim();
-            if (!url) return alert("Escribe una URL.");
-            const absoluteUrl = new URL(url, window.location.href).href;
-            
+            if (!url) return;
             try {
                 const response = await fetch(encodeURI(url));
                 if (!response.ok) throw new Error();
                 const text = await response.text();
                 processM3UText(text);
             } catch (e) {
-                channelGrid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align:left; background:#2c1a1a; border:1px solid #f44336; padding:20px; border-radius:8px; line-height:1.6;">
-                    <strong style="color:#f44336; font-size:1.1rem;">⚠️ No se pudo cargar la lista de TV</strong><br><br>
-                    El sistema está intentando leer el archivo de canales en esta dirección:<br>
-                    <a href="${absoluteUrl}" target="_blank" style="color:#4CAF50; text-decoration:underline; word-break:break-all; font-family:monospace;">${absoluteUrl}</a><br><br>
-                    <strong>Cómo solucionarlo:</strong><br>
-                    1️⃣ Verifica que tu archivo esté subido en la carpeta <code>listas</code> y se llame exactamente <code>tv.m3u</code> (todo en minúsculas).
-                </div>`;
+                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:10px;">⚠️ Error al cargar listas/tv.m3u automáticamente.</div>`;
             }
         }
 
-        // NUEVA LÓGICA DIRECTA: Carga el XML descomprimido local de manera limpia y sin intermediarios
         async function loadLocalEPG() {
-            epgStatusList.innerHTML = '';
-            const li = document.createElement('li');
-            li.innerText = `⏳ Buscando listas/epg.xml...`;
-            epgStatusList.appendChild(li);
-            
             try {
                 const response = await fetch(EPG_URL_LOCAL);
-                if (!response.ok) throw new Error("NoEncontrado");
-                
+                if (!response.ok) throw new Error();
                 let xmlText = await response.text();
-                // Limpiar caracteres "&" sueltos que rompen el lector XML nativo
                 xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
-                
                 const parser = new DOMParser();
-                const doc = parser.parseFromString(xmlText, "application/xml");
-                
-                if (doc.getElementsByTagName("parsererror").length > 0) {
-                    throw new Error("ErrorFormatoXML");
-                }
-                
-                xmlEpgDoc = doc;
-                li.innerText = `✅ Guía epg.xml sincronizada correctamente.`;
-                li.style.color = "#4CAF50";
-                console.log("EPG Local Cargado Correctamente");
+                xmlEpgDoc = parser.parseFromString(xmlText, "application/xml");
+                console.log("EPG Sincronizado");
             } catch (e) {
-                li.innerText = `❌ listas/epg.xml no detectado o corrupto. Sube el archivo descomprimido (.xml) a tu repositorio.`;
-                li.style.color = "#f44336";
-                console.error("Error al procesar el archivo EPG:", e);
+                console.error("No se pudo leer el archivo epg.xml");
             }
         }
 
-        // --- MANEJO DE CONTROLES ---
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -700,6 +590,7 @@
             }
         }
 
+        // Formateador estándar de la línea de tiempo del vídeo
         function formatTime(seconds) {
             if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
             const h = Math.floor(seconds / 3600);
@@ -738,15 +629,6 @@
                 vlcBtn.onclick = () => { window.location.href = `vlc://${currentMediaUrl}`; };
                 copyBtn.onclick = () => { navigator.clipboard.writeText(currentMediaUrl); alert("¡Enlace copiado!"); };
             };
-        }
-
-        function loadM3UFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            channelGrid.innerHTML = '<div>Procesando archivo local...</div>';
-            const reader = new FileReader();
-            reader.onload = function(e) { processM3UText(e.target.result); };
-            reader.readAsText(file);
         }
 
         function processM3UText(text) {
@@ -929,7 +811,7 @@
 
         function updateEPGDisplay(channel) {
             if (!xmlEpgDoc) {
-                epgInfoElement.innerText = "La guía de programación (EPG) no se cargó correctamente. Revisa que exista listas/epg.xml.";
+                epgInfoElement.innerText = "Guía de programación (EPG) no disponible o archivo listas/epg.xml ausente.";
                 return;
             }
             const channelId = channel.epgId || channel.name;
@@ -944,12 +826,17 @@
                     if (startAttr && stopAttr) {
                         const startTime = parseEPGDate(startAttr);
                         const stopTime = parseEPGDate(stopAttr);
+                        
+                        // Si la hora actual encaja entre el inicio y fin recalculados localmente
                         if (now >= startTime && now <= stopTime) {
                             const titleNode = prog.querySelector('title');
                             const descNode = prog.querySelector('desc');
                             currentProgramTitle = titleNode ? titleNode.textContent : "Sin título";
-                            if (descNode) currentProgramTitle += ` - ${descNode.textContent}`;
-                            epgInfoElement.innerText = currentProgramTitle;
+                            if (descNode) currentProgramTitle += ` — ${descNode.textContent}`;
+                            
+                            // Añadimos el intervalo horario como confirmación visual en pantalla
+                            const timeString = ` [${formatEPGTimeLabel(startTime)} - ${formatEPGTimeLabel(stopTime)}]`;
+                            epgInfoElement.innerText = currentProgramTitle + timeString;
                             return;
                         }
                     }
@@ -958,8 +845,44 @@
             epgInfoElement.innerText = currentProgramTitle;
         }
 
+        // LÓGICA DE CORRECCIÓN HORARIA: Convierte la marca temporal con zona horaria del XML a la hora local exacta
         function parseEPGDate(dateStr) {
-            return new Date(dateStr.substr(0, 4), dateStr.substr(4, 2) - 1, dateStr.substr(6, 2), dateStr.substr(8, 2), dateStr.substr(10, 2), dateStr.substr(12, 2));
+            const cleanStr = dateStr.trim();
+            
+            // Extrae componentes fijos: AAAAMMDDHHMMSS
+            const year = parseInt(cleanStr.substr(0, 4), 10);
+            const month = parseInt(cleanStr.substr(4, 2), 10) - 1;
+            const day = parseInt(cleanStr.substr(6, 2), 10);
+            const hour = parseInt(cleanStr.substr(8, 2), 10);
+            const minute = parseInt(cleanStr.substr(10, 2), 10);
+            const second = parseInt(cleanStr.substr(12, 2), 10);
+            
+            // Crea base en formato UTC puro
+            const utcDate = new Date(Date.UTC(year, month, day, hour, minute, second));
+            
+            // Si el string del XML declara su propio desfase (ej: " +0200" o " +0000")
+            if (cleanStr.length > 14) {
+                const tzSign = cleanStr.includes('-') ? -1 : 1;
+                const tzMatch = cleanStr.match(/[\+\-](\d{2})(\d{2})/);
+                if (tzMatch) {
+                    const tzHours = parseInt(tzMatch[1], 10);
+                    const tzMinutes = parseInt(tzMatch[2], 10);
+                    const totalOffsetMinutes = (tzHours * 60 + tzMinutes) * tzSign;
+                    
+                    // Contrarresta el offset del XML para asentar la hora de origen en UTC universal
+                    utcDate.setMinutes(utcDate.getMinutes() - totalOffsetMinutes);
+                }
+            }
+            
+            // Al retornar, el objeto Date se adapta automáticamente al huso horario de tu dispositivo
+            return utcDate;
+        }
+
+        // Genera la etiqueta visual de las horas (ej: "15:45")
+        function formatEPGTimeLabel(dateObj) {
+            const hh = String(dateObj.getHours()).padStart(2, '0');
+            const mm = String(dateObj.getMinutes()).padStart(2, '0');
+            return `${hh}:${mm}`;
         }
 
         window.onload = init;
