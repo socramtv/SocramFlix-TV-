@@ -3,91 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SocramFlix+ - TV Directo</title>
+  <title>SocramFlix+ | Por Socram MASP</title>
   
   <!-- Shaka Player CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
   
   <style>
-    /* Estilos base de SocramFlix+ */
-    body {
-      background-color: #111;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* VARIABLES Y RESET */
+    :root {
+      --bg-color: #141414;
+      --nav-bg: #000000;
+      --primary: #e50914; /* Rojo Netflix/SocramFlix */
+      --text: #ffffff;
+      --text-muted: #aaaaaa;
+      --card-bg: #222222;
+      --card-hover: #333333;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 20px;
+      padding: 0;
     }
 
-    h2 {
-      margin-left: 10px;
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
     }
 
-    /* Contenedor de subpestañas */
+    /* NAVEGACIÓN */
+    nav {
+      background-color: var(--nav-bg);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--primary);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container {
+      padding: 30px;
+    }
+
+    .section-title {
+      margin-bottom: 20px;
+      font-size: 22px;
+      border-left: 4px solid var(--primary);
+      padding-left: 10px;
+    }
+
+    /* SECCIONES (Ocultar/Mostrar) */
+    .app-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .app-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* PESTAÑAS DE TV DIRECTO */
     .sub-tabs-container {
       display: flex;
       gap: 10px;
-      margin-bottom: 20px;
-      padding: 0 10px;
+      margin-bottom: 25px;
     }
 
     .sub-tab-btn {
-      background: #222;
-      color: #aaa;
+      background: var(--card-bg);
+      color: var(--text-muted);
       border: 1px solid #333;
       padding: 10px 20px;
       border-radius: 20px;
       cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
+      font-weight: bold;
+      transition: all 0.2s;
     }
 
     .sub-tab-btn.active {
-      background: #e50914; /* Rojo estilo streaming */
+      background: var(--primary);
       color: #fff;
-      border-color: #e50914;
+      border-color: var(--primary);
     }
 
-    .sub-tab-btn:hover {
-      opacity: 0.9;
-    }
-
-    /* Rejilla de Canales */
-    .channels-grid {
+    /* REJILLA DE TARJETAS (VOD Y CANALES) */
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-      padding: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
     }
 
-    .channel-card {
-      background: #1e1e1e;
-      border: 1px solid #2d2d2d;
+    .card {
+      background: var(--card-bg);
       border-radius: 8px;
-      padding: 15px;
-      text-align: center;
+      overflow: hidden;
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
+      display: flex;
+      flex-direction: column;
     }
 
-    .channel-card:hover {
-      transform: translateY(-5px);
-      background: #282828;
+    .card:hover {
+      transform: scale(1.05);
+      background: var(--card-hover);
     }
 
-    .channel-icon-placeholder {
-      font-size: 32px;
-      margin-bottom: 10px;
+    .card-img-placeholder {
+      height: 240px;
+      background: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      color: #555;
     }
 
-    .channel-name {
+    .card-info {
+      padding: 15px;
+      text-align: center;
+    }
+
+    .card-title {
       font-size: 14px;
       font-weight: bold;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    /* Estilos del Reproductor / Modal */
+    /* MODAL DEL REPRODUCTOR */
     .modal-player {
       display: none;
       position: fixed;
@@ -95,7 +173,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.95);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -103,10 +181,13 @@
     }
 
     .video-container {
-      width: 80%;
-      max-width: 800px;
+      width: 90%;
+      max-width: 1000px;
       background: #000;
       position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
     }
 
     video {
@@ -116,307 +197,155 @@
 
     .close-btn {
       position: absolute;
-      top: -40px;
-      right: 0;
-      background: #e50914;
+      top: 15px;
+      right: 15px;
+      background: rgba(229, 9, 20, 0.8);
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 8px 15px;
       cursor: pointer;
       font-weight: bold;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .close-btn:hover {
+      background: var(--primary);
+    }
+
+    .now-playing-title {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 10;
+      text-shadow: 1px 1px 3px black;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
       border-radius: 4px;
     }
   </style>
 </head>
 <body>
 
-  <h2>TV en Directo</h2>
-
-  <!-- Sección de Control de Pestañas -->
-  <div class="sub-tabs-container">
-    <button id="btn-lista-m3u" class="sub-tab-btn active" onclick="cambiarSubSeccionTV('m3u')">Lista M3U</button>
-    <button id="btn-lista-dash" class="sub-tab-btn" onclick="cambiarSubSeccionTV('dash')">Canales Premium (DASH)</button>
-  </div>
-
-  <!-- Contenedor Rejilla M3U (Tu lista dinámica actual) -->
-  <div id="grid-canales-m3u" class="channels-grid">
-    <div class="channel-card">
-      <div class="channel-icon-placeholder">📺</div>
-      <div class="channel-name">Canal Ejemplo M3U</div>
+  <!-- NAVEGACIÓN -->
+  <nav>
+    <div class="logo" onclick="navegar('inicio')">SocramFlix+</div>
+    <div class="nav-links">
+      <a id="nav-inicio" class="active" onclick="navegar('inicio')">Películas/Series</a>
+      <a id="nav-tv" onclick="navegar('tv')">TV Directo</a>
     </div>
-    <!-- Aquí se inyectan tus canales actuales desde el parser M3U -->
+  </nav>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="container">
+    
+    <!-- SECCIÓN VOD (Películas y Series via TMDB) -->
+    <section id="sec-inicio" class="app-section active">
+      <h2 class="section-title">Películas y Series (TMDB / Pixeldrain)</h2>
+      <div id="grid-vod" class="grid">
+        <!-- Tarjeta de Ejemplo -->
+        <div class="card" onclick="reproducirVideoEstandar('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', 'Ejemplo de Película')">
+          <div class="card-img-placeholder">🎬</div>
+          <div class="card-info">
+            <div class="card-title">Ejemplo Película HLS</div>
+          </div>
+        </div>
+        <!-- Aquí se inyectarán las películas desde TMDB en el futuro -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN TV EN DIRECTO -->
+    <section id="sec-tv" class="app-section">
+      <h2 class="section-title">Televisión en Directo</h2>
+      
+      <!-- Pestañas M3U vs DASH -->
+      <div class="sub-tabs-container">
+        <button id="btn-lista-m3u" class="sub-tab-btn active" onclick="cambiarPestañaTV('m3u')">Lista M3U (GitHub)</button>
+        <button id="btn-lista-dash" class="sub-tab-btn" onclick="cambiarPestañaTV('dash')">Canales Premium (ClearKey)</button>
+      </div>
+
+      <!-- Rejilla Lista M3U -->
+      <div id="grid-tv-m3u" class="grid">
+        <div class="card" onclick="cargarM3UdesdeURL()">
+          <div class="card-img-placeholder">📥</div>
+          <div class="card-info">
+            <div class="card-title">Cargar Lista M3U</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rejilla Canales Premium DASH -->
+      <div id="grid-tv-dash" class="grid" style="display: none;">
+        <!-- Se inyecta dinámicamente con JS -->
+      </div>
+    </section>
+
   </div>
 
-  <!-- Contenedor Rejilla DASH (Nuevos canales fijos) -->
-  <div id="grid-canales-dash" class="channels-grid" style="display: none;">
-    <!-- Se inyecta dinámicamente mediante JS -->
-  </div>
-
-  <!-- Modal del Reproductor de Video -->
+  <!-- MODAL DEL REPRODUCTOR (SHAKA PLAYER) -->
   <div id="modal-player" class="modal-player">
     <div class="video-container">
-      <button class="close-btn" onclick="cerrarModalReproductor()">CERRAR</button>
-      <video id="video" controls autoplay crossorigin="anonymous"></video>
+      <div id="reproductor-titulo" class="now-playing-title">Cargando...</div>
+      <button class="close-btn" onclick="cerrarReproductor()">✖ CERRAR</button>
+      <video id="video-element" controls autoplay crossorigin="anonymous"></video>
     </div>
   </div>
 
   <script>
-    // 1. DATA: Listado Completo de Canales Premium JSON
+    // ==========================================
+    // 1. CONFIGURACIÓN Y VARIABLES GLOBALES
+    // ==========================================
+    let player; // Instancia de Shaka Player
+    let videoElement = document.getElementById('video-element');
+    
+    // URL de tu lista M3U alojada en GitHub (Reemplaza con tu enlace Raw)
+    const M3U_URL = "https://raw.githubusercontent.com/tu-usuario/tu-repo/main/lista.m3u";
+
+    // Datos de Canales DASH (Con claves ClearKey limpias sin el == final)
     const canalesDashPremium = [
-      {
-        "name": "La 1 (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
-        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
-        "key": "Xpy0PVPfRP/NFrxyImanZQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 1 (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
-        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
-        "key": "Xpy0PVPfRP/NFrxyImanZQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 1 (opc.3)",
-        "uri": "https://ch01-nixval01.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
-        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
-        "key": "Xpy0PVPfRP/NFrxyImanZQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 2 (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd",
-        "kid": "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog",
-        "key": "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 2 (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd",
-        "kid": "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog",
-        "key": "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Antena 3 (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd",
-        "kid": "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA",
-        "key": "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Antena 3 (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd",
-        "kid": "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA",
-        "key": "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Cuatro (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd",
-        "kid": "AhED3AYhQMO7acqRqr/szQ",
-        "key": "4XGH4R3Toj7p05B22X4JAQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Cuatro (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd",
-        "kid": "AhED3AYhQMO7acqRqr/szQ",
-        "key": "4XGH4R3Toj7p05B22X4JAQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Telecinco (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd",
-        "kid": "VQdvcEt8SH2iDa2LqwpLgQ",
-        "key": "wwDL9+0WjB2q5WV0O1LGEQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Telecinco (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd",
-        "kid": "VQdvcEt8SH2iDa2LqwpLgQ",
-        "key": "wwDL9+0WjB2q5WV0O1LGEQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La Sexta (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd",
-        "kid": "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg",
-        "key": "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La Sexta (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd",
-        "kid": "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg",
-        "key": "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "BE MAD",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/BeMadTV_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "UX8fhsL+rmq9V09hcxvfeg",
-        "key": "lAFhDeN3GASIf62eDDsTBw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "DMAX",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/DMAX_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "WeNr2gvDp8jCZQKkrHSOhQ",
-        "key": "PScqlFHKkwBE8IM0kwAAMA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "DMAX (-2h)",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/DMAX_HD/__op/delay-dash-wv/__f/manifest.mpd",
-        "kid": "WeNr2gvDp8jCZQKkrHSOhQ",
-        "key": "PScqlFHKkwBE8IM0kwAAMA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Divinity",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Divinity_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "mL+Q54ARRZAjnD61z38xrw",
-        "key": "NEcJOd587mWy7SMzAvmiew",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Energy",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Energy_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "Dj7p51ZgXn2lrGLB/5wO1A",
-        "key": "bs0UuRkBmD0inQNPKuw7vQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "FDF",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/FDF_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "t4V166YLf5GYZ3rJ1I0GUA",
-        "key": "1TwwohcraCbN2Qqg9CDFcw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Neox",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Neox_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "3lJVgzHq6/TmSv0aKbgUfA",
-        "key": "wUKNVDykcObwhYmYKKxELg",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Nova",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/NOVA_HD_B/__op/dash-wv/__f/manifest.mpd",
-        "kid": "naLJOXLwwtWQT9dbGGnM/w",
-        "key": "j8QB+2CfQErTJTakjDthrA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "MEGA",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Mega_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "GWG8H828wxe8VuBKv3ZCig",
-        "key": "VaLN7ES9UqlK8w6aXcU4Ow",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Odisea",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ODISEA_SPA_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "Woxjyfc8Y3PPJiwcKRJ5bw",
-        "key": "faGEjSAzdDE5wp6mHLztEQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Historia",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/HISTORIA_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "+7UNkO2Mp/Jseww8WQyn6g",
-        "key": "8ztYu0FHUsU1Krp16EdqIA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "National Geographic",
-        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "4jaZwZbGi383YqcnP4gNgw",
-        "key": "DOZ0cYQG2MtqTIoXHoZz6w",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "National Geographic Wild",
-        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_WILD_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "DV947LzwRIIAMslreRLkw",
-        "key": "HH9QGDre6LL5p2URlwqWDw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Discovery",
-        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Discovery_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "2u4ojAMrvKTdeouJ9bJIAw",
-        "key": "/IFab9KEoz9phdifwNfx+g",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "WARNER +2H",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/TNT_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
-        "kid": "H1zbpgIj7Ssd-0e23fSaYw",
-        "key": "Qcz3ctmUsjGcvL4Kfb_lJg",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      }
+      { name: "La 1 (opc.1)", uri: "https://bl01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd", kid: "lPLYLTVdT0Sz6SBhzJXdHQ", key: "Xpy0PVPfRP/NFrxyImanZQ" },
+      { name: "La 2 (opc.1)", uri: "https://bl01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd", kid: "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog", key: "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ" },
+      { name: "Antena 3", uri: "https://bl01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd", kid: "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA", key: "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA" },
+      { name: "Cuatro", uri: "https://bl01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd", kid: "AhED3AYhQMO7acqRqr/szQ", key: "4XGH4R3Toj7p05B22X4JAQ" },
+      { name: "Telecinco", uri: "https://bl01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd", kid: "VQdvcEt8SH2iDa2LqwpLgQ", key: "wwDL9+0WjB2q5WV0O1LGEQ" },
+      { name: "La Sexta", uri: "https://bl01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd", kid: "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg", key: "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw" },
+      { name: "BE MAD", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/BeMadTV_HD/__op/dash-wv/__f/manifest.mpd", kid: "UX8fhsL+rmq9V09hcxvfeg", key: "lAFhDeN3GASIf62eDDsTBw" },
+      { name: "DMAX", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/DMAX_HD/__op/dash-wv/__f/manifest.mpd", kid: "WeNr2gvDp8jCZQKkrHSOhQ", key: "PScqlFHKkwBE8IM0kwAAMA" },
+      { name: "Divinity", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Divinity_HD/__op/dash-wv/__f/manifest.mpd", kid: "mL+Q54ARRZAjnD61z38xrw", key: "NEcJOd587mWy7SMzAvmiew" },
+      { name: "Energy", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Energy_HD/__op/dash-wv/__f/manifest.mpd", kid: "Dj7p51ZgXn2lrGLB/5wO1A", key: "bs0UuRkBmD0inQNPKuw7vQ" },
+      { name: "FDF", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/FDF_HD/__op/dash-wv/__f/manifest.mpd", kid: "t4V166YLf5GYZ3rJ1I0GUA", key: "1TwwohcraCbN2Qqg9CDFcw" },
+      { name: "Neox", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Neox_HD/__op/dash-wv/__f/manifest.mpd", kid: "3lJVgzHq6/TmSv0aKbgUfA", key: "wUKNVDykcObwhYmYKKxELg" },
+      { name: "Nova", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/NOVA_HD_B/__op/dash-wv/__f/manifest.mpd", kid: "naLJOXLwwtWQT9dbGGnM/w", key: "j8QB+2CfQErTJTakjDthrA" },
+      { name: "MEGA", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Mega_HD/__op/dash-wv/__f/manifest.mpd", kid: "GWG8H828wxe8VuBKv3ZCig", key: "VaLN7ES9UqlK8w6aXcU4Ow" },
+      { name: "Odisea", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ODISEA_SPA_HD/__op/dash-wv/__f/manifest.mpd", kid: "Woxjyfc8Y3PPJiwcKRJ5bw", key: "faGEjSAzdDE5wp6mHLztEQ" },
+      { name: "Historia", uri: "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/HISTORIA_HD/__op/dash-wv/__f/manifest.mpd", kid: "+7UNkO2Mp/Jseww8WQyn6g", key: "8ztYu0FHUsU1Krp16EdqIA" },
+      { name: "National Geographic", uri: "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_HD/__op/dash-wv/__f/manifest.mpd", kid: "4jaZwZbGi383YqcnP4gNgw", key: "DOZ0cYQG2MtqTIoXHoZz6w" },
+      { name: "Discovery", uri: "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Discovery_HD/__op/dash-wv/__f/manifest.mpd", kid: "2u4ojAMrvKTdeouJ9bJIAw", key: "/IFab9KEoz9phdifwNfx+g" }
     ];
 
-    // Variables globales globales del reproductor
-    let player;
-    let videoElement;
+    // Inicializar app
+    window.addEventListener('DOMContentLoaded', () => {
+      initShakaPlayer();
+      renderizarCanalesDash();
+    });
 
-    // Inicializar Shaka Player al cargar la ventana
-    window.addEventListener('DOMContentLoaded', initShakaPlayer);
-
-    function initShakaPlayer() {
-      // Instalar polyfills para asegurar compatibilidad entre navegadores
-      shaka.polyfil.installAll();
-
-      if (shaka.Player.isBrowserSupported()) {
-        videoElement = document.getElementById('video');
-        player = new shaka.Player(videoElement);
-
-        // Captura de errores globales de Shaka
-        player.addEventListener('error', (event) => {
-          console.error('Error de Shaka Player:', event.detail);
-        });
-      } else {
-        console.error('¡Tu navegador no soporta Shaka Player o reproducción DRM!');
-      }
+    // ==========================================
+    // 2. NAVEGACIÓN Y TABS
+    // ==========================================
+    function navegar(seccion) {
+      document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-links a').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(`sec-${seccion}`).classList.add('active');
+      document.getElementById(`nav-${seccion}`).classList.add('active');
     }
 
-    // 2. LOGICA DE INTERFAZ: Cambiar entre subsecciones M3U y DASH
-    function cambiarSubSeccionTV(tipo) {
-      const gridM3U = document.getElementById('grid-canales-m3u');
-      const gridDash = document.getElementById('grid-canales-dash');
+    function cambiarPestañaTV(tipo) {
+      const gridM3U = document.getElementById('grid-tv-m3u');
+      const gridDash = document.getElementById('grid-tv-dash');
       const btnM3U = document.getElementById('btn-lista-m3u');
       const btnDash = document.getElementById('btn-lista-dash');
 
@@ -430,83 +359,112 @@
         gridDash.style.display = 'grid';
         btnM3U.classList.remove('active');
         btnDash.classList.add('active');
-        
-        // Cargar los canales premium la primera vez que se entra
-        if (gridDash.children.length === 0) {
-          renderizarCanalesDash();
-        }
       }
     }
 
-    // 3. RENDERIZADO: Crear las tarjetas de canales Premium
+    // ==========================================
+    // 3. RENDERIZADO DE CONTENIDO
+    // ==========================================
     function renderizarCanalesDash() {
-      const container = document.getElementById('grid-canales-dash');
-      container.innerHTML = ''; // Limpiar
+      const contenedor = document.getElementById('grid-tv-dash');
+      contenedor.innerHTML = ''; 
 
       canalesDashPremium.forEach(canal => {
-        const card = document.createElement('div');
-        card.className = 'channel-card';
-        card.innerHTML = `
-          <div class="channel-icon-placeholder">🌟</div>
-          <div class="channel-name" title="${canal.name}">${canal.name}</div>
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'card';
+        tarjeta.innerHTML = `
+          <div class="card-img-placeholder">🌟</div>
+          <div class="card-info">
+            <div class="card-title">${canal.name}</div>
+          </div>
         `;
-        
-        // Evento click para reproducir
-        card.addEventListener('click', () => {
-          reproducirCanalPremium(canal);
-        });
-        
-        container.appendChild(card);
+        tarjeta.onclick = () => reproducirCanalDASH(canal);
+        contenedor.appendChild(tarjeta);
       });
     }
 
-    // 4. REPRODUCCIÓN: Lógica multiclave ClearKey y carga en Shaka
-    function reproducirCanalPremium(canal) {
-      abrirModalReproductor();
+    // ==========================================
+    // 4. LÓGICA DE LISTA M3U (GITHUB/LOCAL)
+    // ==========================================
+    async function cargarM3UdesdeURL() {
+      // Este es un parser básico. Puedes ampliarlo con expresiones regulares completas
+      alert('Aquí implementaremos tu lógica de parseo de GitHub: ' + M3U_URL);
+      // fetch(M3U_URL).then(res => res.text()).then(data => parseM3U(data));
+    }
 
-      // Construcción del objeto ClearKey dinámicamente
-      const clearKeysObj = {};
+    // ==========================================
+    // 5. SHAKA PLAYER Y REPRODUCCIÓN
+    // ==========================================
+    function initShakaPlayer() {
+      shaka.polyfill.installAll();
+      if (shaka.Player.isBrowserSupported()) {
+        player = new shaka.Player(videoElement);
+        player.addEventListener('error', onErrorEvent);
+      } else {
+        console.error('El navegador no soporta Shaka Player');
+      }
+    }
+
+    function onErrorEvent(event) {
+      console.error('Error de Shaka Player', event.detail);
+    }
+
+    // Reproducción de video normal o HLS (Listas M3U, Pixeldrain)
+    function reproducirVideoEstandar(url, titulo) {
+      abrirModal(titulo);
       
-      // Separar por comas por si el canal contiene múltiples claves (ej: La 2, Antena 3)
-      const kidsArray = canal.kid.split(',');
-      const keysArray = canal.key.split(',');
+      // Limpiar configuración DRM si la hubiera de un canal anterior
+      player.configure({ drm: { clearKeys: {} } }); 
+      
+      player.load(url).then(() => {
+        videoElement.play();
+      }).catch(error => {
+        console.error('Error cargando el video estandar:', error);
+      });
+    }
 
-      kidsArray.forEach((kid, index) => {
-        if (keysArray[index]) {
-          const cleanKid = kid.trim();
-          const cleanKey = keysArray[index].trim();
-          clearKeysObj[cleanKid] = cleanKey;
+    // Reproducción de Canales Premium con Múltiples ClearKeys
+    function reproducirCanalDASH(canal) {
+      abrirModal(canal.name);
+      
+      const clearKeysObj = {};
+      const kids = canal.kid.split(',');
+      const keys = canal.key.split(',');
+
+      kids.forEach((kid, index) => {
+        if (keys[index]) {
+          clearKeysObj[kid.trim()] = keys[index].trim();
         }
       });
 
-      // Configurar Shaka con el set de llaves mapeadas
       player.configure({
         drm: {
           clearKeys: clearKeysObj
         }
       });
 
-      // Cargar el manifiesto MPD
       player.load(canal.uri).then(() => {
-        console.log(`Reproduciendo con éxito: ${canal.name}`);
         videoElement.play();
       }).catch(error => {
-        console.error('Fallo al cargar el manifiesto de Shaka Player:', error);
-        alert('Error al reproducir el canal. Verifica si las claves de cifrado siguen vigentes.');
-        cerrarModalReproductor();
+        console.error('Error cargando MPEG-DASH:', error);
+        alert('Error al reproducir. Revisa si los tokens han expirado.');
+        cerrarReproductor();
       });
     }
 
-    // 5. CONTROLES DEL MODAL
-    function abrirModalReproductor() {
+    // Controles del Modal
+    function abrirModal(titulo) {
+      document.getElementById('reproductor-titulo').innerText = titulo;
       document.getElementById('modal-player').style.display = 'flex';
     }
 
-    function cerrarModalReproductor() {
+    function cerrarReproductor() {
       document.getElementById('modal-player').style.display = 'none';
       if (videoElement) {
         videoElement.pause();
-        player.unload(); // Detiene la descarga de segmentos en segundo plano
+      }
+      if (player) {
+        player.unload(); // Muy importante para detener la descarga de chunks en segundo plano
       }
     }
   </script>
