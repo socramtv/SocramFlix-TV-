@@ -325,16 +325,16 @@
             box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
         }
         
-        #player-error-box { display: none; background: #2980b9; color: #fff; padding: 15px; width: 100%; max-width: 1000px; box-sizing: border-box; font-size: 0.95rem; border-radius: 4px; margin-top: 5px; border-left: 5px solid #3498db; }
-        #alt-actions { display: none; margin-top: 12px; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .btn-vlc { background: #e67e22; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .btn-alt { background: #34495e; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-
         .movie-flex-container { display: flex; gap: 20px; margin-top: 5px; align-items: flex-start; }
         .movie-poster { width: 115px; min-width: 115px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.6); border: 1px solid #444; }
         .movie-text-details h4 { margin: 0 0 6px 0; color: #fff; font-size: 1.3rem; }
         .movie-text-details .movie-year { color: #4CAF50; font-size: 0.95rem; margin-bottom: 8px; font-weight: bold; }
         .movie-text-details p { margin: 0; font-size: 0.95rem; color: #d2d2d2; line-height: 1.5; }
+
+        /* Estilo para ocultar/mostrar dinámicamente el botón de envío */
+        #cast-btn {
+            display: none;
+        }
     </style>
 </head>
 <body class="body-tv-mode" id="main-body">
@@ -361,20 +361,11 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
+                        <!-- El botón solo aparecerá en películas y sagas -->
+                        <button class="control-btn" id="cast-btn" onclick="sendToCast(event)" title="Enviar a TV">📺 Enviar TV</button>
                         <button class="control-btn" onclick="toggleFullscreen(event)">🔲</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mensajes Informativos -->
-    <div style="display:flex; justify-content:center; padding: 0 15px;">
-        <div id="player-error-box">
-            <div id="error-text"></div>
-            <div id="alt-actions">
-                <button class="btn-vlc" id="vlc-btn">🧡 Abrir en VLC</button>
-                <button class="btn-alt" id="copy-btn">📋 Copiar Enlace Stream</button>
             </div>
         </div>
     </div>
@@ -442,18 +433,13 @@
         const videoWrapper = document.getElementById('video-wrapper');
         const timelineWrapper = document.getElementById('timeline-wrapper');
         const liveIndicator = document.getElementById('live-indicator');
+        const castBtn = document.getElementById('cast-btn');
 
         const channelGrid = document.getElementById('channel-grid');
         const categorySelect = document.getElementById('category-select');
         const searchInput = document.getElementById('search-input');
         const epgInfoElement = document.getElementById('epg-info');
         const mainBody = document.getElementById('main-body');
-        
-        const errorBox = document.getElementById('player-error-box');
-        const errorText = document.getElementById('error-text');
-        const altActions = document.getElementById('alt-actions');
-        const vlcBtn = document.getElementById('vlc-btn');
-        const copyBtn = document.getElementById('copy-btn');
 
         const sagaSelectWrapper = document.getElementById('saga-select-wrapper');
         const sagaSelect = document.getElementById('saga-select');
@@ -469,7 +455,6 @@
             buildSagaDropdown();
             await loadLocalEPG('listas/epg.xml');
             loadM3UFromUrl('listas/tv.m3u'); 
-            setupPlayerErrorHandling();
             setupPlayerListeners();
         }
 
@@ -489,7 +474,7 @@
             
             timelineWrapper.style.display = "none";
             liveIndicator.style.display = "none";
-            errorBox.style.display = "none";
+            castBtn.style.display = "none"; // Ocultar siempre al cambiar de sección
             
             channels = [];
             categorySelect.innerHTML = '<option value="">Cargando catálogo...</option>';
@@ -633,15 +618,16 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        function setupPlayerErrorHandling() {
-            video.onerror = function() {
-                if (!video.src && currentMediaUrl === "") return;
-                errorBox.style.backgroundColor = "#c0392b";
-                errorBox.style.borderLeftColor = "#e74c3c";
-                errorText.innerHTML = `<strong>Aviso de Reproducción:</strong> El navegador no puede abrir este flujo de forma nativa en tu PC (códec TS directo, CORS o token IPTV caducado). Usa los accesos externos alternativos de aquí abajo:`;
-                errorBox.style.display = "block";
-                altActions.style.display = "flex";
-            };
+        // Función encargada del envío a TV externa
+        function sendToCast(e) {
+            if(e) e.stopPropagation();
+            if (!currentMediaUrl) {
+                alert("Primero selecciona una película para enviar.");
+                return;
+            }
+            // Intenta abrir el flujo de vídeo usando la app externa Web Video Cast si está instalada en el móvil
+            const castIntentUrl = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+            window.location.href = castIntentUrl;
         }
 
         function processM3UText(text) {
@@ -749,11 +735,6 @@
         }
 
         function playMedia(item) {
-            errorBox.style.display = "none";
-            altActions.style.display = "none";
-            errorBox.style.backgroundColor = "#2980b9"; 
-            errorBox.style.borderLeftColor = "#3498db";
-
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.src = ''; video.load();
 
@@ -777,15 +758,17 @@
                         <div style="color: #4CAF50; font-weight: bold; margin-bottom: 5px; font-size:1.05rem;">💎 Enlace AceStream Traducido a HLS Interno</div>
                         <div style="line-height:1.4;">Inyectando manifiesto HLS directo. Recuerda tener la app de <strong>Ace Stream Engine</strong> activa en segundo plano.</div>
                     `;
-                    errorText.innerHTML = `<strong>Canal Premium P2P Activo:</strong> Flujo levantado desde tu motor local. Si notas cortes, puedes arrástralo directamente a tu VLC externo.`;
-                    errorBox.style.display = "block"; altActions.style.display = "flex";
                 }
             }
 
             currentMediaUrl = targetUrl;
-            
-            vlcBtn.onclick = () => { window.location.href = `vlc://${item.url}`; };
-            copyBtn.onclick = () => { navigator.clipboard.writeText(item.url); alert("¡Enlace original copiado!"); };
+
+            // Filtro estricto para mostrar el botón de Cast SOLO en películas y sagas
+            if (currentSection === 'movies') {
+                castBtn.style.display = "block";
+            } else {
+                castBtn.style.display = "none";
+            }
 
             const isStrictHLS = targetUrl.toLowerCase().includes('.m3u8');
 
