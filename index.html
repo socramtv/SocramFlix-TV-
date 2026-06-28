@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
-    <!-- Hls.js para reproducir streaming m3u8 localmente -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
@@ -349,7 +348,6 @@
 </head>
 <body class="body-tv-mode" id="main-body">
 
-    <!-- Sección del Video -->
     <div id="player-section">
         <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
             <video id="video" x-webkit-airplay="allow" preload="auto"></video>
@@ -379,7 +377,6 @@
         </div>
     </div>
 
-    <!-- Mensajes Informativos -->
     <div style="display:flex; justify-content:center; padding: 0 15px;">
         <div id="player-error-box">
             <div id="error-text"></div>
@@ -390,7 +387,6 @@
         </div>
     </div>
 
-    <!-- Menú de Selección de Pestañas -->
     <div class="navigation-tabs">
         <button id="tab-tv" class="tab-button active" onclick="changeSection('tv')">📺 TV Directo</button>
         <button id="tab-premium" class="tab-button" onclick="changeSection('premium')">💎 Premium</button>
@@ -399,7 +395,6 @@
         <button id="tab-movies" class="tab-button" onclick="changeSection('movies')">🍿 Pelis y Sagas</button>
     </div>
 
-    <!-- Contenido Principal -->
     <div id="content-section">
         <div id="epg-container" class="panel">
             <div class="now-playing">🍿 Información en Pantalla</div>
@@ -646,26 +641,31 @@
             if (!document.fullscreenElement) { videoWrapper.requestFullscreen().catch(err => {}); } else { document.exitFullscreen(); }
         }
 
-        // GESTIÓN DE ENVÍO FILTRADA (PELÍCULAS VS CANALES CON RESTRICCIONES)
+        // GESTIÓN DE ENVÍO CORREGIDA (BYPASS DE BLOB PARA HLS)
         function sendToTV(e) {
             if(e) e.stopPropagation();
             if (!currentMediaUrl) return alert("Primero selecciona un canal o película de la lista.");
 
-            // Si es un canal en directo (.m3u8), alertamos de las restricciones CORS inevitables del hardware Chromecast
-            const isHLSTV = currentMediaUrl.toLowerCase().includes('.m3u8') || currentMediaUrl.toLowerCase().includes('.ts') || currentMediaUrl.toLowerCase().includes('/live/');
-
-            if (isHLSTV) {
-                alert("📢 RETRANSMISIÓN DE CANALES IPTV:\n\nLos canales en directo tienen restricciones de seguridad (CORS/Tokens) impuestas por los servidores de la lista. Tu Smart TV rechaza la carga directa.\n\nPara verlo en tu TV ahora mismo sin cortes:\n\n1️⃣ Abre el menú de los 3 puntos de tu navegador Chrome (arriba a la derecha).\n2️⃣ Selecciona la opción 'Transmitir...' (o 'Cast').\n3️⃣ Elige tu televisión y se duplicará la pestaña con el vídeo fluyendo perfecto.\n\n💡 Alternativa: También puedes usar el botón naranja de VLC de abajo.");
-                return;
+            // TRUCO TÉCNICO: Si hls.js está activo, video.src es un "blob:" local invisible para la TV.
+            // Desacoplamos hls.js un segundo e inyectamos la URL real para que Chrome transmita el texto limpio.
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+                video.src = currentMediaUrl;
+                video.load();
             }
 
-            // Si es película (archivo directo libre), ejecuta el disparador nativo de transmisión
             if (video.remote && video.remote.prompt) {
-                video.remote.prompt().catch(() => {});
+                video.remote.prompt().catch(() => {
+                    // Si el usuario cancela el menú de Cast o falla, reactivamos el stream local para que no se quede colgado
+                    if (originalItemPlaying) {
+                        playMedia(originalItemPlaying);
+                    }
+                });
             } else if (video.webkitShowPlaybackTargetPicker) {
                 video.webkitShowPlaybackTargetPicker();
             } else {
-                alert("Para lanzar este contenido usa la función nativa 'Transmitir...' del menú superior de Chrome.");
+                alert("Para lanzar este contenido usa la función nativa 'Transmitir...' del menú de Chrome.");
             }
         }
 
