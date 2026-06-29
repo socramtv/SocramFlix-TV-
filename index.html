@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocramFlix+ Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.11/dist/shaka-player.compiled.js"></script>
     <style>
         :root {
             --accent: #E50914;
@@ -217,7 +218,7 @@
         /* ─── TABS ─── */
         .navigation-tabs {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 0;
             max-width: 1000px;
             margin: 0 auto;
@@ -248,12 +249,26 @@
             color: #fff;
             border-bottom-color: var(--accent);
         }
-        @media (max-width: 520px) {
-            .navigation-tabs { grid-template-columns: repeat(2, 1fr); gap: 1px; }
-            .tab-button { padding: 12px 6px; font-size: 0.8rem; }
+        /* TV+ tab con acento azul para diferenciarlo */
+        #tab-tvplus.active {
+            border-bottom-color: #2196F3;
         }
-        @media (max-width: 350px) {
-            .tab-button { font-size: 0.72rem; gap: 3px; }
+        #tab-tvplus:hover { color: #90caf9; }
+        .tvplus-badge {
+            background: #2196F3;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+        }
+        @media (max-width: 600px) {
+            .navigation-tabs { grid-template-columns: repeat(3, 1fr); gap: 1px; }
+            .tab-button { padding: 12px 4px; font-size: 0.75rem; gap: 3px; }
+        }
+        @media (max-width: 380px) {
+            .tab-button { font-size: 0.68rem; }
         }
 
         /* ─── CONTENT ─── */
@@ -376,6 +391,7 @@
             padding: 2px;
         }
         .body-tv-mode .channel-card img,
+        .body-tvplus-mode .channel-card img,
         .body-premium-mode .channel-card img,
         .body-runtime-mode .channel-card img,
         .body-rakuten-mode .channel-card img {
@@ -517,6 +533,7 @@
     <!-- Tabs -->
     <div class="navigation-tabs">
         <button id="tab-tv"      class="tab-button active" onclick="changeSection('tv')">📺 TV</button>
+        <button id="tab-tvplus"  class="tab-button"        onclick="changeSection('tvplus')">📡 TV+ <span class="tvplus-badge">DRM</span></button>
         <button id="tab-premium" class="tab-button"        onclick="changeSection('premium')">💎 Premium</button>
         <button id="tab-runtime" class="tab-button"        onclick="changeSection('runtime')">🎬 Runtime</button>
         <button id="tab-rakuten" class="tab-button"        onclick="changeSection('rakuten')">🌟 Rakuten</button>
@@ -600,10 +617,12 @@
         let channels        = [];
         let xmlEpgDoc       = null;
         let hlsInstance     = null;
+        let shakaInstance   = null;
         let currentMediaUrl = "";
 
         // ── INIT ─────────────────────────────────
         async function init() {
+            shaka.polyfill.installAll();
             buildSagaDropdown();
             await loadLocalEPG('listas/epg.xml');
             loadM3UFromUrl('listas/tv.m3u');
@@ -613,12 +632,13 @@
         // ── SECTIONS ─────────────────────────────
         async function changeSection(section) {
             currentSection = section;
-            ['tv','premium','runtime','rakuten','movies'].forEach(s => {
+            ['tv','tvplus','premium','runtime','rakuten','movies'].forEach(s => {
                 document.getElementById('tab-' + s).classList.toggle('active', s === section);
             });
 
             searchInput.value = "";
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+            if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
             video.pause(); video.src = ''; video.load();
             currentMediaUrl = "";
             showIdleOverlay();
@@ -639,6 +659,12 @@
                 categoryLabelText.innerText = "Categoría";
                 await loadLocalEPG('listas/epg.xml');
                 loadM3UFromUrl('listas/tv.m3u');
+            } else if (section === 'tvplus') {
+                mainBody.className = "body-tvplus-mode";
+                sagaSelectWrapper.style.display = "none";
+                categoryLabelText.innerText = "Grupo";
+                xmlEpgDoc = null;
+                loadTVPlusJSON('listas/tvplus.json');
             } else if (section === 'premium') {
                 mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
@@ -711,6 +737,78 @@
                 xmlEpgDoc = parser.parseFromString(xmlText, "application/xml");
             } catch (e) {
                 xmlEpgDoc = null;
+            }
+        }
+
+        // ── TV+ JSON (ClearKey DASH) ───────────────
+        async function loadTVPlusJSON(url) {
+            try {
+                const response = await fetch(encodeURI(url));
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                // El JSON puede ser un array de grupos [ { name, samples: [...] } ]
+                // o directamente un array de canales [ { name, uri, kid, key, ... } ]
+                let flatChannels = [];
+                if (Array.isArray(data)) {
+                    // Detectar si es array de grupos o de canales
+                    if (data.length > 0 && data[0].samples !== undefined) {
+                        // Array de grupos
+                        data.forEach(group => {
+                            (group.samples || []).forEach(ch => {
+                                flatChannels.push({
+                                    name: ch.name,
+                                    url: ch.uri,
+                                    logo: ch.logo || '',
+                                    category: group.name || 'Sin grupo',
+                                    epgId: ch.tvg_id || '',
+                                    kid: ch.kid || '',
+                                    key: ch.key || '',
+                                    drm_scheme: ch.drm_scheme || '',
+                                    extension: ch.extension || ''
+                                });
+                            });
+                        });
+                    } else {
+                        // Array plano de canales
+                        data.forEach(ch => {
+                            flatChannels.push({
+                                name: ch.name,
+                                url: ch.uri || ch.url,
+                                logo: ch.logo || '',
+                                category: ch.group || 'Sin grupo',
+                                epgId: ch.tvg_id || '',
+                                kid: ch.kid || '',
+                                key: ch.key || '',
+                                drm_scheme: ch.drm_scheme || '',
+                                extension: ch.extension || ''
+                            });
+                        });
+                    }
+                } else if (typeof data === 'object') {
+                    // Objeto con claves = grupos: { "NACIONALES": [...] }
+                    Object.entries(data).forEach(([groupName, items]) => {
+                        (Array.isArray(items) ? items : []).forEach(ch => {
+                            flatChannels.push({
+                                name: ch.name,
+                                url: ch.uri || ch.url,
+                                logo: ch.logo || '',
+                                category: groupName,
+                                epgId: ch.tvg_id || '',
+                                kid: ch.kid || '',
+                                key: ch.key || '',
+                                drm_scheme: ch.drm_scheme || '',
+                                extension: ch.extension || ''
+                            });
+                        });
+                    });
+                }
+
+                if (flatChannels.length === 0) throw new Error('Sin canales');
+                channels = flatChannels;
+                buildCategoryMenu();
+                applyFilters();
+            } catch (e) {
+                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ Error cargando TV+: ${e.message}<br><span style="color:#666; font-size:0.8rem;">Comprueba que listas/tvplus.json existe en tu repositorio.</span></div>`;
             }
         }
 
@@ -871,15 +969,17 @@
         }
 
         // ── PLAY MEDIA ────────────────────────────
-        function playMedia(item) {
+        async function playMedia(item) {
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+            if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
             video.pause(); video.src = ''; video.load();
 
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
+
+            // ── AceStream ──
             const isAce = urlLower.includes('6878') || urlLower.includes('ace/getstream') ||
                           urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8');
-
             if (isAce) {
                 const idMatch = targetUrl.match(/[?&]id=([^&]+)/);
                 let aceId = idMatch ? idMatch[1] : (targetUrl.match(/([a-fA-F0-9]{40})/) || [])[1] || "";
@@ -894,6 +994,38 @@
             currentMediaUrl = targetUrl;
             castBtn.style.display = (currentSection === 'movies' || isAce) ? "block" : "none";
 
+            // ── ClearKey DRM (TV+) ──
+            const isClearKey = item.kid && item.key;
+            if (isClearKey) {
+                timelineWrapper.style.display = "none";
+                liveIndicator.style.display   = "block";
+                epgInfoElement.innerHTML = `
+                    <div style="color:#2196F3; font-weight:700; margin-bottom:4px;">🔐 ${item.name}</div>
+                    <div style="color:#aaa; font-size:0.85rem;">Reproduciendo con ClearKey DRM · DASH/MPD</div>`;
+                try {
+                    shakaInstance = new shaka.Player(video);
+                    shakaInstance.addEventListener('error', (e) => {
+                        epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error Shaka: ${e.detail?.message || 'No se pudo reproducir.'}</span>`;
+                    });
+                    // Convertir kid/key de base64url a hex para ClearKey
+                    const kidHex = base64urlToHex(item.kid);
+                    const keyHex = base64urlToHex(item.key);
+                    await shakaInstance.configure({
+                        drm: {
+                            clearKeys: { [kidHex]: keyHex }
+                        }
+                    });
+                    await shakaInstance.load(targetUrl);
+                    video.play().catch(() => {});
+                    hideIdleOverlay();
+                } catch (err) {
+                    epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error al cargar el canal: ${err.message}</span>`;
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            // ── HLS / VOD normal ──
             const isHLS = targetUrl.includes('.m3u8') || ['tv','premium','runtime','rakuten'].includes(currentSection);
             if (isHLS) {
                 timelineWrapper.style.display = "none";
@@ -922,6 +1054,20 @@
                 video.src = targetUrl; video.load(); video.play().catch(()=>{});
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Convierte base64url (con o sin padding) a string hex para ClearKey de Shaka
+        function base64urlToHex(b64) {
+            // Normalizar: base64url → base64 estándar
+            let str = b64.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            try {
+                const bin = atob(str);
+                return Array.from(bin).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+            } catch {
+                // Si ya viene en hex, devolverlo tal cual (lowercase)
+                return b64.toLowerCase();
+            }
         }
 
         // ── TMDB ──────────────────────────────────
