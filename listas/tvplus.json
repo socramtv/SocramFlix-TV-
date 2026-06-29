@@ -2,129 +2,49 @@
   {
     "name": "📺 NACIONALES",
     "samples": [
-      {
-        "name": "La 1 (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
-        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
-        "key": "Xpy0PVPfRP/NFrxyImanZQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 1 (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
-        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
-        "key": "Xpy0PVPfRP/NFrxyImanZQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 1 (opc.3)",
-        "uri": "https://ch01-nixval01.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
-        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
-        "key": "Xpy0PVPfRP/NFrxyImanZQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 2 (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd",
-        "kid": "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog",
-        "key": "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La 2 (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd",
-        "kid": "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog",
-        "key": "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Antena 3 (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd",
-        "kid": "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA",
-        "key": "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Antena 3 (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd",
-        "kid": "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA",
-        "key": "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Cuatro (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd",
-        "kid": "AhED3AYhQMO7acqRqr/szQ",
-        "key": "4XGH4R3Toj7p05B22X4JAQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Cuatro (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd",
-        "kid": "AhED3AYhQMO7acqRqr/szQ",
-        "key": "4XGH4R3Toj7p05B22X4JAQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Telecinco (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd",
-        "kid": "VQdvcEt8SH2iDa2LqwpLgQ",
-        "key": "wwDL9+0WjB2q5WV0O1LGEQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Telecinco (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd",
-        "kid": "VQdvcEt8SH2iDa2LqwpLgQ",
-        "key": "wwDL9+0WjB2q5WV0O1LGEQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La Sexta (opc.1)",
-        "uri": "https://bl01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd",
-        "kid": "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg",
-        "key": "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "La Sexta (opc.2)",
-        "uri": "https://mad01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd",
-        "kid": "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg",
-        "key": "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
+        {
         "name": "La 1",
-        "uri": "https://ztnr.rtve.es/ztnr/1688877.m3u8",
-        "kid": "",
-        "key": "",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/La1_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "D4ddFD5FTCAtog1ZsmBTKQ",
+        "key": "MqwWzb3XV17UnvyuaWMqDQ",
         "drm_scheme": "clearkey",
-        "extension": "m3u8"
+        "extension": "mpd"
+      },
+      {
+        "name": "La 1 (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v1/__c/La1_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "D4ddFD5FTCAtog1ZsmBTKQ",
+        "key": "MqwWzb3XV17UnvyuaWMqDQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
       },
       {
         "name": "La 2",
-        "uri": "https://d4g9wh8d4wiaw.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-crbrakk0yedqb/La2ES.m3u8",
-        "kid": "",
-        "key": "",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/La2_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "n9z7qqWWxGV4gx4Ou/kdjw",
+        "key": "o3p1X1GQqXI/BUNdkshIZQ",
         "drm_scheme": "clearkey",
-        "extension": "m3u8"
+        "extension": "mpd"
+      },
+      {
+        "name": "La 2 (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v1/__c/La2_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "n9z7qqWWxGV4gx4Ou/kdjw",
+        "key": "o3p1X1GQqXI/BUNdkshIZQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
       },
       {
         "name": "Antena 3",
         "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Antena3_HD_A/__op/dash-wv/__f/manifest.mpd",
+        "kid": "jbAmOXn3oPJviSgTZIVMaw",
+        "key": "Iq4z5+k8LUJSTnsBpmAh1A",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Antena 3 (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/Antena3_HD_A/__op/delay-dash-wv/__f/manifest.mpd",
         "kid": "jbAmOXn3oPJviSgTZIVMaw",
         "key": "Iq4z5+k8LUJSTnsBpmAh1A",
         "drm_scheme": "clearkey",
@@ -139,6 +59,14 @@
         "extension": "mpd"
       },
       {
+        "name": "Cuatro (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/Cuatro_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "GTvkC7KWgzN27Rdd9naJjA",
+        "key": "s8CUDpXQAsErALYtSeM+dw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
         "name": "Telecinco",
         "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/Telecinco_HD/__op/dash-wv/__f/manifest.mpd",
         "kid": "nlAwDg8BfB8FMIckB7q+KQ",
@@ -147,12 +75,156 @@
         "extension": "mpd"
       },
       {
-        "name": "La Sexta",
-        "uri": "https://atres-live.atresmedia.com/19681bd7754298ad6bfc0c9d964bab169f84dda3_ES_1771787566_1771816306/hlsts/live/lasexta_usp/lasexta_usp.isml/playlist.m3u8",
-        "kid": "",
-        "key": "",
+        "name": "Telecinco (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v1/__c/Telecinco_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "nlAwDg8BfB8FMIckB7q+KQ",
+        "key": "VwKG4eIN7PkDm0ZVUdZvoQ",
         "drm_scheme": "clearkey",
-        "extension": "m3u8"
+        "extension": "mpd"
+      },
+      {
+        "name": "La Sexta",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/La_Sexta_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "xcERh9+81/UQR2w728ypuQ",
+        "key": "fOmk0A1ize1SLXtZfJIbnQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La Sexta (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v1/__c/La_Sexta_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "xcERh9+81/UQR2w728ypuQ",
+        "key": "fOmk0A1ize1SLXtZfJIbnQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+          {
+        "name": "Divinity",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Divinity_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "mL+Q54ARRZAjnD61z38xrw",
+        "key": "NEcJOd587mWy7SMzAvmiew",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Divinity (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/Divinity_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "mL+Q54ARRZAjnD61z38xrw",
+        "key": "NEcJOd587mWy7SMzAvmiew",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Energy",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Energy_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "Dj7p51ZgXn2lrGLB/5wO1A",
+        "key": "bs0UuRkBmD0inQNPKuw7vQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Energy (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/Energy_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "Dj7p51ZgXn2lrGLB/5wO1A",
+        "key": "bs0UuRkBmD0inQNPKuw7vQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "FDF",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/FDF_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "t4V166YLf5GYZ3rJ1I0GUA",
+        "key": "1TwwohcraCbN2Qqg9CDFcw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "FDF (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/FDF_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "t4V166YLf5GYZ3rJ1I0GUA",
+        "key": "1TwwohcraCbN2Qqg9CDFcw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+        {
+        "name": "Neox",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Neox_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "3lJVgzHq6/TmSv0aKbgUfA",
+        "key": "wUKNVDykcObwhYmYKKxELg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Neox (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/Neox_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "3lJVgzHq6/TmSv0aKbgUfA",
+        "key": "wUKNVDykcObwhYmYKKxELg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Nova",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/NOVA_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "naLJOXLwwtWQT9dbGGnM/w",
+        "key": "j8QB+2CfQErTJTakjDthrA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Nova (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/NOVA_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "naLJOXLwwtWQT9dbGGnM/w",
+        "key": "j8QB+2CfQErTJTakjDthrA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+        {
+        "name": "BE MAD",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/BeMadTV_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "UX8fhsL+rmq9V09hcxvfeg",
+        "key": "lAFhDeN3GASIf62eDDsTBw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "BE MAD (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v1/__c/BeMadTV_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "UX8fhsL+rmq9V09hcxvfeg",
+        "key": "lAFhDeN3GASIf62eDDsTBw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+       {
+        "name": "MEGA",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Mega_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "GWG8H828wxe8VuBKv3ZCig",
+        "key": "VaLN7ES9UqlK8w6aXcU4Ow",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MEGA (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/Mega_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "GWG8H828wxe8VuBKv3ZCig",
+        "key": "VaLN7ES9UqlK8w6aXcU4Ow",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+        {
+        "name": "Ten",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/TEN_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "5nC820UiUwaeOmaR8p3fHQ",
+        "key": "m+AwOw0V+yVgGBvGlqJbKQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Ten (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/TEN_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "5nC820UiUwaeOmaR8p3fHQ",
+        "key": "m+AwOw0V+yVgGBvGlqJbKQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
       },
       {
         "name": "Canal Sur",
@@ -210,78 +282,7 @@
         "drm_scheme": "clearkey",
         "extension": "m3u8"
       },
-      {
-        "name": "BE MAD",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/BeMadTV_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "UX8fhsL+rmq9V09hcxvfeg",
-        "key": "lAFhDeN3GASIf62eDDsTBw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "DMAX",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/DMAX_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "WeNr2gvDp8jCZQKkrHSOhQ",
-        "key": "PScqlFHKkwBE8IM0kwAAMA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "DMAX (-2h)",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/DMAX_HD/__op/delay-dash-wv/__f/manifest.mpd",
-        "kid": "WeNr2gvDp8jCZQKkrHSOhQ",
-        "key": "PScqlFHKkwBE8IM0kwAAMA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Divinity",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Divinity_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "mL+Q54ARRZAjnD61z38xrw",
-        "key": "NEcJOd587mWy7SMzAvmiew",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Energy",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Energy_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "Dj7p51ZgXn2lrGLB/5wO1A",
-        "key": "bs0UuRkBmD0inQNPKuw7vQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "FDF",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/FDF_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "t4V166YLf5GYZ3rJ1I0GUA",
-        "key": "1TwwohcraCbN2Qqg9CDFcw",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Neox",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Neox_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "3lJVgzHq6/TmSv0aKbgUfA",
-        "key": "wUKNVDykcObwhYmYKKxELg",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Nova",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/NOVA_HD_B/__op/dash-wv/__f/manifest.mpd",
-        "kid": "naLJOXLwwtWQT9dbGGnM/w",
-        "key": "j8QB+2CfQErTJTakjDthrA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "MEGA",
-        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Mega_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "GWG8H828wxe8VuBKv3ZCig",
-        "key": "VaLN7ES9UqlK8w6aXcU4Ow",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
+      
       {
         "name": "Odisea",
         "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ODISEA_SPA_HD/__op/dash-wv/__f/manifest.mpd",
