@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SocramFlix+ | Por Socram MASP</title>
   
+  <!-- Shaka Player CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
   
   <style>
@@ -100,7 +101,7 @@
       display: flex;
       gap: 10px;
       margin-bottom: 25px;
-      flex-wrap: wrap; /* Para que bajen a otra línea si la pantalla es pequeña */
+      flex-wrap: wrap; 
     }
 
     .sub-tab-btn {
@@ -230,6 +231,7 @@
 </head>
 <body>
 
+  <!-- NAVEGACIÓN -->
   <nav>
     <div class="logo" onclick="navegar('inicio')">SocramFlix+</div>
     <div class="nav-links">
@@ -238,8 +240,10 @@
     </div>
   </nav>
 
+  <!-- CONTENEDOR PRINCIPAL -->
   <div class="container">
     
+    <!-- SECCIÓN VOD (Películas y Series) -->
     <section id="sec-inicio" class="app-section active">
       <h2 class="section-title">Películas y Series (TMDB / Pixeldrain)</h2>
       <div id="grid-vod" class="grid">
@@ -252,15 +256,18 @@
       </div>
     </section>
 
+    <!-- SECCIÓN TV EN DIRECTO -->
     <section id="sec-tv" class="app-section">
       <h2 class="section-title">Televisión en Directo</h2>
       
+      <!-- Pestañas M3U vs Originales vs Nuevos -->
       <div class="sub-tabs-container">
         <button id="btn-lista-m3u" class="sub-tab-btn active" onclick="cambiarPestañaTV('m3u')">Lista M3U (GitHub)</button>
         <button id="btn-lista-dash" class="sub-tab-btn" onclick="cambiarPestañaTV('dash')">Canales Premium (Original)</button>
         <button id="btn-lista-nuevos" class="sub-tab-btn" onclick="cambiarPestañaTV('nuevos')">Canales Premium (Nuevos)</button>
       </div>
 
+      <!-- Rejilla Lista M3U -->
       <div id="grid-tv-m3u" class="grid">
         <div class="card" onclick="cargarM3UdesdeURL()">
           <div class="card-img-placeholder">📥</div>
@@ -270,13 +277,14 @@
         </div>
       </div>
 
+      <!-- Rejillas de los Canales Premium (Empiezan ocultas) -->
       <div id="grid-tv-dash" class="grid" style="display: none;"></div>
-
       <div id="grid-tv-nuevos" class="grid" style="display: none;"></div>
     </section>
 
   </div>
 
+  <!-- MODAL DEL REPRODUCTOR (SHAKA PLAYER) -->
   <div id="modal-player" class="modal-player">
     <div class="video-container">
       <div id="reproductor-titulo" class="now-playing-title">Cargando...</div>
