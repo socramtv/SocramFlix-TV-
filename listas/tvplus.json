@@ -1,0 +1,830 @@
+[
+  {
+    "name": "📺 NACIONALES",
+    "samples": [
+      {
+        "name": "La 1 (opc.1)",
+        "uri": "https://bl01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
+        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
+        "key": "Xpy0PVPfRP/NFrxyImanZQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La 1 (opc.2)",
+        "uri": "https://mad01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
+        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
+        "key": "Xpy0PVPfRP/NFrxyImanZQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La 1 (opc.3)",
+        "uri": "https://ch01-nixval01.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
+        "kid": "lPLYLTVdT0Sz6SBhzJXdHQ",
+        "key": "Xpy0PVPfRP/NFrxyImanZQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La 2 (opc.1)",
+        "uri": "https://bl01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd",
+        "kid": "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog",
+        "key": "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La 2 (opc.2)",
+        "uri": "https://mad01.cdn.avatel.tv/live/eds/la2/MPEG-DASH_Scrambled_High/la2.mpd",
+        "kid": "PN4/+odTSxqa65BuF/3jLw,k+6UxB1WSjqlU6yCKf7yog",
+        "key": "sR/vyMXKnPV5j1iJacybqQ,7sa6JvMeltQu1G+ibutToQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Antena 3 (opc.1)",
+        "uri": "https://bl01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd",
+        "kid": "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA",
+        "key": "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Antena 3 (opc.2)",
+        "uri": "https://mad01.cdn.avatel.tv/live/eds/antena3/MPEG-DASH_Scrambled_High/antena3.mpd",
+        "kid": "vTFlCHbjS5GbDZ282hWcmg,5oOA+T1RShmYMnfmbDbFXA",
+        "key": "rTAv/drCYo7AGDQLYmT0cw,Boof/hRsmEnqb5/A7qOUYA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cuatro (opc.1)",
+        "uri": "https://bl01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd",
+        "kid": "AhED3AYhQMO7acqRqr/szQ",
+        "key": "4XGH4R3Toj7p05B22X4JAQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cuatro (opc.2)",
+        "uri": "https://mad01.cdn.avatel.tv/live/eds/cuatro/MPEG-DASH_Scrambled_High/cuatro.mpd",
+        "kid": "AhED3AYhQMO7acqRqr/szQ",
+        "key": "4XGH4R3Toj7p05B22X4JAQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Telecinco (opc.1)",
+        "uri": "https://bl01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd",
+        "kid": "VQdvcEt8SH2iDa2LqwpLgQ",
+        "key": "wwDL9+0WjB2q5WV0O1LGEQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Telecinco (opc.2)",
+        "uri": "https://mad01.cdn.avatel.tv/live/eds/telecinco/MPEG-DASH_Scrambled_High/telecinco.mpd",
+        "kid": "VQdvcEt8SH2iDa2LqwpLgQ",
+        "key": "wwDL9+0WjB2q5WV0O1LGEQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La Sexta (opc.1)",
+        "uri": "https://bl01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd",
+        "kid": "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg",
+        "key": "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La Sexta (opc.2)",
+        "uri": "https://mad01.cdn.avatel.tv/live/eds/lasexta/MPEG-DASH_Scrambled_High/lasexta.mpd",
+        "kid": "8keQm+iyRzy+e59NljW8Lw,kZDcj49LSWaHL270O5Abmg",
+        "key": "eJ/fs3gbNkKk5/b+aaAJaw,8IhO5dY3hMlHWrzrKeH4hw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La 1",
+        "uri": "https://ztnr.rtve.es/ztnr/1688877.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "La 2",
+        "uri": "https://d4g9wh8d4wiaw.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-crbrakk0yedqb/La2ES.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Antena 3",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Antena3_HD_A/__op/dash-wv/__f/manifest.mpd",
+        "kid": "jbAmOXn3oPJviSgTZIVMaw",
+        "key": "Iq4z5+k8LUJSTnsBpmAh1A",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cuatro",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/Cuatro_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "GTvkC7KWgzN27Rdd9naJjA",
+        "key": "s8CUDpXQAsErALYtSeM+dw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Telecinco",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/Telecinco_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "nlAwDg8BfB8FMIckB7q+KQ",
+        "key": "VwKG4eIN7PkDm0ZVUdZvoQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "La Sexta",
+        "uri": "https://atres-live.atresmedia.com/19681bd7754298ad6bfc0c9d964bab169f84dda3_ES_1771787566_1771816306/hlsts/live/lasexta_usp/lasexta_usp.isml/playlist.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Canal Sur",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/Andalucia_TV_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "AxGgWHTgoOZ3K4Fvzj7Hcg",
+        "key": "KtdlwkP8ylRY3VUeqwPc0w",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Canal Sur",
+        "uri": "https://live-24-canalsur.interactvty.pro/9bb0f4edcb8946e79f5017ddca6c02b0/26af5488cda642ed2eddd27a6328c93b9c03e9181b9d0a825147a7d978e69202.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Andalucía TV",
+        "uri": "https://ch01-nixval01.avatel.tv/live/eds/andaluciatv/MPEG-DASH_Scrambled_High/andaluciatv.mpd",
+        "kid": "sUW-rI87T-abIK9qduvwow",
+        "key": "4__ZAg7CHJ73-8gVPVAeew",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "7TV Andalucía",
+        "uri": "https://tvup01.edge.milloh-cs.com/7andalucia/7andalucia.mpd",
+        "kid": "XBzDKCQBWYav1EG1+y6XPg,NokoMF6/W+WaO+mmb61AqQ,TAt4s+ejVRifWGOER7zf/g",
+        "key": "SScIdM25yiyIZYwfeUK64w,97nlON1ky9teGytFAavyfQ,/WKOYnwupgP37exge+w7NA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Canal Sur Más Noticias",
+        "uri": "https://cdnlive.codev8.net/rtvalive/smil:channel42.smil/playlist.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Andalucía Cocina",
+        "uri": "https://cloud.fastchannel.es/mic/manifiest/hls/acocina/acocina.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Andalucía Turismo",
+        "uri": "https://stream-us-east-1.getpublica.com/playlist.m3u8?&network_id=12685",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "BE MAD",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/BeMadTV_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "UX8fhsL+rmq9V09hcxvfeg",
+        "key": "lAFhDeN3GASIf62eDDsTBw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "DMAX",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/DMAX_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "WeNr2gvDp8jCZQKkrHSOhQ",
+        "key": "PScqlFHKkwBE8IM0kwAAMA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "DMAX (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/DMAX_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "WeNr2gvDp8jCZQKkrHSOhQ",
+        "key": "PScqlFHKkwBE8IM0kwAAMA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Divinity",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Divinity_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "mL+Q54ARRZAjnD61z38xrw",
+        "key": "NEcJOd587mWy7SMzAvmiew",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Energy",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Energy_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "Dj7p51ZgXn2lrGLB/5wO1A",
+        "key": "bs0UuRkBmD0inQNPKuw7vQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "FDF",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/FDF_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "t4V166YLf5GYZ3rJ1I0GUA",
+        "key": "1TwwohcraCbN2Qqg9CDFcw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Neox",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Neox_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "3lJVgzHq6/TmSv0aKbgUfA",
+        "key": "wUKNVDykcObwhYmYKKxELg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Nova",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/NOVA_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "naLJOXLwwtWQT9dbGGnM/w",
+        "key": "j8QB+2CfQErTJTakjDthrA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MEGA",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Mega_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "GWG8H828wxe8VuBKv3ZCig",
+        "key": "VaLN7ES9UqlK8w6aXcU4Ow",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Odisea",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ODISEA_SPA_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "Woxjyfc8Y3PPJiwcKRJ5bw",
+        "key": "faGEjSAzdDE5wp6mHLztEQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Historia",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/HISTORIA_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "+7UNkO2Mp/Jseww8WQyn6g",
+        "key": "8ztYu0FHUsU1Krp16EdqIA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "National Geographic",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "4jaZwZbGi383YqcnP4gNgw",
+        "key": "DOZ0cYQG2MtqTIoXHoZz6w",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "National Geographic Wild",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_WILD_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "DV947LzwRIIAMslmreRLkw",
+        "key": "HH9QGDre6LL5p2URlwqWDw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Discovery",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Discovery_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "2u4ojAMrvKTdeouJ9bJIAw",
+        "key": "/IFab9KEoz9phdifwNfx+g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "WARNER +2H",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/TNT_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
+        "key": "Qcz3ctmUsjGcvL4Kfb_lJg",
+        "kid": "H1zbpgIj7Ssd-0e23fSaYw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      }
+    ]
+  },
+  {
+    "name": "🗺️ DOCUMENTALES",
+    "samples": [
+      {
+        "name": "Odisea",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ODISEA_SPA_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "Woxjyfc8Y3PPJiwcKRJ5bw",
+        "key": "faGEjSAzdDE5wp6mHLztEQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Historia",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/HISTORIA_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "+7UNkO2Mp/Jseww8WQyn6g",
+        "key": "8ztYu0FHUsU1Krp16EdqIA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "National Geographic",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "4jaZwZbGi383YqcnP4gNgw",
+        "key": "DOZ0cYQG2MtqTIoXHoZz6w",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "National Geographic Wild",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/NGEO_WILD_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "DV947LzwRIIAMslmreRLkw",
+        "key": "HH9QGDre6LL5p2URlwqWDw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Discovery",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Discovery_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "2u4ojAMrvKTdeouJ9bJIAw",
+        "key": "/IFab9KEoz9phdifwNfx+g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      }
+    ]
+  },
+  {
+    "name": "👟 DEPORTES",
+    "samples": [
+      {
+        "name": "LALIGA Setanta Sport 1",
+        "uri": "https://v4-kun-nk16-cdn-01.live.cdn.cgates.lt/live/dash/561002/index.mpd",
+        "kid": "irIzJEKFTmKwAY7sPuWEhA",
+        "key": "N/3ui27vXJYAHoxvxHv8CA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "LALIGA Match! Futbol 2",
+        "uri": "https://video.beeline.tv/live/d/channel320.isml/manifest-stb.mpd",
+        "kid": "znz5so0ajYdKzOvETX4fzQ",
+        "key": "zaGNTSCr1cx3gxWr4nf+uQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "LALIGA TV HYPERMOTION",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Liga_Smartbank/__op/dash-wv/__f/manifest.mpd",
+        "kid": "NKNUcORv6hmNNB5wDNy/lw",
+        "key": "niaVqrgBeMztvXIz0Vt8ag",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "PREMIER LEAGUE",
+        "uri": "https://fsly.stream.peacocktv.com/Content/CMAF_CTR-4s/Live/channel(vc1021n07j)/master.mpd",
+        "kid": "ACBGyaSbmrHNtmFr7F0mww",
+        "key": "0vkva37cmhoF05O6DCDvng",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MATCH! PREMIER",
+        "uri": "https://video.beeline.tv/live/d/channel318.isml/manifest-stb.mpd",
+        "kid": "K7ezFHce1e7d2PRKmqQnQA",
+        "key": "AfKo8RvYkWVadSwXSfR47A",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MATCH!",
+        "uri": "https://video.beeline.tv/live/d/channel317.isml/manifest-stb.mpd",
+        "kid": "Xhx5ixbSTcjL/HgZq/d7TQ",
+        "key": "S6XZrroiObQl0c97RUdDMw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MATCH! FUTBOL 1",
+        "uri": "https://video.beeline.tv/live/d/channel319.isml/manifest-stb.mpd",
+        "kid": "kUWm4Pd45hhm9XPUlE3VMw",
+        "key": "0CFz1AUV/qXIOUTyHQ8xFA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MATCH FUTBOL 3",
+        "uri": "https://video.beeline.tv/live/d/channel321.isml/manifest-stb.mpd",
+        "kid": "bPtVsSqqnfFiaorapPJjKQ",
+        "key": "hEhuLo5f3uLvgkABmSMHjA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "LALIGA INSIDE",
+        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-ligainside/.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "LaLiga +",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/LaLigaSportsTV_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "X0PSj+QwzWw/mixmD72O1A",
+        "key": "BEzMyY7nrzftC2j/mL95BA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "LaLiga + (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/LaLigaSportsTV_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "X0PSj+QwzWw/mixmD72O1A",
+        "key": "BEzMyY7nrzftC2j/mL95BA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "HORSE TV",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-r2/__c/Horse_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "/qUmLlhBaQgeXBQB5L+4ig",
+        "key": "hyAy1Mn+fTp8hLzq3SkkGw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "HORSE TV +2H",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-v4/__c/Horse_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "/qUmLlhBaQgeXBQB5L+4ig",
+        "key": "hyAy1Mn+fTp8hLzq3SkkGw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "WORLD POKER TOUR",
+        "uri": "https://stitcher.pluto.tv/stitch/hls/channel/6080381ab7c9ea00074ec64c/master.m3u8?deviceType=web&servertSideAds=false&deviceMake=safari&deviceVersion=1&deviceId=spencer&appVersion=1&deviceDNT=0&deviceModel=web&sid=e486f82f-6f22-11ee-a45b-9e83b02cccee1",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "REDBULLTV",
+        "uri": "https://ott.zapitv.com/live/eds_c2/redbull/dash_live_enc/redbull.mpd",
+        "kid": "INcXrEOfMzDeOo8nwPn7uw",
+        "key": "BTERfVjq0gq9RYe+Gq5XIw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "EUROSPORT 1 (ES)",
+        "uri": "https://ch01-nixval01.avatel.tv/live/eds/eurosport/MPEG-DASH_Scrambled_High/eurosport.mpd",
+        "kid": "uCnq5vo6RFuimJF5u1Z9Zw",
+        "key": "y-CxKSM08T5sQlpQ48C6hQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "EUROSPORT 2 (ES)",
+        "uri": "https://cache2.zapitv.com/live/eds_c2/eurosport_2_hd/dash_live_enc/eurosport_2_hd.mpd",
+        "kid": "FTgoeam8+m8aBKhtW0Mk6Q",
+        "key": "ZkJBEzNoqwOdwfsVIGulSw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "VOTV",
+        "uri": "https://ingest2-video.streaming-pro.com/votv/streaming_web/playlist.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "UFC",
+        "uri": "https://dbrb49pjoymg4.cloudfront.net/10001/99951134/hls/playlist.m3u8?ads.xumo_channelId=99951134",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "TENNIS CHANNEL",
+        "uri": "https://live.streaming.a2d.tv/asset/20465727.isml/dash.mpd",
+        "kid": "vTKtYI6MNTaNuwrL+pTY4A",
+        "key": "lXsyUI/srxp/hC6dibx1Nw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "HARD KNOCKS",
+        "uri": "https://d3uyzhwvmemdyf.cloudfront.net/scheduler/scheduleMaster/109.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      }
+    ]
+  },
+  {
+    "name": "🎬 CINE Y SERIES",
+    "samples": [
+      {
+        "name": "AMC",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/AMC_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "D+t8RwhECNZsa1znFnJ/Mw",
+        "key": "ha+ydAy3QtlvDCsyq1Czcg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "AMC (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/AMC_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "D+t8RwhECNZsa1znFnJ/Mw",
+        "key": "ha+ydAy3QtlvDCsyq1Czcg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "TCM",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/TCM_HD_A/__op/dash-wv/__f/manifest.mpd",
+        "kid": "BLvb1qdPKQZGpQBXcz+5kg",
+        "key": "kIVHBRVP1bM7Qwu+GqKnjw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "TCM (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/TCM_HD_A/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "BLvb1qdPKQZGpQBXcz+5kg",
+        "key": "kIVHBRVP1bM7Qwu+GqKnjw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Warner TV",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/TNT_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "H1zbpgIj7Ssd+0e23fSaYw",
+        "key": "Qcz3ctmUsjGcvL4Kfb/lJg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Warner TV (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/TNT_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "H1zbpgIj7Ssd+0e23fSaYw",
+        "key": "Qcz3ctmUsjGcvL4Kfb/lJg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Hollywood",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/HWD_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "tF1UIwg8JB47RV3rCf8R5Q",
+        "key": "HMDBENgo1jjH5T1gVSBa5g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Hollywood (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/HWD_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "tF1UIwg8JB47RV3rCf8R5Q",
+        "key": "HMDBENgo1jjH5T1gVSBa5g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Paramount Network",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/PARAMOUNT_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "4QSJGvZ/KxlFddPMlUsjdQ",
+        "key": "3/VVbnHmf1QNHnAHy2Am8g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Paramount Network (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/PARAMOUNT_HD_B/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "4QSJGvZ/KxlFddPMlUsjdQ",
+        "key": "3/VVbnHmf1QNHnAHy2Am8g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "ST☆R Channel",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/FOX_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "E/9qHMVw3FP3zkLnDbGtgg",
+        "key": "jZcoGwpZ5mzFb5VM9zhYnA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "ST☆R Channel (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/FOX_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "E/9qHMVw3FP3zkLnDbGtgg",
+        "key": "jZcoGwpZ5mzFb5VM9zhYnA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "COSMO",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/Cosmopolitan_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "XqKQG+pPS1r+pKPfla9g9w",
+        "key": "vRUhQGqqDtiUDrxXsCDfHg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "COSMO (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/Cosmopolitan_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "XqKQG+pPS1r+pKPfla9g9w",
+        "key": "vRUhQGqqDtiUDrxXsCDfHg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "SOMOS",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/SOMOS_SD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "2ROAifE3BrDzaEbLyhkIRw",
+        "key": "B6hBvGdY2wIrS0v4UruSxA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "SOMOS (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/SOMOS_SD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "2ROAifE3BrDzaEbLyhkIRw",
+        "key": "B6hBvGdY2wIrS0v4UruSxA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "SUNDANCE TV",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/SUNDANCE_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "afhswOQCteEc5PzgR0AXOg",
+        "key": "ZveDqCXA/oe/JexbVKGBgg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "SUNDANCE TV (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/SUNDANCE_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "afhswOQCteEc5PzgR0AXOg",
+        "key": "ZveDqCXA/oe/JexbVKGBgg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "XTRM",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/XTRM_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "qDXKpZuQg38IhyrUD7btAw",
+        "key": "wnUTdOz6U76c27UqGP24dw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "XTRM (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v3/__c/XTRM_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "qDXKpZuQg38IhyrUD7btAw",
+        "key": "wnUTdOz6U76c27UqGP24dw",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Atreseries",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r1/__c/Atreseries_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "OnxQTXcLpNzj+xVJCvBiLA",
+        "key": "yiRdRloK/op54qC5gMlsBg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Atreseries (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v1/__c/Atreseries_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "OnxQTXcLpNzj+xVJCvBiLA",
+        "key": "yiRdRloK/op54qC5gMlsBg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "BOM Cine",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/BomCine_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "8CFTPxgOHqyZg9uF5Nmb2Q",
+        "key": "yNjnsymLH5ONakmKyqk2XA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "BOM Cine (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/BomCine_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "8CFTPxgOHqyZg9uF5Nmb2Q",
+        "key": "yNjnsymLH5ONakmKyqk2XA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cine Feel Good Verdi TV",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/FeelGood_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "cgbbYsJ24cOfUL0lvCw1sw",
+        "key": "T1QRPsOblWbfA0bT1TdWRA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cine Feel Good Verdi TV (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/FeelGood_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "cgbbYsJ24cOfUL0lvCw1sw",
+        "key": "T1QRPsOblWbfA0bT1TdWRA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cine Verdi TV",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/CINE_VERDI_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "fctZXKBOrk1n/FddYTrOWQ",
+        "key": "zuFCH6qQuEbJF6iGWoJHJQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Cine Verdi TV (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/CINE_VERDI_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "fctZXKBOrk1n/FddYTrOWQ",
+        "key": "zuFCH6qQuEbJF6iGWoJHJQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "CINES VERDI TV",
+        "uri": "https://spa-ha-p005.cdn.masmediatv.es/SVoriginOperatorEdge/smil:152_HD.smil/manifest.mpd",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "CINE FEEL GOOD",
+        "uri": "https://spa-ha-p005.cdn.masmediatv.es/SVoriginOperatorEdge/smil:151_HD.smil/manifest.mpd",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "SONY CINE",
+        "uri": "https://a-cdn.klowdtv.com:443/803B48A/a-klowdtv.com/live1/cine_720p/playlist.m3u8",
+        "key": "",
+        "kid": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "SONY CINEMA",
+        "uri": "https://spt-sonyonecomedias-mx.xiaomi.wurl.tv/playlist.m3u8",
+        "key": "",
+        "kid": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "CINE FRIKI",
+        "uri": "https://d2jqgm8hyia1n3.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-o8hl8d0bx6aah/index.m3u8?ads.device_did=%7BPSID%7D&ads.device_dnt=%7BTARGETOPT%7D&ads.app_domain=%7BAPP_DOMAIN%7D&ads.app_name=%7BAPP_NAME%7D&ads.consent=%7BTC_STRING%7D&ads.ssai=SSSLIVE",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      },
+      {
+        "name": "FILM&CO",
+        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-filmco/.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      }
+    ]
+  }
+]
