@@ -616,6 +616,8 @@
         let currentSection  = 'tv';
         let channels        = [];
         let xmlEpgDoc       = null;
+        let epgStale        = false;
+        let epgStaleUntil   = null;
         let hlsInstance     = null;
         let shakaInstance   = null;
         let currentMediaUrl = "";
@@ -729,14 +731,50 @@
 
         async function loadLocalEPG(url) {
             try {
+                console.log('[EPG] Solicitando:', url);
                 const response = await fetch(url);
-                if (!response.ok) throw new Error();
+                console.log('[EPG] Respuesta HTTP:', response.status, response.headers.get('content-type'));
+                if (!response.ok) throw new Error('HTTP ' + response.status);
                 let xmlText = await response.text();
+                console.log('[EPG] Tamaño recibido (chars):', xmlText.length);
                 xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
                 const parser = new DOMParser();
                 xmlEpgDoc = parser.parseFromString(xmlText, "application/xml");
+                const parserError = xmlEpgDoc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('[EPG] Error de parseo XML:', parserError.textContent);
+                    xmlEpgDoc = null;
+                    return;
+                }
+                const totalProgrammes = xmlEpgDoc.querySelectorAll('programme').length;
+                const totalChannels = xmlEpgDoc.querySelectorAll('channel').length;
+                console.log('[EPG] Cargado OK →', totalChannels, 'canales,', totalProgrammes, 'programas');
+                checkEpgFreshness();
             } catch (e) {
+                console.error('[EPG] Fallo al cargar EPG:', e);
                 xmlEpgDoc = null;
+            }
+        }
+
+        // Comprueba si la guía cubre la fecha/hora actual o si está caducada,
+        // mirando el rango global de fechas de todos los <programme>.
+        function checkEpgFreshness() {
+            if (!xmlEpgDoc) return;
+            const allProgrammes = xmlEpgDoc.querySelectorAll('programme');
+            if (allProgrammes.length === 0) return;
+            let maxStop = new Date(0);
+            allProgrammes.forEach(p => {
+                const stop = parseEPGDate(p.getAttribute('stop'));
+                if (stop > maxStop) maxStop = stop;
+            });
+            const now = new Date();
+            if (maxStop < now) {
+                const diffHours = Math.round((now - maxStop) / 3600000);
+                console.warn(`[EPG] ⚠️ La guía está caducada. Último dato cubre hasta ${maxStop.toISOString()}, hace ${diffHours}h respecto a ahora.`);
+                epgStale = true;
+                epgStaleUntil = maxStop;
+            } else {
+                epgStale = false;
             }
         }
 
@@ -1154,18 +1192,22 @@
         // ── EPG ───────────────────────────────────
         function updateEPGDisplay(channel) {
             if (!xmlEpgDoc) {
+                console.warn('[EPG] xmlEpgDoc es null, no se cargó la guía.');
                 epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>`;
                 return;
             }
             const channelId = channel.epgId || channel.name;
+            console.log('[EPG] Buscando programación para channelId:', JSON.stringify(channelId));
             const now = new Date();
             const programmes = xmlEpgDoc.querySelectorAll(`programme[channel="${channelId}"]`);
+            console.log('[EPG] Programas encontrados para este canal:', programmes.length);
             for (let prog of programmes) {
                 const start = parseEPGDate(prog.getAttribute('start'));
                 const stop  = parseEPGDate(prog.getAttribute('stop'));
                 if (now >= start && now <= stop) {
                     const title = prog.querySelector('title')?.textContent || "Sin título";
                     const desc  = prog.querySelector('desc')?.textContent  || "";
+                    console.log('[EPG] Programa actual encontrado:', title);
                     epgInfoElement.innerHTML = `
                         <strong>${title}</strong>
                         <span style="color:#888; margin-left:8px; font-size:0.82rem;">${formatEPGTimeLabel(start)} – ${formatEPGTimeLabel(stop)}</span>
@@ -1173,7 +1215,16 @@
                     return;
                 }
             }
-            epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>`;
+            console.warn('[EPG] Ningún programa coincide con la hora actual:', now.toISOString());
+            if (epgStale) {
+                const fechaLimite = epgStaleUntil.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                epgInfoElement.innerHTML = `
+                    <strong>${channel.name}</strong>
+                    <span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>
+                    <div style="color:#f5c518; font-size:0.78rem; margin-top:5px;">⚠️ Guía de programación caducada (solo cubre hasta el ${fechaLimite}). Actualiza listas/epg.xml.</div>`;
+            } else {
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>`;
+            }
         }
 
         function parseEPGDate(dateStr) {
