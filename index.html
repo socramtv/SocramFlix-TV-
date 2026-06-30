@@ -2,8 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
+    
+    <meta name="theme-color" content="#E50914">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SocramFlix+">
+    <link rel="apple-touch-icon" href="logos/icon-192.png">
+    <link id="pwa-manifest" rel="manifest" href="">
+
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.11/dist/shaka-player.compiled.js"></script>
     <style>
@@ -30,6 +38,8 @@
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
+            /* Evitar scroll elástico en PWA */
+            overscroll-behavior-y: none;
         }
 
         /* ─── HEADER ─── */
@@ -77,10 +87,16 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.7) 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.8) 100%);
             pointer-events: none;
             z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
+        .video-container.show-controls::before {
+            opacity: 1;
+        }
+
         video {
             width: 100%; height: 100%;
             display: block;
@@ -113,19 +129,21 @@
         .custom-controls {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.6) 65%, transparent 100%);
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 70%, transparent 100%);
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding: 24px 16px 12px;
+            padding: 30px 16px 12px;
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
             z-index: 10;
         }
-        /* Clase 'paused' para forzar visibilidad */
-        .video-container:not(.paused) .custom-controls { opacity: 0; }
-        .video-container.paused .custom-controls { opacity: 1; pointer-events: auto; }
+        
+        .video-container.show-controls .custom-controls { 
+            opacity: 1; 
+            pointer-events: auto; 
+        }
 
         .controls-row {
             display: flex;
@@ -163,9 +181,9 @@
             white-space: nowrap;
         }
 
-        /* ─── ESTILOS PARA AUDIO / SUBTÍTULOS ─── */
+        /* ─── ESTILOS PARA AUDIO / SUBTÍTULOS / CALIDAD ─── */
         .track-select {
-            background: rgba(30, 30, 30, 0.85);
+            background: rgba(20, 20, 20, 0.9);
             color: #fff;
             border: 1px solid var(--border);
             border-radius: 4px;
@@ -174,18 +192,20 @@
             font-weight: 600;
             cursor: pointer;
             outline: none;
-            max-width: 90px;
+            max-width: 80px;
             text-transform: uppercase;
             text-align: center;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background 0.2s;
         }
         .track-select option {
             background: #111;
             color: #fff;
             text-transform: none;
+            font-weight: normal;
         }
-        .track-select:hover {
+        .track-select:hover, .track-select:focus {
             border-color: var(--accent);
+            background: #000;
         }
 
         .timeline-container {
@@ -272,10 +292,7 @@
             margin-bottom: -2px;
         }
         .tab-button:hover { color: #fff; background: rgba(255,255,255,0.04); }
-        .tab-button.active {
-            color: #fff;
-            border-bottom-color: var(--accent);
-        }
+        .tab-button.active { color: #fff; border-bottom-color: var(--accent); }
         #tab-tvplus.active { border-bottom-color: #2196F3; }
         #tab-tvplus:hover { color: #90caf9; }
         .tvplus-badge {
@@ -290,9 +307,6 @@
         @media (max-width: 600px) {
             .navigation-tabs { grid-template-columns: repeat(3, 1fr); gap: 1px; }
             .tab-button { padding: 12px 4px; font-size: 0.75rem; gap: 3px; }
-        }
-        @media (max-width: 380px) {
-            .tab-button { font-size: 0.68rem; }
         }
 
         /* ─── CONTENT ─── */
@@ -383,7 +397,6 @@
             gap: 10px;
         }
 
-        /* ─── TV / LIVE CARDS ─── */
         .channel-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -451,35 +464,20 @@
             border: none;
         }
         .body-movie-mode .channel-card img {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 2 / 3;
-            object-fit: cover;
-            border-radius: 10px;
-            background: #1a1a1a;
-            padding: 0;
-            display: block;
+            width: 100%; height: auto; aspect-ratio: 2 / 3;
+            object-fit: cover; border-radius: 10px;
+            background: #1a1a1a; padding: 0; display: block;
         }
         .body-movie-mode .channel-card span {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 28px 8px 8px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: #fff;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
-            border-radius: 0 0 10px 10px;
-            -webkit-line-clamp: 2;
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 28px 8px 8px; font-size: 0.78rem; font-weight: 600;
+            color: #fff; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+            border-radius: 0 0 10px 10px; -webkit-line-clamp: 2;
         }
 
         /* ─── MOVIE EPG DETAILS ─── */
         .movie-flex-container { display: flex; gap: 16px; align-items: flex-start; }
-        .movie-poster {
-            width: 100px; min-width: 100px;
-            border-radius: var(--radius);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.7);
-            border: 1px solid #333;
-        }
+        .movie-poster { width: 100px; min-width: 100px; border-radius: var(--radius); box-shadow: 0 6px 18px rgba(0,0,0,0.7); border: 1px solid #333; }
         .movie-text-details h4 { margin-bottom: 5px; color: #fff; font-size: 1.15rem; line-height: 1.2; }
         .movie-text-details .movie-year { color: var(--gold); font-size: 0.88rem; margin-bottom: 7px; font-weight: 700; display: flex; gap: 10px; flex-wrap: wrap; }
         .movie-text-details p { font-size: 0.88rem; color: #bbb; line-height: 1.55; }
@@ -492,10 +490,7 @@
             background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
             background-size: 400% 100%;
         }
-        @keyframes shimmer {
-            0% { background-position: 100% 0; }
-            100% { background-position: -100% 0; }
-        }
+        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
         .skeleton-tv { height: 110px; border-radius: var(--radius); }
         .skeleton-movie { aspect-ratio: 2/3; border-radius: 10px; }
 
@@ -510,7 +505,7 @@
 <body class="body-tv-mode" id="main-body">
 
     <div id="player-section">
-        <div class="video-container paused" id="video-wrapper" onclick="handleVideoClick(event)">
+        <div class="video-container show-controls" id="video-wrapper">
             <div id="app-header">
                 <div class="header-logo">SOCRAM<span>FLIX</span>+</div>
             </div>
@@ -520,9 +515,9 @@
                 <div class="idle-sub">PRO · Selecciona un canal para empezar</div>
             </div>
 
-            <video id="video" preload="auto"></video>
+            <video id="video" preload="auto" onclick="togglePlay(event)"></video>
 
-            <div class="custom-controls" id="custom-controls-layer">
+            <div class="custom-controls" id="custom-controls-layer" onclick="event.stopPropagation()">
                 <div class="timeline-container" id="timeline-wrapper" style="display:none;">
                     <span class="time-display" id="time-current">00:00</span>
                     <input type="range" id="seek-bar" value="0" min="0" step="0.1" oninput="seekVideo()" onclick="event.stopPropagation()">
@@ -538,8 +533,9 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
-                        <select id="audio-select" class="track-select" onchange="changeAudioTrack()" style="display:none;" title="Idioma de Audio" onclick="event.stopPropagation()"></select>
-                        <select id="sub-select" class="track-select" onchange="changeSubTrack()" style="display:none;" title="Subtítulos" onclick="event.stopPropagation()"></select>
+                        <select id="quality-select" class="track-select" onchange="changeQualityTrack(); event.stopPropagation()" onmousedown="event.stopPropagation()" style="display:none;" title="Calidad de video"></select>
+                        <select id="audio-select" class="track-select" onchange="changeAudioTrack(); event.stopPropagation()" onmousedown="event.stopPropagation()" style="display:none;" title="Idioma de Audio"></select>
+                        <select id="sub-select" class="track-select" onchange="changeSubTrack(); event.stopPropagation()" onmousedown="event.stopPropagation()" style="display:none;" title="Subtítulos"></select>
                         
                         <button class="control-btn" id="cast-btn" onclick="sendToCast(event)" title="Enviar a TV">
                             <span class="cast-btn-inner">📺 TV</span>
@@ -588,6 +584,29 @@
     </div>
 
     <script>
+        // === CONFIGURACIÓN PWA DINÁMICA ===
+        const manifestJSON = {
+            "name": "SocramFlix+ Pro",
+            "short_name": "SocramFlix+",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#0a0a0a",
+            "theme_color": "#E50914",
+            "icons": [
+                { "src": "logos/icon-192.png", "sizes": "192x192", "type": "image/png" },
+                { "src": "logos/icon-512.png", "sizes": "512x512", "type": "image/png" }
+            ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
+        document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+        
+        // Simular Service Worker para que Chrome permita instalación PWA
+        if ('serviceWorker' in navigator) {
+            const swCode = `self.addEventListener('fetch', function(e) {});`;
+            const swBlob = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('PWA Error:', err));
+        }
+
         const REPO_SAGAS = [
             { name: "Colección Pixar",                     file: "Coleccion Pixar.m3u" },
             { name: "Colección DreamWorks Animation",      file: "Coleccion DreamWorks Animation.m3u" },
@@ -620,6 +639,7 @@
         const liveIndicator = document.getElementById('live-indicator');
         const castBtn       = document.getElementById('cast-btn');
         const idleOverlay   = document.getElementById('idle-overlay');
+        const customControlsLayer = document.getElementById('custom-controls-layer');
 
         const channelGrid   = document.getElementById('channel-grid');
         const categorySelect= document.getElementById('category-select');
@@ -632,6 +652,7 @@
         
         const audioSelect = document.getElementById('audio-select');
         const subSelect = document.getElementById('sub-select');
+        const qualitySelect = document.getElementById('quality-select');
 
         let currentSection  = 'tv';
         let channels        = [];
@@ -717,6 +738,7 @@
             }
         }
 
+        // ── LÓGICA DE CONTROLES Y OCULTACIÓN ──
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -737,32 +759,39 @@
 
             video.addEventListener('play', () => {
                 playPauseBtn.innerText = "⏸";
-                videoWrapper.classList.remove('paused');
                 hideIdleOverlay();
-                startHideControlsTimer();
+                wakeControls();
             });
 
             video.addEventListener('pause', () => {
                 playPauseBtn.innerText = "▶";
-                videoWrapper.classList.add('paused');
-                clearTimeout(hideControlsTimeout);
+                wakeControls(true); // Fijo al estar pausado
             });
 
-            videoWrapper.addEventListener('mousemove', () => {
-                videoWrapper.classList.remove('paused');
-                startHideControlsTimer();
-            });
+            videoWrapper.addEventListener('mousemove', () => wakeControls());
+            videoWrapper.addEventListener('touchstart', () => wakeControls());
 
-            videoWrapper.addEventListener('mouseleave', () => {
-                if(!video.paused) videoWrapper.classList.add('paused');
+            // Bloquear cierre si el ratón está encima de los controles
+            customControlsLayer.addEventListener('mouseenter', () => clearTimeout(hideControlsTimeout));
+            customControlsLayer.addEventListener('mouseleave', () => {
+                if (!video.paused) startHideControlsTimer();
             });
         }
 
-        function startHideControlsTimer() {
+        function wakeControls(keepVisible = false) {
+            videoWrapper.classList.add('show-controls');
             clearTimeout(hideControlsTimeout);
+            if (!keepVisible && !video.paused) {
+                startHideControlsTimer();
+            }
+        }
+
+        function startHideControlsTimer() {
             hideControlsTimeout = setTimeout(() => {
-                if(!video.paused) videoWrapper.classList.add('paused');
-            }, 3000);
+                if (!video.paused) {
+                    videoWrapper.classList.remove('show-controls');
+                }
+            }, 4000); // 4 segundos para más comodidad
         }
 
         function buildSagaDropdown() {
@@ -964,8 +993,11 @@
         function showIdleOverlay() { idleOverlay.classList.remove('hidden'); }
         function hideIdleOverlay() { idleOverlay.classList.add('hidden'); }
 
-        function handleVideoClick(e) { if (e.target === video || e.target === videoWrapper) togglePlay(e); }
-        function togglePlay(e) { if (e) e.stopPropagation(); video.paused ? video.play().catch(()=>{}) : video.pause(); }
+        function togglePlay(e) { 
+            if (e) e.stopPropagation(); 
+            video.paused ? video.play().catch(()=>{}) : video.pause(); 
+            wakeControls(video.paused);
+        }
         function seekVideo() { if (isFinite(video.duration)) video.currentTime = seekBar.value; }
         function changeVolume() {
             video.volume = volumeBar.value;
@@ -1072,87 +1104,124 @@
             });
         }
 
+        // ── ACTUALIZACIÓN DE MENÚS (AUDIO, SUB, CALIDAD) ──
         function clearTrackMenus() {
             audioSelect.style.display = 'none';
             subSelect.style.display = 'none';
+            qualitySelect.style.display = 'none';
             audioSelect.innerHTML = '';
             subSelect.innerHTML = '';
+            qualitySelect.innerHTML = '';
         }
 
         function updateHlsTracks() {
             if (!hlsInstance) return;
+            
+            // Audio
             const audioTracks = hlsInstance.audioTracks;
-            const subtitleTracks = hlsInstance.subtitleTracks;
-
             if (audioTracks && audioTracks.length > 1) {
                 audioSelect.innerHTML = audioTracks.map((t, i) => `<option value="${i}">${t.name || 'Audio ' + (i+1)}</option>`).join('');
                 audioSelect.style.display = 'inline-block';
                 audioSelect.value = hlsInstance.audioTrack;
-            } else {
-                audioSelect.style.display = 'none';
-            }
+            } else { audioSelect.style.display = 'none'; }
 
+            // Subtítulos
+            const subtitleTracks = hlsInstance.subtitleTracks;
             if (subtitleTracks && subtitleTracks.length > 0) {
                 subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + subtitleTracks.map((t, i) => `<option value="${i}">${t.name || 'Sub ' + (i+1)}</option>`).join('');
                 subSelect.style.display = 'inline-block';
                 subSelect.value = hlsInstance.subtitleTrack;
-            } else {
-                subSelect.style.display = 'none';
-            }
+            } else { subSelect.style.display = 'none'; }
+
+            // Calidad de Vídeo
+            const levels = hlsInstance.levels;
+            if (levels && levels.length > 1) {
+                let html = '<option value="-1">AUTO</option>';
+                levels.forEach((l, i) => { html += `<option value="${i}">${l.height}p</option>`; });
+                qualitySelect.innerHTML = html;
+                qualitySelect.style.display = 'inline-block';
+                qualitySelect.value = hlsInstance.autoLevelEnabled ? "-1" : hlsInstance.currentLevel;
+            } else { qualitySelect.style.display = 'none'; }
         }
 
         function updateShakaTracks() {
             if (!shakaInstance) return;
             
+            // Audio
             const audioLangs = shakaInstance.getAudioLanguagesAndRoles();
             if (audioLangs && audioLangs.length > 1) {
                 const uniqueLangs = Array.from(new Set(audioLangs.map(a => a.language)));
                 audioSelect.innerHTML = uniqueLangs.map(l => `<option value="${l}">${l.toUpperCase()}</option>`).join('');
                 audioSelect.style.display = 'inline-block';
-                
                 const activeVariant = shakaInstance.getVariantTracks().find(v => v.active);
-                if (activeVariant && activeVariant.language) {
-                    audioSelect.value = activeVariant.language;
-                }
-            } else {
-                audioSelect.style.display = 'none';
-            }
+                if (activeVariant && activeVariant.language) audioSelect.value = activeVariant.language;
+            } else { audioSelect.style.display = 'none'; }
 
+            // Subtítulos
             const textTracks = shakaInstance.getTextTracks();
             if (textTracks && textTracks.length > 0) {
                 subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + textTracks.map(t => `<option value="${t.id}">${(t.language || t.label || 'Sub').toUpperCase()}</option>`).join('');
                 subSelect.style.display = 'inline-block';
-                
                 const activeSub = textTracks.find(t => t.active);
                 subSelect.value = shakaInstance.isTextTrackVisible() && activeSub ? activeSub.id : "-1";
-            } else {
-                subSelect.style.display = 'none';
-            }
+            } else { subSelect.style.display = 'none'; }
+
+            // Calidad de Vídeo
+            const tracks = shakaInstance.getVariantTracks();
+            const videoTracks = tracks.filter(t => t.type === 'variant' && t.videoId);
+            let uniqueHeights = [];
+            let options = [];
+            videoTracks.forEach(t => {
+                if (t.height && !uniqueHeights.includes(t.height)) {
+                    uniqueHeights.push(t.height);
+                    options.push({ id: t.id, height: t.height });
+                }
+            });
+            if (options.length > 1) {
+                options.sort((a, b) => b.height - a.height);
+                let html = '<option value="-1">AUTO</option>';
+                options.forEach(o => { html += `<option value="${o.id}">${o.height}p</option>`; });
+                qualitySelect.innerHTML = html;
+                qualitySelect.style.display = 'inline-block';
+                const config = shakaInstance.getConfiguration();
+                if (config.abr.enabled) {
+                    qualitySelect.value = "-1";
+                } else {
+                    const activeTrack = tracks.find(t => t.active);
+                    if (activeTrack) qualitySelect.value = activeTrack.id;
+                }
+            } else { qualitySelect.style.display = 'none'; }
         }
 
         function changeAudioTrack() {
             const val = audioSelect.value;
-            if (hlsInstance) {
-                hlsInstance.audioTrack = parseInt(val);
-            } else if (shakaInstance) {
-                shakaInstance.selectAudioLanguage(val);
-            }
+            if (hlsInstance) { hlsInstance.audioTrack = parseInt(val); } 
+            else if (shakaInstance) { shakaInstance.selectAudioLanguage(val); }
         }
 
         function changeSubTrack() {
             const val = subSelect.value;
+            if (hlsInstance) { hlsInstance.subtitleTrack = parseInt(val); } 
+            else if (shakaInstance) {
+                if (val === "-1") { shakaInstance.setTextTrackVisibility(false); } 
+                else {
+                    const selected = shakaInstance.getTextTracks().find(t => t.id == parseInt(val));
+                    if (selected) { shakaInstance.selectTextTrack(selected); shakaInstance.setTextTrackVisibility(true); }
+                }
+            }
+        }
+
+        function changeQualityTrack() {
+            const val = parseInt(qualitySelect.value);
             if (hlsInstance) {
-                hlsInstance.subtitleTrack = parseInt(val);
+                hlsInstance.currentLevel = val;
             } else if (shakaInstance) {
-                if (val === "-1") {
-                    shakaInstance.setTextTrackVisibility(false);
+                if (val === -1) {
+                    shakaInstance.configure({ abr: { enabled: true } });
                 } else {
-                    const tracks = shakaInstance.getTextTracks();
-                    const selectedTrack = tracks.find(t => t.id == parseInt(val));
-                    if (selectedTrack) {
-                        shakaInstance.selectTextTrack(selectedTrack);
-                        shakaInstance.setTextTrackVisibility(true);
-                    }
+                    shakaInstance.configure({ abr: { enabled: false } });
+                    const selected = shakaInstance.getVariantTracks().find(t => t.id === val);
+                    if (selected) shakaInstance.selectVariantTrack(selected, true);
                 }
             }
         }
@@ -1195,6 +1264,7 @@
                     });
                     
                     shakaInstance.addEventListener('trackschanged', updateShakaTracks);
+                    shakaInstance.addEventListener('adaptation', updateShakaTracks);
 
                     await shakaInstance.configure({
                         streaming: { alwaysStreamText: true },
@@ -1204,6 +1274,7 @@
                     await shakaInstance.load(targetUrl);
                     video.play().catch(() => {});
                     hideIdleOverlay();
+                    wakeControls();
                     updateShakaTracks(); 
                 } catch (err) {
                     epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error al cargar el canal: ${err.message}</span>`;
@@ -1226,8 +1297,10 @@
                     
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
                         video.play().catch(()=>{});
+                        wakeControls();
                         updateHlsTracks();
                     });
+                    hlsInstance.on(Hls.Events.LEVEL_SWITCHED, updateHlsTracks);
                 } else {
                     video.src = targetUrl; video.load(); video.play().catch(()=>{});
                 }
@@ -1243,6 +1316,7 @@
                     if (!isAce) updateEPGDisplay(item);
                 }
                 video.src = targetUrl; video.load(); video.play().catch(()=>{});
+                wakeControls();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
