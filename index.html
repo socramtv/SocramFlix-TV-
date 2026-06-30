@@ -663,8 +663,8 @@
                 mainBody.className = "body-tvplus-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Grupo";
-                xmlEpgDoc = null;
-                loadTVPlusJSON('listas/tvplus.json');
+                await loadLocalEPG('listas/epg.xml');
+                await loadTVPlusJSON('listas/tvplus.json');
             } else if (section === 'premium') {
                 mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
@@ -804,12 +804,48 @@
                 }
 
                 if (flatChannels.length === 0) throw new Error('Sin canales');
+
+                // Intentar resolver logos que falten cruzando con la lista TV normal (tv.m3u),
+                // que sí trae tvg-logo, comparando nombres normalizados.
+                await fillMissingLogosFromTV(flatChannels);
+
                 channels = flatChannels;
                 buildCategoryMenu();
                 applyFilters();
             } catch (e) {
                 channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ Error cargando TV+: ${e.message}<br><span style="color:#666; font-size:0.8rem;">Comprueba que listas/tvplus.json existe en tu repositorio.</span></div>`;
             }
+        }
+
+        // Normaliza un nombre de canal para comparar ("La 1 HD" -> "la1")
+        function normalizeChannelName(name) {
+            return (name || '')
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita acentos
+                .replace(/\(opc\.?\s*\d*\)/gi, '')                 // quita "(opc.1)"
+                .replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b/gi, '')
+                .replace(/[^a-z0-9]/g, '');
+        }
+
+        // Carga tv.m3u en segundo plano (si no está ya en memoria) y usa sus logos
+        // para rellenar los canales de TV+ que no traigan campo "logo".
+        async function fillMissingLogosFromTV(flatChannels) {
+            const pending = flatChannels.filter(c => !c.logo);
+            if (pending.length === 0) return;
+            try {
+                const response = await fetch(encodeURI('listas/tv.m3u'));
+                if (!response.ok) return;
+                const text = await response.text();
+                const tvChannels = parseM3U(text);
+                const logoMap = {};
+                tvChannels.forEach(c => {
+                    if (c.logo) logoMap[normalizeChannelName(c.name)] = c.logo;
+                });
+                pending.forEach(c => {
+                    const key = normalizeChannelName(c.name);
+                    if (logoMap[key]) c.logo = logoMap[key];
+                });
+            } catch (e) { /* si falla, simplemente se quedan sin logo y usan el fallback */ }
         }
 
         // ── SKELETONS ─────────────────────────────
@@ -999,9 +1035,7 @@
             if (isClearKey) {
                 timelineWrapper.style.display = "none";
                 liveIndicator.style.display   = "block";
-                epgInfoElement.innerHTML = `
-                    <div style="color:#2196F3; font-weight:700; margin-bottom:4px;">🔐 ${item.name}</div>
-                    <div style="color:#aaa; font-size:0.85rem;">Reproduciendo con ClearKey DRM · DASH/MPD</div>`;
+                updateEPGDisplay(item);
                 try {
                     shakaInstance = new shaka.Player(video);
                     shakaInstance.addEventListener('error', (e) => {
@@ -1119,7 +1153,10 @@
 
         // ── EPG ───────────────────────────────────
         function updateEPGDisplay(channel) {
-            if (!xmlEpgDoc) { epgInfoElement.innerText = "Guía de programación no disponible."; return; }
+            if (!xmlEpgDoc) {
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>`;
+                return;
+            }
             const channelId = channel.epgId || channel.name;
             const now = new Date();
             const programmes = xmlEpgDoc.querySelectorAll(`programme[channel="${channelId}"]`);
@@ -1136,7 +1173,7 @@
                     return;
                 }
             }
-            epgInfoElement.innerText = channel.name + " — En directo";
+            epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>`;
         }
 
         function parseEPGDate(dateStr) {
