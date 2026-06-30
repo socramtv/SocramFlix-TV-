@@ -71,6 +71,7 @@
             aspect-ratio: 16 / 9;
             background: #000;
             overflow: hidden;
+            cursor: default;
         }
         .video-container::before {
             content: '';
@@ -122,7 +123,8 @@
             pointer-events: none;
             z-index: 10;
         }
-        .video-container:hover .custom-controls,
+        /* Clase 'paused' para forzar visibilidad */
+        .video-container:not(.paused) .custom-controls { opacity: 0; }
         .video-container.paused .custom-controls { opacity: 1; pointer-events: auto; }
 
         .controls-row {
@@ -628,7 +630,6 @@
         const sagaSelect    = document.getElementById('saga-select');
         const categoryLabelText = document.getElementById('category-label-text');
         
-        // Elementos de Audio/Subtítulos
         const audioSelect = document.getElementById('audio-select');
         const subSelect = document.getElementById('sub-select');
 
@@ -641,10 +642,10 @@
         let hlsInstance     = null;
         let shakaInstance   = null;
         let currentMediaUrl = "";
+        let hideControlsTimeout;
 
         const EPG_LIVE_URL  = 'https://www.tdtchannels.com/epg/TV.json';
 
-        // ── INIT ─────────────────────────────────
         async function init() {
             shaka.polyfill.installAll();
             buildSagaDropdown();
@@ -653,7 +654,6 @@
             setupPlayerListeners();
         }
 
-        // ── SECTIONS ─────────────────────────────
         async function changeSection(section) {
             currentSection = section;
             ['tv','tvplus','premium','runtime','rakuten','movies'].forEach(s => {
@@ -661,7 +661,7 @@
             });
 
             searchInput.value = "";
-            clearTrackMenus(); // Limpiamos menús de idiomas al cambiar de sección
+            clearTrackMenus();
             
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
@@ -715,6 +715,54 @@
                 categoryLabelText.innerText = "Sub-Categoría";
                 loadLocalSaga();
             }
+        }
+
+        function setupPlayerListeners() {
+            video.addEventListener('timeupdate', () => {
+                if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
+                    timelineWrapper.style.display = "none";
+                    liveIndicator.style.display = "block";
+                } else if (video.duration && isFinite(video.duration) && video.duration > 0) {
+                    timelineWrapper.style.display = "flex";
+                    liveIndicator.style.display = "none";
+                    seekBar.max = video.duration;
+                    seekBar.value = video.currentTime;
+                    timeCurrent.innerText = formatTime(video.currentTime);
+                    timeDuration.innerText = formatTime(video.duration);
+                } else {
+                    timelineWrapper.style.display = "none";
+                    liveIndicator.style.display = "block";
+                }
+            });
+
+            video.addEventListener('play', () => {
+                playPauseBtn.innerText = "⏸";
+                videoWrapper.classList.remove('paused');
+                hideIdleOverlay();
+                startHideControlsTimer();
+            });
+
+            video.addEventListener('pause', () => {
+                playPauseBtn.innerText = "▶";
+                videoWrapper.classList.add('paused');
+                clearTimeout(hideControlsTimeout);
+            });
+
+            videoWrapper.addEventListener('mousemove', () => {
+                videoWrapper.classList.remove('paused');
+                startHideControlsTimer();
+            });
+
+            videoWrapper.addEventListener('mouseleave', () => {
+                if(!video.paused) videoWrapper.classList.add('paused');
+            });
+        }
+
+        function startHideControlsTimer() {
+            clearTimeout(hideControlsTimeout);
+            hideControlsTimeout = setTimeout(() => {
+                if(!video.paused) videoWrapper.classList.add('paused');
+            }, 3000);
         }
 
         function buildSagaDropdown() {
@@ -913,34 +961,6 @@
             ).join('');
         }
 
-        function setupPlayerListeners() {
-            video.addEventListener('timeupdate', () => {
-                if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
-                    timelineWrapper.style.display = "none";
-                    liveIndicator.style.display = "block";
-                } else if (video.duration && isFinite(video.duration) && video.duration > 0) {
-                    timelineWrapper.style.display = "flex";
-                    liveIndicator.style.display = "none";
-                    seekBar.max = video.duration;
-                    seekBar.value = video.currentTime;
-                    timeCurrent.innerText = formatTime(video.currentTime);
-                    timeDuration.innerText = formatTime(video.duration);
-                } else {
-                    timelineWrapper.style.display = "none";
-                    liveIndicator.style.display = "block";
-                }
-            });
-            video.addEventListener('play', () => {
-                playPauseBtn.innerText = "⏸";
-                videoWrapper.classList.remove('paused');
-                hideIdleOverlay();
-            });
-            video.addEventListener('pause', () => {
-                playPauseBtn.innerText = "▶";
-                videoWrapper.classList.add('paused');
-            });
-        }
-
         function showIdleOverlay() { idleOverlay.classList.remove('hidden'); }
         function hideIdleOverlay() { idleOverlay.classList.add('hidden'); }
 
@@ -1052,7 +1072,6 @@
             });
         }
 
-        // ── PISTAS DE AUDIO Y SUBTÍTULOS ───────────
         function clearTrackMenus() {
             audioSelect.style.display = 'none';
             subSelect.style.display = 'none';
@@ -1138,7 +1157,6 @@
             }
         }
 
-        // ── PLAY MEDIA ────────────────────────────
         async function playMedia(item) {
             clearTrackMenus(); 
             
@@ -1149,7 +1167,6 @@
             let targetUrl = item.url;
             const urlLower = targetUrl.toLowerCase();
 
-            // ── AceStream ──
             const isAce = urlLower.includes('6878') || urlLower.includes('ace/getstream') ||
                           urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8');
             if (isAce) {
@@ -1166,7 +1183,6 @@
             currentMediaUrl = targetUrl;
             castBtn.style.display = (currentSection === 'movies' || isAce) ? "block" : "none";
 
-            // ── ClearKey DRM (TV+) ──
             const isClearKey = item.kid && item.key;
             if (isClearKey) {
                 timelineWrapper.style.display = "none";
@@ -1180,7 +1196,6 @@
                     
                     shakaInstance.addEventListener('trackschanged', updateShakaTracks);
 
-                    // CONFIGURACIÓN MEJORADA: Forzamos a Shaka a leer pistas de texto siempre.
                     await shakaInstance.configure({
                         streaming: { alwaysStreamText: true },
                         drm: { clearKeys: { [base64urlToHex(item.kid)]: base64urlToHex(item.key) } }
@@ -1197,7 +1212,6 @@
                 return;
             }
 
-            // ── HLS / VOD normal ──
             const isHLS = targetUrl.includes('.m3u8') || ['tv','premium','runtime','rakuten'].includes(currentSection);
             if (isHLS) {
                 timelineWrapper.style.display = "none";
@@ -1233,7 +1247,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // FUNCIÓN MEJORADA: Elimina '==' y convierte a Hex correctamente
         function base64urlToHex(b64) {
             let str = b64.replace(/-/g, '+').replace(/_/g, '/');
             str = str.replace(/=+$/, ''); 
@@ -1245,7 +1258,6 @@
             }
         }
 
-        // ── TMDB ──────────────────────────────────
         async function fetchFromTMDB(query, year = null) {
             try {
                 let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=es-ES`;
@@ -1292,7 +1304,6 @@
             return { cleanQuery, detectedYear };
         }
 
-        // ── EPG ───────────────────────────────────
         function updateEPGDisplay(channel) {
             if (!epgData) {
                 epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>`;
