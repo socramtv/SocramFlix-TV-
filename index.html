@@ -224,9 +224,7 @@
 
         .volume-container { display: flex; align-items: center; gap: 8px; }
         .volume-container input[type="range"] { width: 65px; }
-        @media (max-width: 600px) {
-            .volume-container input[type="range"] { width: 45px; }
-        }
+        @media (max-width: 600px) { .volume-container input[type="range"] { width: 45px; } }
 
         .live-badge {
             background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 800;
@@ -275,6 +273,26 @@
         .epg-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
         #epg-info { padding: 12px 14px; font-size: 0.92rem; color: #ccc; line-height: 1.5; min-height: 48px; }
 
+        /* AVISO ACESTREAM EN ROJO */
+        .acestream-warning {
+            background-color: #E50914;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            animation: flash-red 1.5s infinite;
+            text-transform: uppercase;
+            box-shadow: 0 0 8px rgba(229, 9, 20, 0.6);
+        }
+        @keyframes flash-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+
         /* ─── FILTER BAR ─── */
         .filter-bar { display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; }
         .filter-item { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px; }
@@ -295,19 +313,12 @@
             align-items: center; justify-content: center; gap: 8px;
             transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
         }
-        .channel-card:hover {
-            background: var(--bg-hover); border-color: #444; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-        }
+        .channel-card:hover { background: var(--bg-hover); border-color: #444; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
         .channel-card:active { transform: scale(0.97); }
         .channel-card img { width: 50px; height: 50px; object-fit: contain; background: #fff; border-radius: 6px; padding: 2px; }
         .body-tv-mode .channel-card img, .body-tvplus-mode .channel-card img, .body-premium-mode .channel-card img,
-        .body-runtime-mode .channel-card img, .body-rakuten-mode .channel-card img {
-            width: 52px; height: 52px; object-fit: contain; background: #fff;
-        }
-        .channel-card span {
-            font-size: 0.78rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical; overflow: hidden; color: #ccc;
-        }
+        .body-runtime-mode .channel-card img, .body-rakuten-mode .channel-card img { width: 52px; height: 52px; object-fit: contain; background: #fff; }
+        .channel-card span { font-size: 0.78rem; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #ccc; }
 
         /* ─── MOVIE MODE ─── */
         .body-movie-mode #channel-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
@@ -357,7 +368,6 @@
                 <div class="idle-sub">PRO · Selecciona un canal para empezar</div>
             </div>
 
-            <!-- Clic en el video activa play/pausa y cierra menús -->
             <video id="video" preload="auto" onclick="togglePlay(event)"></video>
 
             <div class="custom-controls" id="custom-controls-layer" onclick="event.stopPropagation()">
@@ -377,7 +387,7 @@
                     </div>
                     <div class="controls-right">
                         
-                        <!-- NUEVO BOTÓN AGRUPADO DE AJUSTES -->
+                        <!-- MENÚ DE AJUSTES EN ENGRANAJE -->
                         <div class="settings-container" id="settings-container" style="display:none;" onclick="event.stopPropagation()">
                             <button class="control-btn" id="settings-btn" onclick="toggleSettings()" title="Ajustes de Audio/Sub/Calidad">⚙️</button>
                             
@@ -414,7 +424,7 @@
         <button id="tab-premium" class="tab-button"        onclick="changeSection('premium')">💎 Premium</button>
         <button id="tab-runtime" class="tab-button"        onclick="changeSection('runtime')">🎬 Runtime</button>
         <button id="tab-rakuten" class="tab-button"        onclick="changeSection('rakuten')">🌟 Rakuten</button>
-        <button id="tab-movies"  class="tab-button"        onclick="changeSection('movies')">🍿 Pelis</button>
+        <button id="tab-movies"  class="tab-button"        onclick="changeSection('movies')">🍿 Cine</button>
     </div>
 
     <!-- Content -->
@@ -651,7 +661,7 @@
             hideControlsTimeout = setTimeout(() => {
                 if (!video.paused) {
                     videoWrapper.classList.remove('show-controls');
-                    closeSettingsMenu(); // Cerrar también el menú flotante si está abierto
+                    closeSettingsMenu();
                 }
             }, 4000);
         }
@@ -767,7 +777,7 @@
                 
                 await fillMissingLogosFromTV(flatChannels);
                 
-                // ASIGNAR LOGO POR DEFECTO A TV+ SI AÚN NO LO TIENE
+                // ASIGNAR LOGO POR DEFECTO A TV+ SI NO TIENE
                 flatChannels.forEach(c => {
                     if (!c.logo || c.logo.trim() === '') {
                         c.logo = 'logos/icon-192.png';
@@ -867,7 +877,6 @@
             document.getElementById('row-sub').style.display = hasSub ? 'flex' : 'none';
             document.getElementById('row-quality').style.display = hasQuality ? 'flex' : 'none';
             
-            // Mostrar u ocultar el contenedor entero (el botón de engranaje)
             document.getElementById('settings-container').style.display = (hasAudio || hasSub || hasQuality) ? 'flex' : 'none';
         }
         function clearTrackMenus() {
@@ -1020,12 +1029,13 @@
             video.pause(); video.src = ''; video.load();
 
             let targetUrl = item.url;
-            const isAce = targetUrl.toLowerCase().includes('6878') || targetUrl.toLowerCase().includes('ace/getstream');
-            if (isAce) {
+            let isAce = false;
+            
+            if (targetUrl.toLowerCase().includes('6878') || targetUrl.toLowerCase().includes('ace/getstream') || targetUrl.toLowerCase().includes('acestream') || targetUrl.toLowerCase().includes('ace/manifest.m3u8')) {
+                isAce = true;
                 const aceId = (targetUrl.match(/[?&]id=([^&]+)/) || targetUrl.match(/([a-fA-F0-9]{40})/) || [])[1];
                 if (aceId) {
                     targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`;
-                    epgInfoElement.innerHTML = `<div style="color:#4CAF50; font-weight:700;">💎 AceStream → HLS</div>`;
                 }
             }
 
@@ -1034,7 +1044,7 @@
 
             const isClearKey = item.kid && item.key;
             if (isClearKey) {
-                timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item);
+                timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
                 try {
                     shakaInstance = new shaka.Player(video);
                     shakaInstance.addEventListener('error', (e) => epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error Shaka.</span>`);
@@ -1058,12 +1068,13 @@
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(()=>{}); wakeControls(); updateHlsTracks(); });
                     hlsInstance.on(Hls.Events.LEVEL_SWITCHED, updateHlsTracks);
                 } else { video.src = targetUrl; video.load(); video.play().catch(()=>{}); }
-                if (!isAce) updateEPGDisplay(item);
+                
+                updateEPGDisplay(item, isAce);
             } else {
                 if (currentSection === 'movies' || /pixeldrain|\.mp4|\.mkv/.test(targetUrl)) {
                     timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none"; searchMovieInTMDB(item.name);
                 } else {
-                    timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; if (!isAce) updateEPGDisplay(item);
+                    timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
                 }
                 video.src = targetUrl; video.load(); video.play().catch(()=>{}); wakeControls();
             }
@@ -1114,20 +1125,39 @@
             return { cleanQuery, detectedYear };
         }
 
-        function updateEPGDisplay(channel) {
-            if (!epgData) { epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>`; return; }
-            const channelId = channel.epgId || channel.name, now = new Date(), events = epgData[channelId] || [];
+        function updateEPGDisplay(channel, isAce = false) {
+            const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
+            
+            if (!epgData) { 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>${aceHTML}`; 
+                return; 
+            }
+            
+            const channelId = channel.epgId || channel.name;
+            const now = new Date();
+            const events = epgData[channelId] || [];
+            
             for (const ev of events) {
                 if (now >= ev.start && now <= ev.stop) {
-                    epgInfoElement.innerHTML = `<strong>${ev.title}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">${formatEPGTimeLabel(ev.start)} – ${formatEPGTimeLabel(ev.stop)}</span>
-                        ${ev.desc ? `<div style="color:#aaa; font-size:0.85rem; margin-top:4px;">${ev.desc}</div>` : ''}`; return;
+                    epgInfoElement.innerHTML = `
+                        <strong>${channel.name}</strong> - ${ev.title}
+                        <span style="color:#888; margin-left:8px; font-size:0.82rem;">${formatEPGTimeLabel(ev.start)} – ${formatEPGTimeLabel(ev.stop)}</span>
+                        ${ev.desc ? `<div style="color:#aaa; font-size:0.85rem; margin-top:4px;">${ev.desc}</div>` : ''}
+                        ${aceHTML}`;
+                    return;
                 }
             }
+            
             if (epgSource === 'local' && epgStale) {
                 const fechaLimite = epgStaleUntil.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>
-                    <div style="color:#f5c518; font-size:0.78rem; margin-top:5px;">⚠️ Guía caducada (hasta el ${fechaLimite}). Actualiza listas/epg.xml.</div>`;
-            } else { epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>`; }
+                epgInfoElement.innerHTML = `
+                    <strong>${channel.name}</strong>
+                    <span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>
+                    <div style="color:#f5c518; font-size:0.78rem; margin-top:5px;">⚠️ Guía caducada (hasta el ${fechaLimite}). Actualiza listas/epg.xml.</div>
+                    ${aceHTML}`;
+            } else { 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}`; 
+            }
         }
 
         function parseEPGDate(dateStr) {
