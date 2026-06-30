@@ -542,7 +542,7 @@
                         <button class="control-btn" id="cast-btn" onclick="sendToCast(event)" title="Enviar a TV">
                             <span class="cast-btn-inner">📺 TV</span>
                         </button>
-                        <button class="control-btn" onclick="toggleFullscreen(event)" title="Pantalla completa">⛶</button>
+                        <button class="control-btn" onclick="toggleFullscreen(event)" title="Pantalla completa">🔲</button>
                     </div>
                 </div>
             </div>
@@ -1085,14 +1085,12 @@
         function updateShakaTracks() {
             if (!shakaInstance) return;
             
-            // Obtener idiomas de audio únicos disponibles
             const audioLangs = shakaInstance.getAudioLanguagesAndRoles();
             if (audioLangs && audioLangs.length > 1) {
                 const uniqueLangs = Array.from(new Set(audioLangs.map(a => a.language)));
                 audioSelect.innerHTML = uniqueLangs.map(l => `<option value="${l}">${l.toUpperCase()}</option>`).join('');
                 audioSelect.style.display = 'inline-block';
                 
-                // Marcar el activo actual
                 const activeVariant = shakaInstance.getVariantTracks().find(v => v.active);
                 if (activeVariant && activeVariant.language) {
                     audioSelect.value = activeVariant.language;
@@ -1101,13 +1099,11 @@
                 audioSelect.style.display = 'none';
             }
 
-            // Obtener subtítulos
             const textTracks = shakaInstance.getTextTracks();
             if (textTracks && textTracks.length > 0) {
                 subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + textTracks.map(t => `<option value="${t.id}">${(t.language || t.label || 'Sub').toUpperCase()}</option>`).join('');
                 subSelect.style.display = 'inline-block';
                 
-                // Marcar el activo actual
                 const activeSub = textTracks.find(t => t.active);
                 subSelect.value = shakaInstance.isTextTrackVisible() && activeSub ? activeSub.id : "-1";
             } else {
@@ -1144,7 +1140,7 @@
 
         // ── PLAY MEDIA ────────────────────────────
         async function playMedia(item) {
-            clearTrackMenus(); // Limpia los menús al reproducir algo nuevo
+            clearTrackMenus(); 
             
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
@@ -1182,20 +1178,18 @@
                         epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error Shaka: ${e.detail?.message || 'No se pudo reproducir.'}</span>`;
                     });
                     
-                    // Escuchar eventos de pistas para Shaka Player (Idiomas/Subtítulos)
                     shakaInstance.addEventListener('trackschanged', updateShakaTracks);
 
-                    // Convertir kid/key de base64url a hex eliminando siempre '==' final
-                    const kidHex = base64urlToHex(item.kid);
-                    const keyHex = base64urlToHex(item.key);
+                    // CONFIGURACIÓN MEJORADA: Forzamos a Shaka a leer pistas de texto siempre.
                     await shakaInstance.configure({
-                        drm: { clearKeys: { [kidHex]: keyHex } }
+                        streaming: { alwaysStreamText: true },
+                        drm: { clearKeys: { [base64urlToHex(item.kid)]: base64urlToHex(item.key) } }
                     });
                     
                     await shakaInstance.load(targetUrl);
                     video.play().catch(() => {});
                     hideIdleOverlay();
-                    updateShakaTracks(); // Actualizar menús tras cargar
+                    updateShakaTracks(); 
                 } catch (err) {
                     epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error al cargar el canal: ${err.message}</span>`;
                 }
@@ -1210,14 +1204,12 @@
                 liveIndicator.style.display   = "block";
                 
                 if (video.canPlayType('application/vnd.apple.mpegurl') && !Hls.isSupported()) {
-                    // Soporte Nativo (Safari/iOS)
                     video.src = targetUrl; video.load(); video.play().catch(()=>{});
                 } else if (Hls.isSupported()) {
                     hlsInstance = new Hls({ maxMaxBufferLength: 10, enableWorker: true });
                     hlsInstance.loadSource(targetUrl);
                     hlsInstance.attachMedia(video);
                     
-                    // Extraer idiomas y subtítulos cuando HLS parsea el archivo
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
                         video.play().catch(()=>{});
                         updateHlsTracks();
@@ -1241,7 +1233,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Convierte base64url a string hex y siempre elimina '=='
+        // FUNCIÓN MEJORADA: Elimina '==' y convierte a Hex correctamente
         function base64urlToHex(b64) {
             let str = b64.replace(/-/g, '+').replace(/_/g, '/');
             str = str.replace(/=+$/, ''); 
