@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
     
-    <!-- PWA Etiquetas -->
     <meta name="theme-color" content="#E50914">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -356,7 +355,6 @@
 </head>
 <body class="body-tv-mode" id="main-body" onclick="closeSettingsMenu()">
 
-    <!-- Player section -->
     <div id="player-section">
         <div class="video-container show-controls" id="video-wrapper">
             <div id="app-header">
@@ -387,7 +385,6 @@
                     </div>
                     <div class="controls-right">
                         
-                        <!-- MENÚ DE AJUSTES EN ENGRANAJE -->
                         <div class="settings-container" id="settings-container" style="display:none;" onclick="event.stopPropagation()">
                             <button class="control-btn" id="settings-btn" onclick="toggleSettings()" title="Ajustes de Audio/Sub/Calidad">⚙️</button>
                             
@@ -417,7 +414,6 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="navigation-tabs">
         <button id="tab-tv"      class="tab-button active" onclick="changeSection('tv')">📺 TV</button>
         <button id="tab-tvplus"  class="tab-button"        onclick="changeSection('tvplus')">📡 TV+ <span class="tvplus-badge">DRM</span></button>
@@ -427,7 +423,6 @@
         <button id="tab-movies"  class="tab-button"        onclick="changeSection('movies')">🍿 Cine</button>
     </div>
 
-    <!-- Content -->
     <div id="content-section">
         <div id="epg-container">
             <div class="epg-header">
@@ -499,6 +494,10 @@
         const FALLBACK_IMG_TV  = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"%3E%3Crect width="52" height="52" fill="%23222"/%3E%3Ctext x="26" y="30" text-anchor="middle" font-size="22" fill="%23555"%3E📺%3C/text%3E%3C/svg%3E';
         const FALLBACK_IMG_MOV = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300"%3E%3Crect width="200" height="300" fill="%231a1a1a"/%3E%3Ctext x="100" y="155" text-anchor="middle" font-size="48" fill="%23333"%3E🎬%3C/text%3E%3C/svg%3E';
 
+        // NUEVAS FUENTES GLOBALES EPG
+        const EPG_LIVE_URL  = 'https://www.tdtchannels.com/epg/TV.json';
+        const EPG_PREMIUM_URL = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv.xml';
+
         const video         = document.getElementById('video');
         const playPauseBtn  = document.getElementById('play-pause-btn');
         const seekBar       = document.getElementById('seek-bar');
@@ -537,8 +536,6 @@
         let shakaInstance   = null;
         let currentMediaUrl = "";
         let hideControlsTimeout;
-
-        const EPG_LIVE_URL  = 'https://www.tdtchannels.com/epg/TV.json';
 
         async function init() {
             shaka.polyfill.installAll();
@@ -584,13 +581,15 @@
                 mainBody.className = "body-tvplus-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Grupo";
-                await loadEPG('listas/epg.xml'); // Ahora carga y fusiona ambas
+                // En TV+ fusionamos TDT, Local y Premium por si hay canales cruzados
+                await loadEPG('listas/epg.xml', EPG_PREMIUM_URL); 
                 await loadTVPlusJSON('listas/tvplus.json');
             } else if (section === 'premium') {
                 mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Categoría";
-                await loadEPG(EPG_ES);
+                // Fusiona EPG Local con la oficial de Movistar (GitHub)
+                await loadEPG(EPG_ES, EPG_PREMIUM_URL);
                 loadM3UFromUrl('listas/star+.m3u');
             } else if (section === 'runtime') {
                 mainBody.className = "body-runtime-mode";
@@ -658,7 +657,7 @@
 
                     epgInfoElement.innerHTML += `
                         <div style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
-                            <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace. Puedes usar las siguientes opciones alternativas:</span>
+                            <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace. Opciones recomendadas:</span>
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
                                 <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🟠 Ver en VLC</a>
                                 <a href="${currentMediaUrl}" target="_blank" style="display:inline-block; background:#333; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🌐 Abrir en Pestaña</a>
@@ -733,20 +732,29 @@
             }
         }
 
-        // --- SISTEMA EPG FUSIONADO PARA TV+ Y NORMAL ---
-        async function loadEPG(localUrl) {
+        // --- SISTEMA EPG FUSIONADO PARA TV+, PREMIUM Y NORMAL ---
+        async function loadEPG(...xmlUrls) {
             epgData = {}; 
             epgSource = ''; 
             epgStale = false;
             
-            // Cargamos ambas a la vez
-            const liveOK = await loadLiveEPG();
-            const localOK = await loadLocalEPGFile(localUrl);
+            let loadedAny = false;
             
-            if (!liveOK && !localOK) {
+            // 1. Cargamos EPG de la TDT siempre como base (si falla, no pasa nada)
+            const liveOK = await loadLiveEPG();
+            if (liveOK) loadedAny = true;
+            
+            // 2. Cargamos todas las guías adicionales que pasemos (locales o externas de GitHub)
+            for (const url of xmlUrls) {
+                if (!url) continue;
+                const ok = await loadLocalEPGFile(url);
+                if (ok) loadedAny = true;
+            }
+            
+            if (!loadedAny) {
                 epgData = null;
             } else {
-                epgSource = (liveOK && localOK) ? 'mixed' : (liveOK ? 'live' : 'local');
+                epgSource = 'mixed';
                 checkEpgFreshness();
             }
         }
