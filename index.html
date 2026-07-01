@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
     
-    <!-- PWA Etiquetas -->
     <meta name="theme-color" content="#E50914">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -356,7 +355,6 @@
 </head>
 <body class="body-tv-mode" id="main-body" onclick="closeSettingsMenu()">
 
-    <!-- Player section -->
     <div id="player-section">
         <div class="video-container show-controls" id="video-wrapper">
             <div id="app-header">
@@ -387,7 +385,6 @@
                     </div>
                     <div class="controls-right">
                         
-                        <!-- MENÚ DE AJUSTES EN ENGRANAJE -->
                         <div class="settings-container" id="settings-container" style="display:none;" onclick="event.stopPropagation()">
                             <button class="control-btn" id="settings-btn" onclick="toggleSettings()" title="Ajustes de Audio/Sub/Calidad">⚙️</button>
                             
@@ -417,7 +414,6 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="navigation-tabs">
         <button id="tab-tv"      class="tab-button active" onclick="changeSection('tv')">📺 TV</button>
         <button id="tab-tvplus"  class="tab-button"        onclick="changeSection('tvplus')">📡 TV+ <span class="tvplus-badge">DRM</span></button>
@@ -427,7 +423,6 @@
         <button id="tab-movies"  class="tab-button"        onclick="changeSection('movies')">🍿 Cine</button>
     </div>
 
-    <!-- Content -->
     <div id="content-section">
         <div id="epg-container">
             <div class="epg-header">
@@ -1032,7 +1027,8 @@
             let targetUrl = item.url;
             let isAce = false;
             
-            if (targetUrl.toLowerCase().includes('6878') || targetUrl.toLowerCase().includes('ace/getstream') || targetUrl.toLowerCase().includes('acestream') || targetUrl.toLowerCase().includes('ace/manifest.m3u8')) {
+            const urlLower = targetUrl.toLowerCase();
+            if (urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8')) {
                 isAce = true;
                 const aceId = (targetUrl.match(/[?&]id=([^&]+)/) || targetUrl.match(/([a-fA-F0-9]{40})/) || [])[1];
                 if (aceId) {
@@ -1059,6 +1055,7 @@
             }
 
             const isHLS = targetUrl.includes('.m3u8') || ['tv','premium','runtime','rakuten'].includes(currentSection);
+            
             if (isHLS) {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
                 if (video.canPlayType('application/vnd.apple.mpegurl') && !Hls.isSupported()) {
@@ -1072,12 +1069,18 @@
                 
                 updateEPGDisplay(item, isAce);
             } else {
-                if (currentSection === 'movies' || /pixeldrain|\.mp4|\.mkv/.test(targetUrl)) {
+                // Enlaces directos o Películas (mp4, duckdns raw streams, etc.)
+                if (currentSection === 'movies' || urlLower.includes('pixeldrain') || urlLower.includes('.mp4') || urlLower.includes('.mkv') || urlLower.includes('duckdns')) {
                     timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none"; searchMovieInTMDB(item.name);
                 } else {
                     timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
                 }
-                video.src = targetUrl; video.load(); video.play().catch(()=>{}); wakeControls();
+                
+                // Intento nativo directo para saltarse CORS en enlaces .duckdns
+                video.src = targetUrl; 
+                video.load(); 
+                video.play().catch(()=>{}); 
+                wakeControls();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
