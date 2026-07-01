@@ -529,7 +529,7 @@
 
         let currentSection  = 'tv';
         let channels        = [];
-        let epgData         = null; 
+        let epgData         = {}; 
         let epgSource       = '';    
         let epgStale        = false;
         let epgStaleUntil   = null;
@@ -584,7 +584,7 @@
                 mainBody.className = "body-tvplus-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Grupo";
-                await loadEPG('listas/epg.xml');
+                await loadEPG('listas/epg.xml'); // Ahora carga y fusiona ambas
                 await loadTVPlusJSON('listas/tvplus.json');
             } else if (section === 'premium') {
                 mainBody.className = "body-premium-mode";
@@ -642,20 +642,29 @@
                 wakeControls(true);
             });
 
-            // DETECTOR DE ERRORES
+            // DETECTOR DE ERRORES AMPLIADO CON BOTÓN CAST Y AVISO
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
                     const isAndroid = /Android/i.test(navigator.userAgent);
+                    
+                    // Link VLC
                     const vlcLink = isAndroid 
                         ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
                         : `vlc://${currentMediaUrl}`;
                     
+                    // Link Cast (Web Video Caster)
+                    const wvcLink = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+
                     epgInfoElement.innerHTML += `
                         <div style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
-                            <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace por seguridad (CORS) o porque el formato de video no es compatible.</span>
-                            <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem; margin-right:8px;">🟠 Reproducir en VLC</a>
-                            <a href="${currentMediaUrl}" target="_blank" style="display:inline-block; background:#333; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🌐 Abrir en Pestaña</a>
+                            <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace. Puedes usar las siguientes opciones alternativas:</span>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🟠 Ver en VLC</a>
+                                <a href="${currentMediaUrl}" target="_blank" style="display:inline-block; background:#333; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🌐 Abrir en Pestaña</a>
+                                <a href="${wvcLink}" style="display:inline-block; background:#4CAF50; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">📺 Enviar a TV (Cast)</a>
+                            </div>
+                            <span style="display:block; margin-top:10px; font-size:0.78rem; color:#bbb;">💡 Recordatorio: También puedes pulsar el botón <strong>📺 TV</strong> de los controles del reproductor arriba.</span>
                         </div>
                     `;
                 }
@@ -724,53 +733,65 @@
             }
         }
 
+        // --- SISTEMA EPG FUSIONADO PARA TV+ Y NORMAL ---
         async function loadEPG(localUrl) {
-            epgData = null; epgSource = ''; epgStale = false;
-            if (await loadLiveEPG()) { epgSource = 'live'; return; }
-            if (await loadLocalEPGFile(localUrl)) { epgSource = 'local'; checkEpgFreshness(); }
+            epgData = {}; 
+            epgSource = ''; 
+            epgStale = false;
+            
+            // Cargamos ambas a la vez
+            const liveOK = await loadLiveEPG();
+            const localOK = await loadLocalEPGFile(localUrl);
+            
+            if (!liveOK && !localOK) {
+                epgData = null;
+            } else {
+                epgSource = (liveOK && localOK) ? 'mixed' : (liveOK ? 'live' : 'local');
+                checkEpgFreshness();
+            }
         }
 
         async function loadLiveEPG() {
             try {
                 const response = await fetch(EPG_LIVE_URL);
-                if (!response.ok) throw new Error('HTTP ' + response.status);
+                if (!response.ok) return false;
                 const json = await response.json();
-                const data = {};
                 json.forEach(channelBlock => {
                     const id = channelBlock.name;
                     if (!id || !Array.isArray(channelBlock.events)) return;
-                    data[id] = channelBlock.events.map(ev => ({
+                    
+                    if (!epgData[id]) epgData[id] = [];
+                    epgData[id].push(...channelBlock.events.map(ev => ({
                         start: new Date(ev.hi * 1000), stop: new Date(ev.hf * 1000),
                         title: ev.t || 'Sin título', desc: ev.d || ''
-                    }));
+                    })));
                 });
-                if (Object.keys(data).length === 0) throw new Error('Vacío');
-                epgData = data; return true;
+                return true;
             } catch (e) { return false; }
         }
 
         async function loadLocalEPGFile(url) {
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error();
+                if (!response.ok) return false;
                 let xmlText = await response.text();
                 xmlText = xmlText.replace(/&((?![A-Za-z0-9#]+;)|$)/g, "&amp;");
                 const xmlDoc = new DOMParser().parseFromString(xmlText, "application/xml");
-                if (xmlDoc.querySelector('parsererror')) throw new Error();
+                if (xmlDoc.querySelector('parsererror')) return false;
 
-                const data = {};
                 xmlDoc.querySelectorAll('programme').forEach(prog => {
                     const id = prog.getAttribute('channel');
                     if (!id) return;
-                    if (!data[id]) data[id] = [];
-                    data[id].push({
+                    
+                    if (!epgData[id]) epgData[id] = [];
+                    epgData[id].push({
                         start: parseEPGDate(prog.getAttribute('start')),
                         stop:  parseEPGDate(prog.getAttribute('stop')),
                         title: prog.querySelector('title')?.textContent || 'Sin título',
                         desc:  prog.querySelector('desc')?.textContent  || ''
                     });
                 });
-                epgData = data; return true;
+                return true;
             } catch (e) { return false; }
         }
 
@@ -822,10 +843,10 @@
             });
         }
 
-        // Creada también para el buscador inteligente de EPG
         function normalizeChannelName(name) {
             return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .replace(/\(opc\.?\s*\d*\)/gi, '').replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b/gi, '').replace(/[^a-z0-9]/g, '');
+                .replace(/\(opc\.?\s*\d*\)/gi, '').replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b|\buhd\b/gi, '')
+                .replace(/\+/g, 'plus').replace(/[^a-z0-9]/g, '');
         }
 
         async function fillMissingLogosFromTV(flatChannels) {
@@ -1167,17 +1188,17 @@
             return { cleanQuery, detectedYear };
         }
 
-        // BUSCADOR INTELIGENTE DE EPG: Cruza datos exactos y normalizados
+        // BUSCADOR INTELIGENTE DE EPG PARA TODAS LAS FUENTES
         function getEPGEvents(channel) {
             if (!epgData) return [];
             
-            // 1. Intento exacto por epgId (tvg-id)
+            // 1. Búsqueda exacta por ID (tvg-id)
             if (channel.epgId && epgData[channel.epgId]) return epgData[channel.epgId];
             
-            // 2. Intento exacto por nombre exacto
+            // 2. Búsqueda exacta por el nombre del canal
             if (epgData[channel.name]) return epgData[channel.name];
             
-            // 3. Intento normalizado (limpia "HD", "FHD", acentos, etc. para TV+)
+            // 3. Búsqueda normalizada (ignorando HD, tildes, signos, mayúsculas)
             const normName = normalizeChannelName(channel.name);
             for (const key in epgData) {
                 if (channel.epgId && key === channel.epgId) return epgData[key];
@@ -1189,7 +1210,6 @@
         function updateEPGDisplay(channel, isAce = false) {
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             
-            // Ahora usamos la función inteligente para conseguir la programación
             const events = getEPGEvents(channel);
             
             if (!epgData || events.length === 0) { 
