@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
     
+    <!-- PWA Etiquetas -->
     <meta name="theme-color" content="#E50914">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -355,6 +356,7 @@
 </head>
 <body class="body-tv-mode" id="main-body" onclick="closeSettingsMenu()">
 
+    <!-- Player section -->
     <div id="player-section">
         <div class="video-container show-controls" id="video-wrapper">
             <div id="app-header">
@@ -385,6 +387,7 @@
                     </div>
                     <div class="controls-right">
                         
+                        <!-- MENÚ DE AJUSTES EN ENGRANAJE -->
                         <div class="settings-container" id="settings-container" style="display:none;" onclick="event.stopPropagation()">
                             <button class="control-btn" id="settings-btn" onclick="toggleSettings()" title="Ajustes de Audio/Sub/Calidad">⚙️</button>
                             
@@ -414,6 +417,7 @@
         </div>
     </div>
 
+    <!-- Tabs -->
     <div class="navigation-tabs">
         <button id="tab-tv"      class="tab-button active" onclick="changeSection('tv')">📺 TV</button>
         <button id="tab-tvplus"  class="tab-button"        onclick="changeSection('tvplus')">📡 TV+ <span class="tvplus-badge">DRM</span></button>
@@ -423,6 +427,7 @@
         <button id="tab-movies"  class="tab-button"        onclick="changeSection('movies')">🍿 Cine</button>
     </div>
 
+    <!-- Content -->
     <div id="content-section">
         <div id="epg-container">
             <div class="epg-header">
@@ -606,7 +611,7 @@
             }
         }
 
-        // ── LÓGICA DE CONTROLES Y OCULTACIÓN ──
+        // ── LÓGICA DE CONTROLES, OCULTACIÓN Y MANEJO DE ERRORES ──
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -634,6 +639,28 @@
             video.addEventListener('pause', () => {
                 playPauseBtn.innerText = "▶";
                 wakeControls(true);
+            });
+
+            // DETECTOR DE ERRORES: SALVAVIDAS PARA ENLACES BLOQUEADOS (CORS/TS)
+            video.addEventListener('error', () => {
+                const err = video.error;
+                if (err && currentMediaUrl) {
+                    const isAndroid = /Android/i.test(navigator.userAgent);
+                    
+                    // Crea el enlace inteligente para abrir VLC según el dispositivo
+                    const vlcLink = isAndroid 
+                        ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
+                        : `vlc://${currentMediaUrl}`;
+                    
+                    // Añade el aviso en el panel EPG
+                    epgInfoElement.innerHTML += `
+                        <div style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
+                            <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace por seguridad (CORS) o porque el formato de video no es compatible.</span>
+                            <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem; margin-right:8px;">🟠 Reproducir en VLC</a>
+                            <a href="${currentMediaUrl}" target="_blank" style="display:inline-block; background:#333; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🌐 Abrir en Pestaña</a>
+                        </div>
+                    `;
+                }
             });
 
             videoWrapper.addEventListener('mousemove', () => wakeControls());
