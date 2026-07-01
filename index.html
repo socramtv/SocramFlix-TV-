@@ -554,6 +554,7 @@
                 document.getElementById('tab-' + s).classList.toggle('active', s === section);
             });
 
+            // LIMPIEZA AUTOMÁTICA DE BÚSQUEDA AL CAMBIAR PESTAÑA
             searchInput.value = "";
             clearTrackMenus();
             
@@ -641,18 +642,15 @@
                 wakeControls(true);
             });
 
-            // DETECTOR DE ERRORES: SALVAVIDAS PARA ENLACES BLOQUEADOS (CORS/TS)
+            // DETECTOR DE ERRORES
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
                     const isAndroid = /Android/i.test(navigator.userAgent);
-                    
-                    // Crea el enlace inteligente para abrir VLC según el dispositivo
                     const vlcLink = isAndroid 
                         ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
                         : `vlc://${currentMediaUrl}`;
                     
-                    // Añade el aviso en el panel EPG
                     epgInfoElement.innerHTML += `
                         <div style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
                             <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace por seguridad (CORS) o porque el formato de video no es compatible.</span>
@@ -700,6 +698,8 @@
         }
 
         async function loadLocalSaga() {
+            // LIMPIEZA AUTOMÁTICA DE BÚSQUEDA AL CAMBIAR SAGA
+            searchInput.value = "";
             const fileUrl = sagaSelect.value;
             showLoadingSkeletons(true);
             try {
@@ -822,6 +822,7 @@
             });
         }
 
+        // Creada también para el buscador inteligente de EPG
         function normalizeChannelName(name) {
             return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
                 .replace(/\(opc\.?\s*\d*\)/gi, '').replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b/gi, '').replace(/[^a-z0-9]/g, '');
@@ -1006,12 +1007,18 @@
             }
             return result;
         }
+
         function buildCategoryMenu() {
             const cats = [...new Set(channels.map(c => c.category))].sort();
             categorySelect.innerHTML = '<option value="">Todas las categorías</option>';
             cats.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.innerText = cat; categorySelect.appendChild(opt); });
-            categorySelect.onchange = applyFilters;
+            categorySelect.onchange = () => {
+                // LIMPIEZA AUTOMÁTICA DE BÚSQUEDA AL CAMBIAR CATEGORÍA
+                searchInput.value = "";
+                applyFilters();
+            };
         }
+
         function applyFilters() {
             const cat = categorySelect.value, word = searchInput.value.toLowerCase().trim();
             renderGrid(channels.filter(c => (!cat || c.category === cat) && (!word || c.name.toLowerCase().includes(word))));
@@ -1046,6 +1053,12 @@
         }
 
         async function playMedia(item) {
+            // LIMPIEZA AUTOMÁTICA DE BÚSQUEDA AL HACER CLICK EN UN CONTENIDO
+            if (searchInput.value.trim() !== "") {
+                searchInput.value = "";
+                applyFilters();
+            }
+
             clearTrackMenus(); 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
@@ -1096,14 +1109,12 @@
                 
                 updateEPGDisplay(item, isAce);
             } else {
-                // Enlaces directos o Películas (mp4, duckdns raw streams, etc.)
                 if (currentSection === 'movies' || urlLower.includes('pixeldrain') || urlLower.includes('.mp4') || urlLower.includes('.mkv') || urlLower.includes('duckdns')) {
                     timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none"; searchMovieInTMDB(item.name);
                 } else {
                     timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
                 }
                 
-                // Intento nativo directo para saltarse CORS en enlaces .duckdns
                 video.src = targetUrl; 
                 video.load(); 
                 video.play().catch(()=>{}); 
@@ -1156,18 +1167,37 @@
             return { cleanQuery, detectedYear };
         }
 
+        // BUSCADOR INTELIGENTE DE EPG: Cruza datos exactos y normalizados
+        function getEPGEvents(channel) {
+            if (!epgData) return [];
+            
+            // 1. Intento exacto por epgId (tvg-id)
+            if (channel.epgId && epgData[channel.epgId]) return epgData[channel.epgId];
+            
+            // 2. Intento exacto por nombre exacto
+            if (epgData[channel.name]) return epgData[channel.name];
+            
+            // 3. Intento normalizado (limpia "HD", "FHD", acentos, etc. para TV+)
+            const normName = normalizeChannelName(channel.name);
+            for (const key in epgData) {
+                if (channel.epgId && key === channel.epgId) return epgData[key];
+                if (normalizeChannelName(key) === normName) return epgData[key];
+            }
+            return [];
+        }
+
         function updateEPGDisplay(channel, isAce = false) {
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             
-            if (!epgData) { 
+            // Ahora usamos la función inteligente para conseguir la programación
+            const events = getEPGEvents(channel);
+            
+            if (!epgData || events.length === 0) { 
                 epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>${aceHTML}`; 
                 return; 
             }
             
-            const channelId = channel.epgId || channel.name;
             const now = new Date();
-            const events = epgData[channelId] || [];
-            
             for (const ev of events) {
                 if (now >= ev.start && now <= ev.stop) {
                     epgInfoElement.innerHTML = `
