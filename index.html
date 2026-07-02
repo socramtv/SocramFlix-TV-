@@ -774,54 +774,45 @@
         }
 
         // ==========================================
-        //  CÓDIGO DE EPG CON DOBLE PROXY ANTI-CORS
+        //  CÓDIGO DE EPG: LOGICA ORIGINAL CON PROXY
         // ==========================================
         async function loadLiveEPG() {
             try {
                 const targetUrl = 'https://www.tdtchannels.com/epg/TV.json';
                 let response;
 
-                // Intento 1: Usamos corsproxy.io (Más rápido y moderno)
+                // Intento 1: corsproxy.io
                 try {
                     response = await fetch('https://corsproxy.io/?' + encodeURIComponent(targetUrl));
                 } catch (e) {
                     console.warn("Fallo en el primer proxy, intentando el segundo...");
                 }
 
-                // Intento 2: Si el primero falla o es bloqueado, usamos codetabs como respaldo
+                // Intento 2: codetabs.com
                 if (!response || !response.ok) {
                     response = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl));
                 }
 
-                // Si ambos fallan, abortamos silenciosamente
+                // Si ambos fallan
                 if (!response || !response.ok) return false;
 
-                // Estos proxies devuelven el JSON directamente (ya no hace falta extraer "contents")
                 const json = await response.json();
-
+                
+                // LÓGICA ORIGINAL RESTAURADA: events, hi, hf, t, d
                 json.forEach(channelBlock => {
-                    const id = channelBlock.id || channelBlock.name;
-                    if (!id || !Array.isArray(channelBlock.epg)) return;
-
-                    if (!epgData[id]) epgData[id] = [];
+                    const id = channelBlock.name;
+                    if (!id || !Array.isArray(channelBlock.events)) return;
                     
-                    channelBlock.epg.forEach(ev => {
-                        // Reemplazamos el espacio por 'T' para formato de fecha universal
-                        const startStr = ev.start ? ev.start.replace(' ', 'T') : null;
-                        const stopStr = ev.stop ? ev.stop.replace(' ', 'T') : null;
-
-                        if (startStr && stopStr) {
-                            epgData[id].push({
-                                start: new Date(startStr),
-                                stop: new Date(stopStr),
-                                title: ev.title || 'Sin título',
-                                desc: ev.description || ''
-                            });
-                        }
-                    });
+                    if (!epgData[id]) epgData[id] = [];
+                    epgData[id].push(...channelBlock.events.map(ev => ({
+                        start: new Date(ev.hi * 1000), 
+                        stop: new Date(ev.hf * 1000),
+                        title: ev.t || 'Sin título', 
+                        desc: ev.d || ''
+                    })));
                 });
                 return true;
-            } catch (e) {
+            } catch (e) { 
                 console.error("Error al cargar EPG JSON:", e);
                 return false; 
             }
@@ -1281,8 +1272,9 @@
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             const events = getEPGEvents(channel);
             
+            // MODIFICADO: Si no hay datos, muestra "En directo"
             if (!epgData || events.length === 0) { 
-                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">Guía no disponible</span>${aceHTML}`; 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}`; 
                 return; 
             }
             
