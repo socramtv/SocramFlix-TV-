@@ -774,28 +774,39 @@
         }
 
         // ==========================================
-        //  CÓDIGO DE EPG ACTUALIZADO Y CORREGIDO
+        //  CÓDIGO DE EPG CON DOBLE PROXY ANTI-CORS
         // ==========================================
         async function loadLiveEPG() {
             try {
-                // Usamos AllOrigins Proxy para evitar el bloqueo CORS en Chrome/Safari/Edge
-                const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(EPG_LIVE_URL);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) return false;
+                const targetUrl = 'https://www.tdtchannels.com/epg/TV.json';
+                let response;
 
-                const proxyData = await response.json();
-                const json = JSON.parse(proxyData.contents); // Extraemos el JSON real de TDTChannels
+                // Intento 1: Usamos corsproxy.io (Más rápido y moderno)
+                try {
+                    response = await fetch('https://corsproxy.io/?' + encodeURIComponent(targetUrl));
+                } catch (e) {
+                    console.warn("Fallo en el primer proxy, intentando el segundo...");
+                }
+
+                // Intento 2: Si el primero falla o es bloqueado, usamos codetabs como respaldo
+                if (!response || !response.ok) {
+                    response = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl));
+                }
+
+                // Si ambos fallan, abortamos silenciosamente
+                if (!response || !response.ok) return false;
+
+                // Estos proxies devuelven el JSON directamente (ya no hace falta extraer "contents")
+                const json = await response.json();
 
                 json.forEach(channelBlock => {
-                    // TDTChannels JSON actual usa "id" (ej. "La1.es") y los eventos están dentro de un array "epg"
                     const id = channelBlock.id || channelBlock.name;
                     if (!id || !Array.isArray(channelBlock.epg)) return;
 
                     if (!epgData[id]) epgData[id] = [];
                     
                     channelBlock.epg.forEach(ev => {
-                        // TDTChannels devuelve fechas en formato texto "2023-10-24 15:30:00"
-                        // Reemplazamos el espacio por 'T' para asegurar la compatibilidad nativa con Safari y Chrome
+                        // Reemplazamos el espacio por 'T' para formato de fecha universal
                         const startStr = ev.start ? ev.start.replace(' ', 'T') : null;
                         const stopStr = ev.stop ? ev.stop.replace(' ', 'T') : null;
 
@@ -811,7 +822,7 @@
                 });
                 return true;
             } catch (e) {
-                console.error("Error al cargar EPG JSON vía proxy:", e);
+                console.error("Error al cargar EPG JSON:", e);
                 return false; 
             }
         }
