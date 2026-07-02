@@ -1235,5 +1235,243 @@
 	   
 	   
      ] 
-    }
+    }, 
+
+
+    {
+    "name": "👩‍👧‍👦 INFANTILES",
+    "samples": [
+      {
+        "name": "Baby TV",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Baby_tv/__op/dash-wv/__f/manifest.mpd",
+        "kid": "YZwaCSaHowzTmbhnSVg1Cw",
+        "key": "SsFCXDT+anAS1O1RewPZ1g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Baby TV (-2h)",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-v2/__c/Baby_tv/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "YZwaCSaHowzTmbhnSVg1Cw",
+        "key": "SsFCXDT+anAS1O1RewPZ1g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Boing",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/Boing_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "jThJHw1kNz3dPMW5rBd6iA",
+        "key": "hHVEoR98HPmD8ayPCL26FA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Boing (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r3/__c/Boing_HD_B/__op/dash-wv/__f/manifest.mpd",
+        "kid": "jThJHw1kNz3dPMW5rBd6iA",
+        "key": "hHVEoR98HPmD8ayPCL26FA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Clan TVE",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r2/__c/Clan_HD_A/__op/dash-wv/__f/manifest.mpd",
+        "kid": "VDLNFwKJ5kMDiICJWbxb8w",
+        "key": "eFUBfqXm5ssi11A0mfo/uA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Clan TVE (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v4/__c/Clan_HD_A/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "VDLNFwKJ5kMDiICJWbxb8w",
+        "key": "eFUBfqXm5ssi11A0mfo/uA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Disney Channel",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/DISNEY_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "kZQjLBocGD864qxPnovfiw",
+        "key": "tNvDTNX9S6C0afJ6gCQvwg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Disney Channel (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/DISNEY_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "kZQjLBocGD864qxPnovfiw",
+        "key": "tNvDTNX9S6C0afJ6gCQvwg",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Disney Junior",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Disney_Junior_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "qs4mu21ZvoBICrLFBe56Lg",
+        "key": "35QHfl0e7+8Gley8Wx2zQQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Disney Junior (-2h)",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-v2/__c/Disney_Junior_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "qs4mu21ZvoBICrLFBe56Lg",
+        "key": "35QHfl0e7+8Gley8Wx2zQQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Enfamilia",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ENFAMILIA_SD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "F29AccB2W1xPZxHxF+MU+w",
+        "key": "pAqUbif5nYy+SlquqCxvKQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Enfamilia (-2h)",
+        "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-v2/__c/ENFAMILIA_SD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "F29AccB2W1xPZxHxF+MU+w",
+        "key": "pAqUbif5nYy+SlquqCxvKQ",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Lolly Kids",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-r1/__c/Lollykids_HD/__op/dash-wv/__f/manifest.mpd",
+        "kid": "ur89qT4tmlhifY+rP9QrwA",
+        "key": "XjfG9kmx6kEUrkK/LcG17g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "Lolly Kids (-2h)",
+        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-v1/__c/Lollykids_HD/__op/delay-dash-wv/__f/manifest.mpd",
+        "kid": "ur89qT4tmlhifY+rP9QrwA",
+        "key": "XjfG9kmx6kEUrkK/LcG17g",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      }
+       
+    ]
+  },
+  
+  {
+    "name": "🎺 MÚSICA",
+    "samples": [
+      
+        {
+        "name": "MTV 00s",
+        "uri": "https://tvup01.edge.milloh-cs.com/mtv00s/mtv00s.mpd",
+        "kid": "wH51d5lxXlqRrZdbl+0b4A,mnE5gf3vV7mTtfqV1A2sWQ,vVwWedl7UqW30Fc7WdaGbQ",
+        "key": "mCafFPH+8q/hWUJKWO1Qeg,oJ4tZAnktYPBsF/D3UL5Xw,NLti4F2m/Srb0rHF2gDbpA",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+      {
+        "name": "MTV España",
+        "uri": "https://tvup01.edge.milloh-cs.com/mtv-esp/mtv-esp.mpd",
+        "kid": "nviwzTncVx+ct7Hz6/km8A,qWSphHQJUtGUg0NkysBs/g,4BM/PJnUWgqI0O3YlIxnPw",
+        "key": "HNd0c0wCpF02VDYFuhqQJQ,mi0F1F/ZjKXf4pxK8H/jfQ,iCKnfnqVd1dnD8sOvGUB7Q",
+        "drm_scheme": "clearkey",
+        "extension": "mpd"
+      },
+
+{
+        "name": "NOW 70'S",
+        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-now70s/.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "NOW 80'S",
+        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-now80s/.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "NOW ROCK",
+        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-nowrock/.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "QELLO CONCERTS",
+        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-qello/.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "TRACE LATINA",
+        "uri": "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01131-tracetv-tracelatina-orangees/playlist.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "TRACE URBAN",
+        "uri": "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01131-tracetv-traceurban-orangees/playlist.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "SOL MUSICA",
+        "uri": "https://d2glyu450vvghm.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-21u4g5cjglv02/sm.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": ""
+       }	, 
+
+{"name": "Activa TV España",
+"uri": "https://streamtv.mediasector.es/hls/activatv/index.m3u8",
+  "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": ""
+       },
+
+{"name": "Cadena Elite España",
+"uri": "https://cloudvideo.servers10.com:8081/8004/index.m3u8",
+  "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": ""
+       },
+
+{"name": "Molahits TV España",
+"uri": "https://ventdelnord.tv:8080/mola/directe.m3u8",
+  "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": ""
+       },
+
+{"name": "La Urban TV España",
+"uri": "https://www.urbanrevolution.es:8443/live/TV/playlist.m3u8",
+  "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": ""
+       },
+
+
+
+{"name": "Verbena TV España",
+"uri": "https://streamtv2.elitecomunicacion.cloud:3144/live/verbenatvlive.m3u8",
+  "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": ""
+       }
+      , 
+      
+        {
+        "name": "VM Latino Costa Rica",
+        "uri": "https://59ef525c24caa.streamlock.net/vmtv/vmlatino/playlist.m3u8",
+        "kid": "",
+        "key": "",
+        "drm_scheme": "clearkey",
+        "extension": "m3u8"
+      }
+      
+    ]
+  }
+
+
+
 ]
