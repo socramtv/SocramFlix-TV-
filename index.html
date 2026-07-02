@@ -305,6 +305,19 @@
         select:focus, .search-input-style:focus { border-color: var(--accent); }
         .search-input-style::placeholder { color: #555; }
 
+        /* BOTÓN DE RECARGA ANTI-CACHÉ */
+        .reload-btn {
+            background: var(--bg-panel); color: var(--text); border: 1px solid var(--border);
+            border-radius: 6px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;
+            width: 42px; display: flex; justify-content: center; align-items: center; padding: 0;
+            outline: none;
+        }
+        .reload-btn:hover {
+            background: var(--accent); border-color: var(--accent); color: white;
+            transform: rotate(180deg); box-shadow: 0 0 10px rgba(229,9,20,0.5);
+        }
+        .reload-btn:active { transform: rotate(180deg) scale(0.9); }
+
         /* ─── GRID ─── */
         #channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         .channel-card {
@@ -447,8 +460,12 @@
                 <select id="saga-select" onchange="loadLocalSaga()"></select>
             </div>
             <div class="filter-item">
-                <label>Buscar</label>
-                <input type="text" id="search-input" class="search-input-style" placeholder="Título, canal..." oninput="applyFilters()">
+                <label>Buscar / Recargar</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="search-input" class="search-input-style" style="flex:1;" placeholder="Título, canal..." oninput="applyFilters()">
+                    <!-- NUEVO BOTÓN DE RECARGA ANTI-CACHÉ -->
+                    <button class="reload-btn" onclick="forceAppReload()" title="Limpiar caché y actualizar app">🔄</button>
+                </div>
             </div>
         </div>
 
@@ -499,7 +516,6 @@
         const FALLBACK_IMG_TV  = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"%3E%3Crect width="52" height="52" fill="%23222"/%3E%3Ctext x="26" y="30" text-anchor="middle" font-size="22" fill="%23555"%3E📺%3C/text%3E%3C/svg%3E';
         const FALLBACK_IMG_MOV = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300"%3E%3Crect width="200" height="300" fill="%231a1a1a"/%3E%3Ctext x="100" y="155" text-anchor="middle" font-size="48" fill="%23333"%3E🎬%3C/text%3E%3C/svg%3E';
 
-        // FUENTES EPG (Online Base + Premium GitHub Oficial)
         const EPG_LIVE_URL  = 'https://www.tdtchannels.com/epg/TV.json';
         const EPG_PREMIUM_URL = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv.xml';
 
@@ -545,10 +561,25 @@
         async function init() {
             shaka.polyfill.installAll();
             buildSagaDropdown();
-            // Carga inicial suave
             loadEPG('listas/epg.xml');
             loadM3UFromUrl('listas/tv.m3u');
             setupPlayerListeners();
+        }
+
+        // ── BOTÓN DE ACTUALIZACIÓN (ANTI-CACHÉ) ──
+        function forceAppReload() {
+            // 1. Limpiamos cualquier caché del Service Worker de la PWA
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
+            }
+            
+            // 2. Forzamos la recarga añadiendo una marca de tiempo a la URL
+            // Esto asegura que GitHub Pages nos envíe la versión más reciente del HTML
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('nocache', Date.now());
+            window.location.replace(currentUrl.toString());
         }
 
         async function changeSection(section) {
@@ -574,18 +605,17 @@
             categorySelect.innerHTML = '<option value="">Cargando...</option>';
             showLoadingSkeletons(section === 'movies');
             
-            // AVISO DE CARGA PARA EL USUARIO (Evita que parezca congelado)
             epgInfoElement.innerHTML = `<span style="color:#f5c518; font-weight:bold;">⏳ Cargando canales y sincronizando guía en segundo plano...</span>`;
 
             const EPG_ES = 'listas/epg-es.xml';
-            let epgTask = null; // Promesa para saber cuándo acaba de cargar la guía pesada
+            let epgTask = null; 
 
             if (section === 'tv') {
                 mainBody.className = "body-tv-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Categoría";
                 epgTask = loadEPG('listas/epg.xml');
-                loadM3UFromUrl('listas/tv.m3u'); // Carga la lista visual inmediatamente
+                loadM3UFromUrl('listas/tv.m3u'); 
             } else if (section === 'tvplus') {
                 mainBody.className = "body-tvplus-mode";
                 sagaSelectWrapper.style.display = "none";
@@ -618,10 +648,8 @@
                 epgInfoElement.innerText = "Selecciona cualquier película para comenzar.";
             }
 
-            // Cuando termine de descargar la EPG de Movistar, actualizamos el mensaje
             if (epgTask && section !== 'movies') {
                 epgTask.then(() => {
-                    // Solo borramos el "cargando" si el usuario no ha pulsado ya un canal
                     if (epgInfoElement.innerText.includes('Cargando canales')) {
                         epgInfoElement.innerText = "Selecciona cualquier canal para comenzar.";
                     }
@@ -659,7 +687,6 @@
                 wakeControls(true);
             });
 
-            // DETECTOR DE ERRORES CON TODOS LOS BOTONES DE SALIDA Y RECORDATORIO
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
@@ -738,7 +765,9 @@
         async function loadM3UFromUrl(url) {
             if (!url) return;
             try {
-                const response = await fetch(encodeURI(url));
+                // Añadimos cache-buster local a las peticiones de las listas para mayor seguridad anti-caché
+                const fetchUrl = encodeURI(url) + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error();
                 const text = await response.text();
                 processM3UText(text);
@@ -747,18 +776,15 @@
             }
         }
 
-        // --- SISTEMA EPG FUSIONADO CON LECTOR REGEX ULTRA-RÁPIDO ---
         async function loadEPG(...xmlUrls) {
             epgData = {}; 
             epgSource = ''; 
             epgStale = false;
             let loadedAny = false;
             
-            // 1. Cargamos EPG de la TDT base
             const liveOK = await loadLiveEPG();
             if (liveOK) loadedAny = true;
             
-            // 2. Cargamos las guías adicionales con el parser optimizado
             for (const url of xmlUrls) {
                 if (!url) continue;
                 const ok = await loadLocalEPGFile(url);
@@ -773,32 +799,25 @@
             }
         }
 
-        // ==========================================
-        //  CÓDIGO DE EPG: LOGICA ORIGINAL CON PROXY
-        // ==========================================
         async function loadLiveEPG() {
             try {
                 const targetUrl = 'https://www.tdtchannels.com/epg/TV.json';
                 let response;
 
-                // Intento 1: corsproxy.io
                 try {
                     response = await fetch('https://corsproxy.io/?' + encodeURIComponent(targetUrl));
                 } catch (e) {
                     console.warn("Fallo en el primer proxy, intentando el segundo...");
                 }
 
-                // Intento 2: codetabs.com
                 if (!response || !response.ok) {
                     response = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl));
                 }
 
-                // Si ambos fallan
                 if (!response || !response.ok) return false;
 
                 const json = await response.json();
                 
-                // LÓGICA ORIGINAL RESTAURADA: events, hi, hf, t, d
                 json.forEach(channelBlock => {
                     const id = channelBlock.name;
                     if (!id || !Array.isArray(channelBlock.events)) return;
@@ -817,28 +836,26 @@
                 return false; 
             }
         }
-        // ==========================================
 
-        // LECTOR OPTIMIZADO: Evita el colapso de RAM de móviles al leer 40MB
         async function loadLocalEPGFile(url) {
             try {
-                const response = await fetch(url);
+                // Añadimos cache-buster también aquí
+                const fetchUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                const response = await fetch(fetchUrl);
                 if (!response.ok) return false;
                 const xmlText = await response.text();
                 
-                // Expresión Regular que no crea un DOM pesado y lee todo en menos de 1 segundo
                 const progRegex = /<programme\s+start="([^"]+)"\s+stop="([^"]+)"\s+channel="([^"]+)">([\s\S]*?)<\/programme>/g;
                 const titleRegex = /<title[^>]*>([^<]*)<\/title>/;
                 const descRegex = /<desc[^>]*>([^<]*)<\/desc>/;
                 
                 let match;
                 const now = new Date();
-                // FILTRO DE RAM: Ignoramos eventos de hace más de 4 horas
                 const limitPast = new Date(now.getTime() - 4 * 3600 * 1000);
 
                 while ((match = progRegex.exec(xmlText)) !== null) {
                     const stopDate = parseEPGDate(match[2]);
-                    if (stopDate < limitPast) continue; // Si la película acabó hace horas, la tiramos a la basura
+                    if (stopDate < limitPast) continue; 
                     
                     const id = match[3];
                     const content = match[4];
@@ -870,7 +887,8 @@
 
         async function loadTVPlusJSON(url) {
             try {
-                const response = await fetch(encodeURI(url));
+                const fetchUrl = encodeURI(url) + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
                 let flatChannels = [];
@@ -907,11 +925,10 @@
             });
         }
 
-        // TRADUCTOR INTELIGENTE: Convierte nombres con "Movistar" a "M+" para cazar con la Guía de Github
         function normalizeChannelName(name) {
             return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
                 .replace(/\(opc\.?\s*\d*\)/gi, '').replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b|\buhd\b/gi, '')
-                .replace(/\bmovistar\+?\b/gi, 'mplus') // <-- LA MAGIA ESTÁ AQUÍ
+                .replace(/\bmovistar\+?\b/gi, 'mplus')
                 .replace(/\+/g, 'plus')
                 .replace(/[^a-z0-9]/g, '');
         }
@@ -973,7 +990,6 @@
             window.location.href = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
         }
 
-        // ── LOGICA DE MENÚ AJUSTES Y VISIBILIDAD ──
         function toggleSettings() {
             settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'flex' : 'none';
         }
@@ -1078,7 +1094,6 @@
             }
         }
 
-        // ── RUTINAS PRINCIPALES DE CARGA DE VÍDEO ──
         function processM3UText(text) { channels = parseM3U(text); buildCategoryMenu(); applyFilters(); }
         function parseM3U(m3uText) {
             const lines = m3uText.split('\n'), result = []; let cur = {};
@@ -1253,7 +1268,6 @@
             return { cleanQuery, detectedYear };
         }
 
-        // BUSCADOR INTELIGENTE EPG PARA TODAS LAS FUENTES
         function getEPGEvents(channel) {
             if (!epgData) return [];
             
@@ -1272,7 +1286,6 @@
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             const events = getEPGEvents(channel);
             
-            // MODIFICADO: Si no hay datos, muestra "En directo"
             if (!epgData || events.length === 0) { 
                 epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}`; 
                 return; 
