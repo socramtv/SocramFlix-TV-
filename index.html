@@ -293,23 +293,42 @@
             50% { opacity: 0.8; transform: scale(0.98); }
         }
 
-        /* ─── FILTER BAR ─── */
-        .filter-bar { display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; }
-        .filter-item { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px; }
-        .filter-item label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
-        select, .search-input-style {
-            background: var(--bg-panel); color: var(--text); padding: 9px 12px;
-            border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
-            cursor: pointer; transition: border-color 0.2s; outline: none;
+        /* ─── FILTER BAR & BUSCADOR ADAPTADOS A MÓVIL ─── */
+        .filter-bar { 
+            display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; 
         }
-        select:focus, .search-input-style:focus { border-color: var(--accent); }
+        .filter-item { 
+            display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; max-width: 100%; 
+        }
+        .filter-item label { 
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); 
+        }
+        
+        .search-wrapper { 
+            display: flex; gap: 8px; width: 100%; align-items: center;
+        }
+
+        select, .search-input-style {
+            background: var(--bg-panel); color: var(--text); padding: 0 12px;
+            border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
+            transition: border-color 0.2s; outline: none;
+            height: 40px; /* Altura unificada */
+        }
+        select { 
+            width: 100%; cursor: pointer; 
+        }
+        .search-input-style { 
+            flex: 1; min-width: 0; cursor: text; /* min-width: 0 es crucial para que no se salga de la pantalla en móviles */
+        }
         .search-input-style::placeholder { color: #555; }
+        select:focus, .search-input-style:focus { border-color: var(--accent); }
 
         /* BOTÓN DE RECARGA ANTI-CACHÉ */
         .reload-btn {
             background: var(--bg-panel); color: var(--text); border: 1px solid var(--border);
             border-radius: 6px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;
-            width: 42px; display: flex; justify-content: center; align-items: center; padding: 0;
+            width: 40px; height: 40px; flex-shrink: 0; /* flex-shrink: 0 impide que el móvil lo achique o lo eche fuera */
+            display: flex; justify-content: center; align-items: center; padding: 0;
             outline: none;
         }
         .reload-btn:hover {
@@ -461,9 +480,9 @@
             </div>
             <div class="filter-item">
                 <label>Buscar / Recargar</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="search-input" class="search-input-style" style="flex:1;" placeholder="Título, canal..." oninput="applyFilters()">
-                    <!-- NUEVO BOTÓN DE RECARGA ANTI-CACHÉ -->
+                <!-- CONTENEDOR FLEXIBLE CORREGIDO -->
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" class="search-input-style" placeholder="Título, canal..." oninput="applyFilters()">
                     <button class="reload-btn" onclick="forceAppReload()" title="Limpiar caché y actualizar app">🔄</button>
                 </div>
             </div>
@@ -568,15 +587,11 @@
 
         // ── BOTÓN DE ACTUALIZACIÓN (ANTI-CACHÉ) ──
         function forceAppReload() {
-            // 1. Limpiamos cualquier caché del Service Worker de la PWA
             if ('caches' in window) {
                 caches.keys().then(names => {
                     names.forEach(name => caches.delete(name));
                 });
             }
-            
-            // 2. Forzamos la recarga añadiendo una marca de tiempo a la URL
-            // Esto asegura que GitHub Pages nos envíe la versión más reciente del HTML
             const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('nocache', Date.now());
             window.location.replace(currentUrl.toString());
@@ -765,7 +780,6 @@
         async function loadM3UFromUrl(url) {
             if (!url) return;
             try {
-                // Añadimos cache-buster local a las peticiones de las listas para mayor seguridad anti-caché
                 const fetchUrl = encodeURI(url) + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
                 const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error();
@@ -839,7 +853,6 @@
 
         async function loadLocalEPGFile(url) {
             try {
-                // Añadimos cache-buster también aquí
                 const fetchUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
                 const response = await fetch(fetchUrl);
                 if (!response.ok) return false;
