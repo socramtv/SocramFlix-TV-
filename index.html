@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocramFlix+ - TV y Guía</title>
-    <!-- Librería HLS.js para reproducir m3u8 en navegadores -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>SocramFlix+ Pro</title>
+
+    <!-- Librerías de Shaka Player (Player + UI para subtítulos e idiomas) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.css">
+
     <style>
         :root {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e;
-            --text-main: #ffffff;
+            --bg-color: #0f0f0f;
+            --panel-bg: #1a1a1a;
+            --text-main: #f1f1f1;
             --text-muted: #aaaaaa;
             --accent: #e50914; /* Rojo estilo Flix */
+            --hover-bg: #333333;
         }
 
         body {
@@ -23,50 +27,94 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-        }
-
-        header {
-            background-color: var(--panel-bg);
-            padding: 15px 20px;
-            font-size: 24px;
-            font-weight: bold;
-            border-bottom: 2px solid var(--accent);
-            text-align: center;
-        }
-
-        header span {
-            color: var(--accent);
-        }
-
-        .container {
-            display: flex;
-            flex: 1;
             overflow: hidden;
         }
 
+        /* Cabecera */
+        header {
+            background-color: var(--panel-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-accion {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-accion:hover {
+            background-color: #b20710;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            background-color: #333;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .file-label:hover {
+            background-color: #444;
+        }
+
+        /* Contenedor Principal */
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 65px);
+        }
+
+        /* Zona de Vídeo y EPG */
         .player-section {
             flex: 3;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            overflow-y: auto;
         }
 
-        .video-container {
+        .video-wrapper {
             width: 100%;
             background-color: #000;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        video {
-            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
             aspect-ratio: 16/9;
-            display: block;
+            margin-bottom: 20px;
         }
 
         .epg-panel {
-            margin-top: 20px;
             background-color: var(--panel-bg);
             padding: 20px;
             border-radius: 8px;
@@ -87,210 +135,378 @@
 
         .horario {
             font-weight: bold;
-            color: var(--text-main);
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 2px 8px;
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 3px 8px;
             border-radius: 4px;
             margin-right: 10px;
         }
 
+        /* Zona de Lista de Canales */
         .playlist-section {
             flex: 1;
             background-color: var(--panel-bg);
             border-left: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filtros {
+            padding: 15px;
+            background-color: #111;
+            border-bottom: 1px solid #333;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background-color: #222;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .lista-canales {
+            flex: 1;
             overflow-y: auto;
             padding: 10px;
         }
 
-        .channel-btn {
+        .canal-btn {
             display: flex;
             align-items: center;
-            background-color: #2a2a2a;
+            background-color: #222;
             border: none;
             color: white;
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin-bottom: 8px;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s;
             text-align: left;
-            font-size: 16px;
+            transition: background 0.2s;
         }
 
-        .channel-btn:hover {
-            background-color: #3a3a3a;
+        .canal-btn:hover {
+            background-color: var(--hover-bg);
         }
 
-        .channel-btn.active {
+        .canal-btn.active {
             background-color: var(--accent);
         }
 
-        .loader {
-            color: var(--accent);
+        .canal-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-right: 15px;
+            background-color: #fff;
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .canal-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canal-nombre {
+            font-size: 16px;
             font-weight: bold;
+        }
+
+        .canal-grupo {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Estado global */
+        #status-msg {
             text-align: center;
-            padding: 10px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
-    <header>Socram<span>Flix+</span></header>
+    <!-- Cabecera -->
+    <header>
+        <div class="logo">Socram<span>Flix+</span></div>
+        <div class="header-controls">
+            <label for="m3u-upload" class="file-label">📂 Cargar Lista M3U</label>
+            <input type="file" id="m3u-upload" accept=".m3u,.m3u8">
+            <button class="btn-accion" id="btn-share">🔗 Compartir App</button>
+        </div>
+    </header>
 
-    <div class="container">
-        <!-- Sección del Reproductor y EPG -->
+    <!-- Contenido Principal -->
+    <div class="main-container">
+        
+        <!-- Reproductor y Guía -->
         <div class="player-section">
-            <div class="video-container">
-                <video id="videoPlayer" controls></video>
+            <div class="video-wrapper" data-shaka-player-container id="video-container">
+                <video data-shaka-player id="video-player" style="width:100%; height:100%"></video>
             </div>
             
             <div class="epg-panel">
-                <h2 id="epg-title">Selecciona un canal</h2>
-                <p id="epg-desc">Cargando guía de programación...</p>
+                <h2 id="epg-title">Esperando canal...</h2>
+                <p id="epg-desc">Carga una lista M3U y selecciona un canal para ver la guía.</p>
             </div>
         </div>
 
-        <!-- Lista de Canales -->
-        <div class="playlist-section" id="playlist">
-            <div class="loader" id="loading-msg">Cargando EPG...</div>
-            <!-- Los botones se generarán con JS -->
+        <!-- Panel Lateral (Categorías y Canales) -->
+        <div class="playlist-section">
+            <div class="filtros">
+                <select id="categoria-select">
+                    <option value="Todos">Todas las categorías</option>
+                </select>
+            </div>
+            <div class="lista-canales" id="lista-canales">
+                <div id="status-msg">Cargando EPG de fondo...<br>Por favor, carga tu lista de canales.</div>
+            </div>
         </div>
+
     </div>
 
+    <!-- Script Principal -->
     <script>
         // Variables globales
-        let epgData = [];
-        let hls;
+        let player;
+        let canalesM3U = [];
+        let datosEPG = [];
+        let canalActivoActual = null;
 
-        // EJEMPLO: Tu lista de canales con sus IDs exactos de TDTChannels (.es)
-        const canales = [
-            { id: "La1.es", nombre: "La 1", url: "https://rtve-live-la1.zapi.tech/la1/la1.m3u8" },
-            { id: "La2.es", nombre: "La 2", url: "https://rtve-live-la2.zapi.tech/la2/la2.m3u8" },
-            { id: "Antena3.es", nombre: "Antena 3", url: "https://livetv.atresmedia.com/antena3/master.m3u8" },
-            { id: "Cuatro.es", nombre: "Cuatro", url: "https://mdslive.shls.eu/live/cuatro/cuatro.m3u8" },
-            { id: "Telecinco.es", nombre: "Telecinco", url: "https://mdslive.shls.eu/live/telecinco/telecinco.m3u8" },
-            { id: "LaSexta.es", nombre: "La Sexta", url: "https://livetv.atresmedia.com/lasexta/master.m3u8" }
-        ];
+        // Inicialización principal
+        document.addEventListener('DOMContentLoaded', async () => {
+            inicializarShakaPlayer();
+            configurarEventos();
+            await cargarEPG(); // Descarga la guía TDTChannels en segundo plano al abrir
+        });
 
-        // 1. Cargar la EPG al iniciar la página
+        // 1. Configurar Shaka Player
+        function inicializarShakaPlayer() {
+            const video = document.getElementById('video-player');
+            const videoContainer = document.getElementById('video-container');
+            
+            player = new shaka.Player(video);
+            const ui = new shaka.ui.Overlay(player, videoContainer, video);
+            
+            // Configurar controles (incluyendo idioma y subtítulos)
+            ui.configure({
+                controlPanelElements: ['play_pause', 'time_and_duration', 'spacer', 'mute', 'volume', 'language', 'fullscreen'],
+            });
+
+            player.addEventListener('error', (evento) => {
+                console.error('Error del reproductor:', evento.detail);
+                document.getElementById('epg-title').innerText = "Error de reproducción";
+                document.getElementById('epg-desc').innerText = "Es posible que el enlace esté caído o bloqueado por el navegador (CORS).";
+            });
+        }
+
+        // 2. Eventos de la interfaz (Botones y Selectores)
+        function configurarEventos() {
+            // Cargar archivo
+            document.getElementById('m3u-upload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evento) => {
+                    procesarArchivoM3U(evento.target.result);
+                };
+                reader.readAsText(file);
+            });
+
+            // Filtro de categorías
+            document.getElementById('categoria-select').addEventListener('change', (e) => {
+                renderizarCanales(e.target.value);
+            });
+
+            // Web Share API
+            document.getElementById('btn-share').addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'SocramFlix+',
+                        text: '¡Mira mi nueva aplicación de IPTV web con guía integrada!',
+                        url: window.location.href
+                    }).catch(console.error);
+                } else {
+                    alert("Tu navegador no soporta la función nativa de compartir.");
+                }
+            });
+        }
+
+        // 3. Descargar la guía (EPG) silenciosamente usando Proxy CORS
         async function cargarEPG() {
             try {
-                // Usamos el proxy para saltarnos el bloqueo CORS del navegador
                 const urlJSON = 'https://www.tdtchannels.com/epg/TV.json';
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlJSON)}`;
                 
                 const respuesta = await fetch(proxyUrl);
                 const datosProxy = await respuesta.json();
-                epgData = JSON.parse(datosProxy.contents);
+                datosEPG = JSON.parse(datosProxy.contents);
                 
-                document.getElementById('loading-msg').style.display = 'none';
-                generarListaCanales();
-                
+                const status = document.getElementById('status-msg');
+                if(status) status.innerHTML = "Guía cargada con éxito.<br>¡Carga tu lista M3U para empezar!";
             } catch (error) {
-                console.error("Error al cargar EPG:", error);
-                document.getElementById('loading-msg').innerText = "Error cargando la EPG. Mostrando canales sin guía.";
-                generarListaCanales();
+                console.error("Error al cargar la EPG:", error);
+                const status = document.getElementById('status-msg');
+                if(status) status.innerHTML = "Fallo al conectar con la guía.<br>La app funcionará sin descripción de programas.";
             }
         }
 
-        // 2. Generar los botones del menú lateral
-        function generarListaCanales() {
-            const playlist = document.getElementById('playlist');
+        // 4. Procesar y parsear el texto del archivo M3U
+        function procesarArchivoM3U(contenido) {
+            const lineas = contenido.split('\n');
+            canalesM3U = [];
+            let canalTemporal = null;
+
+            for (let linea of lineas) {
+                linea = linea.trim();
+                
+                if (linea.startsWith('#EXTINF:')) {
+                    canalTemporal = {};
+                    
+                    // Regex para capturar los datos (incluso si tienen espacios)
+                    const matchId = linea.match(/tvg-id="([^"]+)"/);
+                    const matchLogo = linea.match(/tvg-logo="([^"]+)"/);
+                    const matchGrupo = linea.match(/group-title="([^"]+)"/);
+                    
+                    canalTemporal.id = matchId ? matchId[1] : '';
+                    canalTemporal.logo = matchLogo ? matchLogo[1] : 'https://via.placeholder.com/40x40.png?text=TV';
+                    canalTemporal.grupo = matchGrupo ? matchGrupo[1] : 'Otros';
+                    
+                    // El nombre real está después de la última coma
+                    const partes = linea.split(',');
+                    canalTemporal.nombre = partes.length > 1 ? partes[partes.length - 1].trim() : 'Canal Desconocido';
+                    
+                } else if (linea !== '' && !linea.startsWith('#') && canalTemporal) {
+                    canalTemporal.url = linea;
+                    canalesM3U.push(canalTemporal);
+                    canalTemporal = null; // Reiniciar para el siguiente
+                }
+            }
+
+            actualizarCategorias();
+            renderizarCanales('Todos');
+        }
+
+        // 5. Rellenar el menú desplegable de categorías
+        function actualizarCategorias() {
+            const select = document.getElementById('categoria-select');
+            const gruposUnicos = new Set();
             
-            canales.forEach(canal => {
-                const btn = document.createElement('button');
-                btn.className = 'channel-btn';
-                btn.innerText = canal.nombre;
-                btn.onclick = () => reproducirCanal(canal, btn);
-                playlist.appendChild(btn);
+            canalesM3U.forEach(c => gruposUnicos.add(c.grupo));
+            
+            select.innerHTML = '<option value="Todos">Todas las categorías</option>';
+            Array.from(gruposUnicos).sort().forEach(grupo => {
+                select.innerHTML += `<option value="${grupo}">${grupo}</option>`;
             });
         }
 
-        // 3. Reproducir el canal y actualizar la caja de la EPG
-        function reproducirCanal(canal, botonElement) {
-            // Estilos de botón activo
-            document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
-            if(botonElement) botonElement.classList.add('active');
+        // 6. Dibujar los botones en el panel lateral
+        function renderizarCanales(filtroGrupo) {
+            const contenedor = document.getElementById('lista-canales');
+            contenedor.innerHTML = ''; // Limpiar lista
 
-            // Lógica del reproductor HLS
-            const video = document.getElementById('videoPlayer');
-            
-            if (Hls.isSupported()) {
-                if (hls) {
-                    hls.destroy(); // Limpiar canal anterior
-                }
-                hls = new Hls();
-                hls.loadSource(canal.url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // Para Safari
-                video.src = canal.url;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
-            }
+            const canalesFiltrados = filtroGrupo === 'Todos' 
+                ? canalesM3U 
+                : canalesM3U.filter(c => c.grupo === filtroGrupo);
 
-            // Actualizar la EPG en pantalla
-            mostrarInfoEPG(canal);
-        }
-
-        // 4. Buscar el programa actual en el JSON y mostrarlo
-        function mostrarInfoEPG(canal) {
-            const tituloEl = document.getElementById('epg-title');
-            const descEl = document.getElementById('epg-desc');
-
-            if (epgData.length === 0) {
-                tituloEl.innerText = canal.nombre;
-                descEl.innerText = "Guía no disponible temporalmente.";
+            if (canalesFiltrados.length === 0) {
+                contenedor.innerHTML = '<div id="status-msg">No hay canales en esta categoría.</div>';
                 return;
             }
 
-            // Buscar el canal en la base de datos de TDTChannels
-            const canalEPG = epgData.find(c => c.id === canal.id);
+            canalesFiltrados.forEach((canal) => {
+                const btn = document.createElement('button');
+                btn.className = 'canal-btn';
+                if (canalActivoActual && canalActivoActual.url === canal.url) {
+                    btn.classList.add('active');
+                }
 
-            if (canalEPG && canalEPG.epg) {
+                btn.innerHTML = `
+                    <img src="${canal.logo}" class="canal-logo" alt="Logo" onerror="this.src='https://via.placeholder.com/40x40.png?text=TV'">
+                    <div class="canal-info">
+                        <span class="canal-nombre">${canal.nombre}</span>
+                        <span class="canal-grupo">${canal.grupo}</span>
+                    </div>
+                `;
+
+                btn.onclick = () => reproducirCanal(canal, btn);
+                contenedor.appendChild(btn);
+            });
+        }
+
+        // 7. Cargar el vídeo en Shaka Player y refrescar EPG
+        async function reproducirCanal(canal, botonHtml) {
+            // Actualizar interfaz visual
+            document.querySelectorAll('.canal-btn').forEach(b => b.classList.remove('active'));
+            if(botonHtml) botonHtml.classList.add('active');
+            canalActivoActual = canal;
+
+            // Reproducir stream
+            try {
+                await player.load(canal.url);
+                document.getElementById('video-player').play();
+            } catch (error) {
+                console.error("No se pudo reproducir:", error);
+            }
+
+            // Mostrar guía del programa
+            actualizarInterfazEPG(canal);
+        }
+
+        // 8. Buscar qué se está emitiendo cruzando el tvg-id
+        function actualizarInterfazEPG(canal) {
+            const tituloEl = document.getElementById('epg-title');
+            const descEl = document.getElementById('epg-desc');
+
+            if (!datosEPG || datosEPG.length === 0) {
+                tituloEl.innerText = canal.nombre;
+                descEl.innerText = "Guía no descargada. El programa actual es desconocido.";
+                return;
+            }
+
+            // Buscamos coincidencia exacta de ID (Ej: "La1.es" o "Pelis Top (Rakuten TV)")
+            const datosCanal = datosEPG.find(c => c.id === canal.id);
+
+            if (datosCanal && datosCanal.epg) {
                 const ahora = new Date();
                 
-                // Buscar qué programa coincide con la hora exacta
-                const programaActual = canalEPG.epg.find(prog => {
+                const programaActual = datosCanal.epg.find(prog => {
                     const inicio = new Date(prog.start);
                     const fin = new Date(prog.stop);
                     return ahora >= inicio && ahora <= fin;
                 });
 
                 if (programaActual) {
-                    // Formatear la hora (ej: "15:30")
-                    const horaInicio = new Date(programaActual.start).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-                    const horaFin = new Date(programaActual.stop).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-
-                    tituloEl.innerHTML = `<span class="horario">${horaInicio} - ${horaFin}</span> ${programaActual.title}`;
-                    descEl.innerText = programaActual.description || "Sin descripción disponible para este programa.";
+                    const hInicio = new Date(programaActual.start).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                    const hFin = new Date(programaActual.stop).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                    
+                    tituloEl.innerHTML = `<span class="horario">${hInicio} - ${hFin}</span> ${programaActual.title}`;
+                    descEl.innerText = programaActual.description || "No hay información adicional sobre este programa.";
                 } else {
                     tituloEl.innerText = canal.nombre;
-                    descEl.innerText = "No hay datos de emisión para esta hora.";
+                    descEl.innerText = "Emisión actual no documentada en la guía.";
                 }
             } else {
                 tituloEl.innerText = canal.nombre;
-                descEl.innerText = "Guía no enlazada para este canal.";
+                descEl.innerText = "No hay datos EPG vinculados a este canal.";
             }
         }
 
-        // Iniciar la app cargando la guía
-        cargarEPG();
-
-        // Refrescar la EPG cada 1 minuto por si cambia de programa mientras lo ves
+        // Refresco de EPG automático cada minuto (por si acaba el programa)
         setInterval(() => {
-            const botonActivo = document.querySelector('.channel-btn.active');
-            if(botonActivo) {
-                // Buscamos cuál es el canal activo mirando el texto del botón (forma rápida)
-                const canalActivo = canales.find(c => c.nombre === botonActivo.innerText);
-                if(canalActivo) mostrarInfoEPG(canalActivo);
+            if (canalActivoActual) {
+                actualizarInterfazEPG(canalActivoActual);
             }
-        }, 60000); 
+        }, 60000);
+
     </script>
 </body>
 </html>
