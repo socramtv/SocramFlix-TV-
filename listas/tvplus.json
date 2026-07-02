@@ -1305,22 +1305,7 @@
         "drm_scheme": "clearkey",
         "extension": "mpd"
       },
-      {
-        "name": "Disney Junior",
-        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-p1/__c/Disney_Junior_HD/__op/dash-wv/__f/manifest.mpd",
-        "kid": "qs4mu21ZvoBICrLFBe56Lg",
-        "key": "35QHfl0e7+8Gley8Wx2zQQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "Disney Junior (-2h)",
-        "uri": "https://requestrouter.cdn.agiletv.net/__cl/cg:lv-v2/__c/Disney_Junior_HD/__op/delay-dash-wv/__f/manifest.mpd",
-        "kid": "qs4mu21ZvoBICrLFBe56Lg",
-        "key": "35QHfl0e7+8Gley8Wx2zQQ",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
+     
       {
         "name": "Enfamilia",
         "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-p1/__c/ENFAMILIA_SD/__op/dash-wv/__f/manifest.mpd",
@@ -1360,39 +1345,6 @@
   {
     "name": "🎺 MÚSICA",
     "samples": [
-      
-        {
-        "name": "MTV 00s",
-        "uri": "https://tvup01.edge.milloh-cs.com/mtv00s/mtv00s.mpd",
-        "kid": "wH51d5lxXlqRrZdbl+0b4A,mnE5gf3vV7mTtfqV1A2sWQ,vVwWedl7UqW30Fc7WdaGbQ",
-        "key": "mCafFPH+8q/hWUJKWO1Qeg,oJ4tZAnktYPBsF/D3UL5Xw,NLti4F2m/Srb0rHF2gDbpA",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-      {
-        "name": "MTV España",
-        "uri": "https://tvup01.edge.milloh-cs.com/mtv-esp/mtv-esp.mpd",
-        "kid": "nviwzTncVx+ct7Hz6/km8A,qWSphHQJUtGUg0NkysBs/g,4BM/PJnUWgqI0O3YlIxnPw",
-        "key": "HNd0c0wCpF02VDYFuhqQJQ,mi0F1F/ZjKXf4pxK8H/jfQ,iCKnfnqVd1dnD8sOvGUB7Q",
-        "drm_scheme": "clearkey",
-        "extension": "mpd"
-      },
-
-{
-        "name": "NOW 70'S",
-        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-now70s/.m3u8",
-        "extension": "m3u8"
-      },
-      {
-        "name": "NOW 80'S",
-        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-now80s/.m3u8",
-        "extension": "m3u8"
-      },
-      {
-        "name": "NOW ROCK",
-        "uri": "https://daiconnect.com/live/hls/tvup/tvfy-nowrock/.m3u8",
-        "extension": "m3u8"
-      },
       {
         "name": "QELLO CONCERTS",
         "uri": "https://daiconnect.com/live/hls/tvup/tvfy-qello/.m3u8",
