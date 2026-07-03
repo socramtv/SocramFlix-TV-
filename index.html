@@ -292,7 +292,7 @@
             50% { opacity: 0.8; transform: scale(0.98); }
         }
 
-        /* ─── FILTER BAR & BUSCADOR ─── */
+        /* ─── FILTER BAR & BUSCADOR ADAPTADOS A MÓVIL ─── */
         .filter-bar { 
             display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; 
         }
@@ -313,15 +313,29 @@
             transition: border-color 0.2s; outline: none;
             height: 40px; 
         }
-        select { width: 100%; cursor: pointer; }
+        select { 
+            width: 100%; cursor: pointer; 
+        }
         
-        optgroup { background: var(--bg-card); color: var(--accent2); font-style: normal; font-weight: bold; }
-        option { background: var(--bg-panel); color: var(--text); font-weight: normal; }
+        optgroup {
+            background: var(--bg-card);
+            color: var(--accent2);
+            font-style: normal;
+            font-weight: bold;
+        }
+        option {
+            background: var(--bg-panel);
+            color: var(--text);
+            font-weight: normal;
+        }
 
-        .search-input-style { flex: 1; min-width: 0; cursor: text; }
+        .search-input-style { 
+            flex: 1; min-width: 0; cursor: text; 
+        }
         .search-input-style::placeholder { color: #555; }
         select:focus, .search-input-style:focus { border-color: var(--accent); }
 
+        /* BOTÓN DE RECARGA ANTI-CACHÉ */
         .reload-btn {
             background: var(--bg-panel); color: var(--text); border: 1px solid var(--border);
             border-radius: 6px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;
@@ -329,7 +343,10 @@
             display: flex; justify-content: center; align-items: center; padding: 0;
             outline: none;
         }
-        .reload-btn:hover { background: var(--accent); border-color: var(--accent); color: white; transform: rotate(180deg); box-shadow: 0 0 10px rgba(229,9,20,0.5); }
+        .reload-btn:hover {
+            background: var(--accent); border-color: var(--accent); color: white;
+            transform: rotate(180deg); box-shadow: 0 0 10px rgba(229,9,20,0.5);
+        }
         .reload-btn:active { transform: rotate(180deg) scale(0.9); }
 
         /* ─── GRID ─── */
@@ -413,8 +430,11 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
+                        
+                        <!-- MENÚ DE AJUSTES EN ENGRANAJE -->
                         <div class="settings-container" id="settings-container" style="display:none;" onclick="event.stopPropagation()">
                             <button class="control-btn" id="settings-btn" onclick="toggleSettings()" title="Ajustes de Audio/Sub/Calidad">⚙️</button>
+                            
                             <div class="settings-menu" id="settings-menu" style="display:none;">
                                 <div class="settings-row" id="row-quality" style="display:none;">
                                     <label>Calidad:</label>
@@ -505,7 +525,11 @@
             navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('PWA Error:', err));
         }
 
+        // ========================================================
+        // ESTRUCTURA DE REPOSITORIO CON GRUPOS (OPTGROUP)
+        // ========================================================
         const REPO_SAGAS = [
+            // GRUPO: Sagas y Colecciones
             { group: "Sagas y Colecciones", name: "Colección Pixar",                     file: "Coleccion Pixar.m3u" },
             { group: "Sagas y Colecciones", name: "Colección DreamWorks Animation",      file: "Coleccion DreamWorks Animation.m3u" },
             { group: "Sagas y Colecciones", name: "Universo DC",                         file: "Universo DC.m3u" },
@@ -520,6 +544,8 @@
             { group: "Sagas y Colecciones", name: "Sagas Comedia",                       file: "Sagas Comedia.m3u" },
             { group: "Sagas y Colecciones", name: "Colección Illumination",              file: "Coleccion Illumination.m3u" },
             { group: "Sagas y Colecciones", name: "Colección Blue Sky",                  file: "Coleccion Blue Sky.m3u" },
+            
+            // GRUPO: Infantiles
             { group: "Infantiles", name: "Érase una vez el hombre",        file: "infantiles/Erase una vez el hombre.m3u" },
             { group: "Infantiles", name: "Érase una vez el espacio",       file: "infantiles/Erase una vez el espacio.m3u" },
             { group: "Infantiles", name: "Érase una vez el cuerpo humano", file: "infantiles/Erase una vez el cuerpo_humano.m3u" }
@@ -545,6 +571,7 @@
         const castBtn       = document.getElementById('cast-btn');
         const idleOverlay   = document.getElementById('idle-overlay');
         const customControlsLayer = document.getElementById('custom-controls-layer');
+
         const channelGrid   = document.getElementById('channel-grid');
         const categorySelect= document.getElementById('category-select');
         const searchInput   = document.getElementById('search-input');
@@ -553,6 +580,7 @@
         const sagaSelectWrapper = document.getElementById('saga-select-wrapper');
         const sagaSelect    = document.getElementById('saga-select');
         const categoryLabelText = document.getElementById('category-label-text');
+        
         const audioSelect = document.getElementById('audio-select');
         const subSelect = document.getElementById('sub-select');
         const qualitySelect = document.getElementById('quality-select');
@@ -931,17 +959,30 @@
                 if (aceId) { targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`; }
             }
             currentMediaUrl = targetUrl;
-            castBtn.style.display = (currentSection === 'movies' || currentSection === 'tvplus' || isAce) ? "block" : "none";
+            
+            // Botón de Cast en barra
+            const isTVPlus = currentSection === 'tvplus';
+            castBtn.style.display = (currentSection === 'movies' || isTVPlus || isAce) ? "block" : "none";
 
             const isClearKey = item.kid && item.key;
             if (isClearKey) {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
                 try {
-                    shakaInstance = new shaka.Player(video); shakaInstance.addEventListener('error', (e) => epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error Shaka.</span>`);
-                    shakaInstance.addEventListener('trackschanged', updateShakaTracks); shakaInstance.addEventListener('adaptation', updateShakaTracks);
+                    shakaInstance = new shaka.Player(video);
+                    shakaInstance.addEventListener('error', (e) => {
+                        console.error("Error DRM, intentando carga directa:", e);
+                        video.src = targetUrl; // Intento directo si falla
+                        video.load();
+                    });
+                    shakaInstance.addEventListener('trackschanged', updateShakaTracks); 
+                    shakaInstance.addEventListener('adaptation', updateShakaTracks);
                     await shakaInstance.configure({ streaming: { alwaysStreamText: true }, drm: { clearKeys: { [base64urlToHex(item.kid)]: base64urlToHex(item.key) } } });
-                    await shakaInstance.load(targetUrl); video.play().catch(() => {}); hideIdleOverlay(); wakeControls(); updateShakaTracks(); 
-                } catch (err) {}
+                    await shakaInstance.load(targetUrl); 
+                    video.play().catch(() => {}); hideIdleOverlay(); wakeControls(); updateShakaTracks(); 
+                } catch (err) {
+                    video.src = targetUrl;
+                    video.load();
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' }); return;
             }
 
@@ -1012,13 +1053,11 @@
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             const events = getEPGEvents(channel);
             
-            // Lógica de detección OS para enlaces VLC
             const isAndroid = /Android/i.test(navigator.userAgent);
             const vlcLink = isAndroid 
                 ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
                 : `vlc://${currentMediaUrl}`;
 
-            // Botones combinados (WVC y VLC) para la pestaña TV+
             const extraBtns = currentSection === 'tvplus' ? `
                 <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
                     <a href="wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}" style="display:inline-block; background:#4CAF50; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📺 WVC (Cast)</a>
