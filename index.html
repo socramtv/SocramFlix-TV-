@@ -292,7 +292,7 @@
             50% { opacity: 0.8; transform: scale(0.98); }
         }
 
-        /* ─── FILTER BAR & BUSCADOR ADAPTADOS A MÓVIL ─── */
+        /* ─── FILTER BAR & BUSCADOR ─── */
         .filter-bar { 
             display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; 
         }
@@ -313,29 +313,15 @@
             transition: border-color 0.2s; outline: none;
             height: 40px; 
         }
-        select { 
-            width: 100%; cursor: pointer; 
-        }
+        select { width: 100%; cursor: pointer; }
         
-        optgroup {
-            background: var(--bg-card);
-            color: var(--accent2);
-            font-style: normal;
-            font-weight: bold;
-        }
-        option {
-            background: var(--bg-panel);
-            color: var(--text);
-            font-weight: normal;
-        }
+        optgroup { background: var(--bg-card); color: var(--accent2); font-style: normal; font-weight: bold; }
+        option { background: var(--bg-panel); color: var(--text); font-weight: normal; }
 
-        .search-input-style { 
-            flex: 1; min-width: 0; cursor: text; 
-        }
+        .search-input-style { flex: 1; min-width: 0; cursor: text; }
         .search-input-style::placeholder { color: #555; }
         select:focus, .search-input-style:focus { border-color: var(--accent); }
 
-        /* BOTÓN DE RECARGA ANTI-CACHÉ */
         .reload-btn {
             background: var(--bg-panel); color: var(--text); border: 1px solid var(--border);
             border-radius: 6px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease;
@@ -343,10 +329,7 @@
             display: flex; justify-content: center; align-items: center; padding: 0;
             outline: none;
         }
-        .reload-btn:hover {
-            background: var(--accent); border-color: var(--accent); color: white;
-            transform: rotate(180deg); box-shadow: 0 0 10px rgba(229,9,20,0.5);
-        }
+        .reload-btn:hover { background: var(--accent); border-color: var(--accent); color: white; transform: rotate(180deg); box-shadow: 0 0 10px rgba(229,9,20,0.5); }
         .reload-btn:active { transform: rotate(180deg) scale(0.9); }
 
         /* ─── GRID ─── */
@@ -430,11 +413,8 @@
                         <div class="live-badge" id="live-indicator">● EN DIRECTO</div>
                     </div>
                     <div class="controls-right">
-                        
-                        <!-- MENÚ DE AJUSTES EN ENGRANAJE -->
                         <div class="settings-container" id="settings-container" style="display:none;" onclick="event.stopPropagation()">
                             <button class="control-btn" id="settings-btn" onclick="toggleSettings()" title="Ajustes de Audio/Sub/Calidad">⚙️</button>
-                            
                             <div class="settings-menu" id="settings-menu" style="display:none;">
                                 <div class="settings-row" id="row-quality" style="display:none;">
                                     <label>Calidad:</label>
@@ -525,11 +505,7 @@
             navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('PWA Error:', err));
         }
 
-        // ========================================================
-        // ESTRUCTURA DE REPOSITORIO CON GRUPOS (OPTGROUP)
-        // ========================================================
         const REPO_SAGAS = [
-            // GRUPO: Sagas y Colecciones
             { group: "Sagas y Colecciones", name: "Colección Pixar",                     file: "Coleccion Pixar.m3u" },
             { group: "Sagas y Colecciones", name: "Colección DreamWorks Animation",      file: "Coleccion DreamWorks Animation.m3u" },
             { group: "Sagas y Colecciones", name: "Universo DC",                         file: "Universo DC.m3u" },
@@ -544,8 +520,6 @@
             { group: "Sagas y Colecciones", name: "Sagas Comedia",                       file: "Sagas Comedia.m3u" },
             { group: "Sagas y Colecciones", name: "Colección Illumination",              file: "Coleccion Illumination.m3u" },
             { group: "Sagas y Colecciones", name: "Colección Blue Sky",                  file: "Coleccion Blue Sky.m3u" },
-            
-            // GRUPO: Infantiles
             { group: "Infantiles", name: "Érase una vez el hombre",        file: "infantiles/Erase una vez el hombre.m3u" },
             { group: "Infantiles", name: "Érase una vez el espacio",       file: "infantiles/Erase una vez el espacio.m3u" },
             { group: "Infantiles", name: "Érase una vez el cuerpo humano", file: "infantiles/Erase una vez el cuerpo_humano.m3u" }
@@ -571,7 +545,6 @@
         const castBtn       = document.getElementById('cast-btn');
         const idleOverlay   = document.getElementById('idle-overlay');
         const customControlsLayer = document.getElementById('custom-controls-layer');
-
         const channelGrid   = document.getElementById('channel-grid');
         const categorySelect= document.getElementById('category-select');
         const searchInput   = document.getElementById('search-input');
@@ -580,7 +553,6 @@
         const sagaSelectWrapper = document.getElementById('saga-select-wrapper');
         const sagaSelect    = document.getElementById('saga-select');
         const categoryLabelText = document.getElementById('category-label-text');
-        
         const audioSelect = document.getElementById('audio-select');
         const subSelect = document.getElementById('sub-select');
         const qualitySelect = document.getElementById('quality-select');
@@ -607,9 +579,7 @@
 
         function forceAppReload() {
             if ('caches' in window) {
-                caches.keys().then(names => {
-                    names.forEach(name => caches.delete(name));
-                });
+                caches.keys().then(names => { names.forEach(name => caches.delete(name)); });
             }
             const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('nocache', Date.now());
@@ -709,28 +679,14 @@
                 }
             });
 
-            video.addEventListener('play', () => {
-                playPauseBtn.innerText = "⏸";
-                hideIdleOverlay();
-                wakeControls();
-            });
-
-            video.addEventListener('pause', () => {
-                playPauseBtn.innerText = "▶";
-                wakeControls(true);
-            });
-
+            video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; hideIdleOverlay(); wakeControls(); });
+            video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; wakeControls(true); });
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
                     const isAndroid = /Android/i.test(navigator.userAgent);
-                    
-                    const vlcLink = isAndroid 
-                        ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
-                        : `vlc://${currentMediaUrl}`;
-                    
+                    const vlcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `vlc://${currentMediaUrl}`;
                     const wvcLink = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
-
                     epgInfoElement.innerHTML += `
                         <div style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
                             <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace. Opciones recomendadas:</span>
@@ -739,75 +695,43 @@
                                 <a href="${currentMediaUrl}" target="_blank" style="display:inline-block; background:#333; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🌐 Abrir en Pestaña</a>
                                 <a href="${wvcLink}" style="display:inline-block; background:#4CAF50; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">📺 Enviar a TV (Cast)</a>
                             </div>
-                            <span style="display:block; margin-top:10px; font-size:0.78rem; color:#bbb;">💡 Recordatorio: También puedes usar el botón <strong>📺 TV</strong> integrado en los controles de arriba.</span>
-                        </div>
-                    `;
+                        </div>`;
                 }
             });
-
             videoWrapper.addEventListener('mousemove', () => wakeControls());
             videoWrapper.addEventListener('touchstart', () => wakeControls());
-
             customControlsLayer.addEventListener('mouseenter', () => clearTimeout(hideControlsTimeout));
-            customControlsLayer.addEventListener('mouseleave', () => {
-                if (!video.paused) startHideControlsTimer();
-            });
+            customControlsLayer.addEventListener('mouseleave', () => { if (!video.paused) startHideControlsTimer(); });
         }
 
         function wakeControls(keepVisible = false) {
             videoWrapper.classList.add('show-controls');
             clearTimeout(hideControlsTimeout);
-            if (!keepVisible && !video.paused) {
-                startHideControlsTimer();
-            }
+            if (!keepVisible && !video.paused) startHideControlsTimer();
         }
 
         function startHideControlsTimer() {
-            hideControlsTimeout = setTimeout(() => {
-                if (!video.paused) {
-                    videoWrapper.classList.remove('show-controls');
-                    closeSettingsMenu();
-                }
-            }, 4000);
+            hideControlsTimeout = setTimeout(() => { if (!video.paused) { videoWrapper.classList.remove('show-controls'); closeSettingsMenu(); } }, 4000);
         }
 
         function buildSagaDropdown() {
-            sagaSelect.innerHTML = '';
-            let currentGroup = '';
-            let optgroupEl = null;
-
+            sagaSelect.innerHTML = ''; let currentGroup = ''; let optgroupEl = null;
             REPO_SAGAS.forEach(saga => {
                 if (saga.group && saga.group !== currentGroup) {
-                    currentGroup = saga.group;
-                    optgroupEl = document.createElement('optgroup');
-                    optgroupEl.label = currentGroup;
-                    sagaSelect.appendChild(optgroupEl);
+                    currentGroup = saga.group; optgroupEl = document.createElement('optgroup'); optgroupEl.label = currentGroup; sagaSelect.appendChild(optgroupEl);
                 }
-
-                const opt = document.createElement('option');
-                opt.value = `listas/${saga.file}`;
-                opt.innerText = saga.name;
-
-                if (optgroupEl) {
-                    optgroupEl.appendChild(opt);
-                } else {
-                    sagaSelect.appendChild(opt);
-                }
+                const opt = document.createElement('option'); opt.value = `listas/${saga.file}`; opt.innerText = saga.name;
+                optgroupEl ? optgroupEl.appendChild(opt) : sagaSelect.appendChild(opt);
             });
         }
 
         async function loadLocalSaga() {
-            searchInput.value = "";
-            const fileUrl = sagaSelect.value;
-            showLoadingSkeletons(true);
+            searchInput.value = ""; showLoadingSkeletons(true);
             try {
-                const response = await fetch(encodeURI(fileUrl));
+                const response = await fetch(encodeURI(sagaSelect.value));
                 if (!response.ok) throw new Error();
-                const text = await response.text();
-                processM3UText(text);
-            } catch (e) {
-                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ No se localizó la saga seleccionada.</div>`;
-            }
+                processM3UText(await response.text());
+            } catch (e) { channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ No se localizó la saga seleccionada.</div>`; }
         }
 
         async function loadM3UFromUrl(url) {
@@ -816,72 +740,33 @@
                 const fetchUrl = encodeURI(url) + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
                 const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error();
-                const text = await response.text();
-                processM3UText(text);
-            } catch (e) {
-                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ Error al cargar la lista.</div>`;
-            }
+                processM3UText(await response.text());
+            } catch (e) { channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ Error al cargar la lista.</div>`; }
         }
 
         async function loadEPG(...xmlUrls) {
-            epgData = {}; 
-            epgSource = ''; 
-            epgStale = false;
-            let loadedAny = false;
-            
-            const liveOK = await loadLiveEPG();
-            if (liveOK) loadedAny = true;
-            
-            for (const url of xmlUrls) {
-                if (!url) continue;
-                const ok = await loadLocalEPGFile(url);
-                if (ok) loadedAny = true;
-            }
-            
-            if (!loadedAny) {
-                epgData = null;
-            } else {
-                epgSource = 'mixed';
-                checkEpgFreshness();
-            }
+            epgData = {}; epgSource = ''; epgStale = false; let loadedAny = false;
+            if (await loadLiveEPG()) loadedAny = true;
+            for (const url of xmlUrls) { if (url && await loadLocalEPGFile(url)) loadedAny = true; }
+            if (!loadedAny) { epgData = null; } else { epgSource = 'mixed'; checkEpgFreshness(); }
         }
 
         async function loadLiveEPG() {
             try {
                 const targetUrl = 'https://www.tdtchannels.com/epg/TV.json';
                 let response;
-
-                try {
-                    response = await fetch('https://corsproxy.io/?' + encodeURIComponent(targetUrl));
-                } catch (e) {
-                    console.warn("Fallo en el primer proxy, intentando el segundo...");
-                }
-
-                if (!response || !response.ok) {
-                    response = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl));
-                }
-
+                try { response = await fetch('https://corsproxy.io/?' + encodeURIComponent(targetUrl)); } catch (e) {}
+                if (!response || !response.ok) response = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl));
                 if (!response || !response.ok) return false;
-
                 const json = await response.json();
-                
                 json.forEach(channelBlock => {
                     const id = channelBlock.name;
                     if (!id || !Array.isArray(channelBlock.events)) return;
-                    
                     if (!epgData[id]) epgData[id] = [];
-                    epgData[id].push(...channelBlock.events.map(ev => ({
-                        start: new Date(ev.hi * 1000), 
-                        stop: new Date(ev.hf * 1000),
-                        title: ev.t || 'Sin título', 
-                        desc: ev.d || ''
-                    })));
+                    epgData[id].push(...channelBlock.events.map(ev => ({ start: new Date(ev.hi * 1000), stop: new Date(ev.hf * 1000), title: ev.t || 'Sin título', desc: ev.d || '' })));
                 });
                 return true;
-            } catch (e) { 
-                console.error("Error al cargar EPG JSON:", e);
-                return false; 
-            }
+            } catch (e) { return false; }
         }
 
         async function loadLocalEPGFile(url) {
@@ -890,45 +775,25 @@
                 const response = await fetch(fetchUrl);
                 if (!response.ok) return false;
                 const xmlText = await response.text();
-                
                 const progRegex = /<programme\s+start="([^"]+)"\s+stop="([^"]+)"\s+channel="([^"]+)">([\s\S]*?)<\/programme>/g;
-                const titleRegex = /<title[^>]*>([^<]*)<\/title>/;
-                const descRegex = /<desc[^>]*>([^<]*)<\/desc>/;
-                
-                let match;
-                const now = new Date();
-                const limitPast = new Date(now.getTime() - 4 * 3600 * 1000);
-
+                const titleRegex = /<title[^>]*>([^<]*)<\/title>/, descRegex = /<desc[^>]*>([^<]*)<\/desc>/;
+                let match; const now = new Date(), limitPast = new Date(now.getTime() - 4 * 3600 * 1000);
                 while ((match = progRegex.exec(xmlText)) !== null) {
                     const stopDate = parseEPGDate(match[2]);
                     if (stopDate < limitPast) continue; 
-                    
-                    const id = match[3];
-                    const content = match[4];
-                    const titleM = titleRegex.exec(content);
-                    const descM = descRegex.exec(content);
-                    
+                    const id = match[3], content = match[4], titleM = titleRegex.exec(content), descM = descRegex.exec(content);
                     if (!epgData[id]) epgData[id] = [];
-                    epgData[id].push({
-                        start: parseEPGDate(match[1]),
-                        stop:  stopDate,
-                        title: titleM ? titleM[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') : 'Sin título',
-                        desc:  descM ? descM[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') : ''
-                    });
+                    epgData[id].push({ start: parseEPGDate(match[1]), stop: stopDate, title: titleM ? titleM[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') : 'Sin título', desc: descM ? descM[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') : '' });
                 }
                 return true;
-            } catch (e) {
-                console.error("Fallo silencioso leyendo EPG XML:", e);
-                return false; 
-            }
+            } catch (e) { return false; }
         }
 
         function checkEpgFreshness() {
             if (!epgData) return;
             let maxStop = new Date(0);
             Object.values(epgData).forEach(events => events.forEach(ev => { if (ev.stop > maxStop) maxStop = ev.stop; }));
-            if (maxStop < new Date()) { epgStale = true; epgStaleUntil = maxStop; } 
-            else { epgStale = false; }
+            if (maxStop < new Date()) { epgStale = true; epgStaleUntil = maxStop; } else { epgStale = false; }
         }
 
         async function loadTVPlusJSON(url) {
@@ -936,62 +801,27 @@
                 const fetchUrl = encodeURI(url) + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
                 const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error('HTTP ' + response.status);
-                const data = await response.json();
-                let flatChannels = [];
+                const data = await response.json(); let flatChannels = [];
                 if (Array.isArray(data)) {
-                    if (data.length > 0 && data[0].samples !== undefined) {
-                        data.forEach(group => (group.samples || []).forEach(ch => addFlatChannel(flatChannels, ch, group.name)));
-                    } else {
-                        data.forEach(ch => addFlatChannel(flatChannels, ch, ch.group));
-                    }
-                } else if (typeof data === 'object') {
-                    Object.entries(data).forEach(([groupName, items]) => (Array.isArray(items) ? items : []).forEach(ch => addFlatChannel(flatChannels, ch, groupName)));
-                }
-                
+                    if (data.length > 0 && data[0].samples !== undefined) { data.forEach(group => (group.samples || []).forEach(ch => addFlatChannel(flatChannels, ch, group.name))); } 
+                    else { data.forEach(ch => addFlatChannel(flatChannels, ch, ch.group)); }
+                } else if (typeof data === 'object') { Object.entries(data).forEach(([groupName, items]) => (Array.isArray(items) ? items : []).forEach(ch => addFlatChannel(flatChannels, ch, groupName))); }
                 await fillMissingLogosFromTV(flatChannels);
-                
-                flatChannels.forEach(c => {
-                    if (!c.logo || c.logo.trim() === '') {
-                        c.logo = 'logos/icon-192.png';
-                    }
-                });
-
-                channels = flatChannels;
-                buildCategoryMenu();
-                applyFilters();
-            } catch (e) {
-                channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ Error cargando TV+: ${e.message}</div>`;
-            }
+                flatChannels.forEach(c => { if (!c.logo || c.logo.trim() === '') c.logo = 'logos/icon-192.png'; });
+                channels = flatChannels; buildCategoryMenu(); applyFilters();
+            } catch (e) { channelGrid.innerHTML = `<div style="grid-column:1/-1; color:#ff4d4d; padding:16px; text-align:center;">⚠️ Error cargando TV+: ${e.message}</div>`; }
         }
         
-        function addFlatChannel(arr, ch, groupFallback) {
-            arr.push({
-                name: ch.name, url: ch.uri || ch.url, logo: ch.logo || '', category: ch.group || groupFallback || 'Sin grupo',
-                epgId: ch.tvg_id || '', kid: ch.kid || '', key: ch.key || '', drm_scheme: ch.drm_scheme || '', extension: ch.extension || ''
-            });
-        }
-
-        function normalizeChannelName(name) {
-            return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .replace(/\(opc\.?\s*\d*\)/gi, '').replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b|\buhd\b/gi, '')
-                .replace(/\bmovistar\+?\b/gi, 'mplus')
-                .replace(/\+/g, 'plus')
-                .replace(/[^a-z0-9]/g, '');
-        }
+        function addFlatChannel(arr, ch, groupFallback) { arr.push({ name: ch.name, url: ch.uri || ch.url, logo: ch.logo || '', category: ch.group || groupFallback || 'Sin grupo', epgId: ch.tvg_id || '', kid: ch.kid || '', key: ch.key || '', drm_scheme: ch.drm_scheme || '', extension: ch.extension || '' }); }
+        function normalizeChannelName(name) { return (name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\(opc\.?\s*\d*\)/gi, '').replace(/\bhd\b|\bsd\b|\bfhd\b|\b4k\b|\buhd\b/gi, '').replace(/\bmovistar\+?\b/gi, 'mplus').replace(/\+/g, 'plus').replace(/[^a-z0-9]/g, ''); }
 
         async function fillMissingLogosFromTV(flatChannels) {
-            const pending = flatChannels.filter(c => !c.logo);
-            if (pending.length === 0) return;
+            const pending = flatChannels.filter(c => !c.logo); if (pending.length === 0) return;
             try {
-                const response = await fetch(encodeURI('listas/tv.m3u'));
-                if (!response.ok) return;
-                const tvChannels = parseM3U(await response.text());
-                const logoMap = {};
+                const response = await fetch(encodeURI('listas/tv.m3u')); if (!response.ok) return;
+                const tvChannels = parseM3U(await response.text()), logoMap = {};
                 tvChannels.forEach(c => { if (c.logo) logoMap[normalizeChannelName(c.name)] = c.logo; });
-                pending.forEach(c => {
-                    const key = normalizeChannelName(c.name);
-                    if (logoMap[key]) c.logo = logoMap[key];
-                });
+                pending.forEach(c => { const key = normalizeChannelName(c.name); if (logoMap[key]) c.logo = logoMap[key]; });
             } catch (e) {}
         }
 
@@ -1003,168 +833,65 @@
         function showIdleOverlay() { idleOverlay.classList.remove('hidden'); }
         function hideIdleOverlay() { idleOverlay.classList.add('hidden'); }
 
-        function togglePlay(e) { 
-            if (e) e.stopPropagation(); 
-            closeSettingsMenu();
-            video.paused ? video.play().catch(()=>{}) : video.pause(); 
-            wakeControls(video.paused);
-        }
+        function togglePlay(e) { if (e) e.stopPropagation(); closeSettingsMenu(); video.paused ? video.play().catch(()=>{}) : video.pause(); wakeControls(video.paused); }
         function seekVideo() { if (isFinite(video.duration)) video.currentTime = seekBar.value; }
-        function changeVolume() {
-            video.volume = volumeBar.value;
-            muteBtn.innerText = video.volume === 0 ? "🔇" : video.volume < 0.5 ? "🔉" : "🔊";
-        }
-        function toggleMute(e) {
-            if (e) e.stopPropagation();
-            if (video.muted) { video.muted = false; muteBtn.innerText = "🔊"; volumeBar.value = video.volume; }
-            else { video.muted = true; muteBtn.innerText = "🔇"; volumeBar.value = 0; }
-        }
+        function changeVolume() { video.volume = volumeBar.value; muteBtn.innerText = video.volume === 0 ? "🔇" : video.volume < 0.5 ? "🔉" : "🔊"; }
+        function toggleMute(e) { if (e) e.stopPropagation(); if (video.muted) { video.muted = false; muteBtn.innerText = "🔊"; volumeBar.value = video.volume; } else { video.muted = true; muteBtn.innerText = "🔇"; volumeBar.value = 0; } }
         function formatTime(s) {
             if (isNaN(s) || !isFinite(s)) return "00:00";
-            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
-            const p = n => String(n).padStart(2, '0');
+            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60), p = n => String(n).padStart(2, '0');
             return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${p(m)}:${p(sec)}`;
         }
-        function toggleFullscreen(e) {
-            if (e) e.stopPropagation();
-            closeSettingsMenu();
-            document.fullscreenElement ? document.exitFullscreen() : videoWrapper.requestFullscreen().catch(()=>{});
-        }
-        function sendToCast(e) {
-            if (e) e.stopPropagation();
-            if (!currentMediaUrl) return;
-            window.location.href = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
-        }
+        function toggleFullscreen(e) { if (e) e.stopPropagation(); closeSettingsMenu(); document.fullscreenElement ? document.exitFullscreen() : videoWrapper.requestFullscreen().catch(()=>{}); }
+        function sendToCast(e) { if (e) e.stopPropagation(); if (!currentMediaUrl) return; window.location.href = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`; }
+        function toggleSettings() { settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'flex' : 'none'; }
+        function closeSettingsMenu() { settingsMenu.style.display = 'none'; }
 
-        function toggleSettings() {
-            settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'flex' : 'none';
-        }
-        function closeSettingsMenu() {
-            settingsMenu.style.display = 'none';
-        }
         function updateTrackVisibility() {
-            const hasAudio = audioSelect.options.length > 0;
-            const hasSub = subSelect.options.length > 0;
-            const hasQuality = qualitySelect.options.length > 0;
-            
+            const hasAudio = audioSelect.options.length > 0, hasSub = subSelect.options.length > 0, hasQuality = qualitySelect.options.length > 0;
             document.getElementById('row-audio').style.display = hasAudio ? 'flex' : 'none';
             document.getElementById('row-sub').style.display = hasSub ? 'flex' : 'none';
             document.getElementById('row-quality').style.display = hasQuality ? 'flex' : 'none';
-            
             document.getElementById('settings-container').style.display = (hasAudio || hasSub || hasQuality) ? 'flex' : 'none';
         }
-        function clearTrackMenus() {
-            audioSelect.innerHTML = ''; subSelect.innerHTML = ''; qualitySelect.innerHTML = '';
-            closeSettingsMenu();
-            updateTrackVisibility();
-        }
+        function clearTrackMenus() { audioSelect.innerHTML = ''; subSelect.innerHTML = ''; qualitySelect.innerHTML = ''; closeSettingsMenu(); updateTrackVisibility(); }
 
         function updateHlsTracks() {
             if (!hlsInstance) return;
-            const audioTracks = hlsInstance.audioTracks;
-            if (audioTracks && audioTracks.length > 1) {
-                audioSelect.innerHTML = audioTracks.map((t, i) => `<option value="${i}">${t.name || 'Audio ' + (i+1)}</option>`).join('');
-                audioSelect.value = hlsInstance.audioTrack;
-            } else { audioSelect.innerHTML = ''; }
-
-            const subtitleTracks = hlsInstance.subtitleTracks;
-            if (subtitleTracks && subtitleTracks.length > 0) {
-                subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + subtitleTracks.map((t, i) => `<option value="${i}">${t.name || 'Sub ' + (i+1)}</option>`).join('');
-                subSelect.value = hlsInstance.subtitleTrack;
-            } else { subSelect.innerHTML = ''; }
-
-            const levels = hlsInstance.levels;
-            if (levels && levels.length > 1) {
-                let html = '<option value="-1">AUTO</option>';
-                levels.forEach((l, i) => { html += `<option value="${i}">${l.height}p</option>`; });
-                qualitySelect.innerHTML = html;
-                qualitySelect.value = hlsInstance.autoLevelEnabled ? "-1" : hlsInstance.currentLevel;
-            } else { qualitySelect.innerHTML = ''; }
-            
+            const a = hlsInstance.audioTracks; if (a && a.length > 1) { audioSelect.innerHTML = a.map((t, i) => `<option value="${i}">${t.name || 'Audio ' + (i+1)}</option>`).join(''); audioSelect.value = hlsInstance.audioTrack; } else { audioSelect.innerHTML = ''; }
+            const s = hlsInstance.subtitleTracks; if (s && s.length > 0) { subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + s.map((t, i) => `<option value="${t.name || 'Sub ' + (i+1)}</option>`).join(''); subSelect.value = hlsInstance.subtitleTrack; } else { subSelect.innerHTML = ''; }
+            const l = hlsInstance.levels; if (l && l.length > 1) { let html = '<option value="-1">AUTO</option>'; l.forEach((x, i) => { html += `<option value="${i}">${x.height}p</option>`; }); qualitySelect.innerHTML = html; qualitySelect.value = hlsInstance.autoLevelEnabled ? "-1" : hlsInstance.currentLevel; } else { qualitySelect.innerHTML = ''; }
             updateTrackVisibility();
         }
 
         function updateShakaTracks() {
             if (!shakaInstance) return;
-            const audioLangs = shakaInstance.getAudioLanguagesAndRoles();
-            if (audioLangs && audioLangs.length > 1) {
-                const uniqueLangs = Array.from(new Set(audioLangs.map(a => a.language)));
-                audioSelect.innerHTML = uniqueLangs.map(l => `<option value="${l}">${l.toUpperCase()}</option>`).join('');
-                const activeVariant = shakaInstance.getVariantTracks().find(v => v.active);
-                if (activeVariant && activeVariant.language) audioSelect.value = activeVariant.language;
-            } else { audioSelect.innerHTML = ''; }
-
-            const textTracks = shakaInstance.getTextTracks();
-            if (textTracks && textTracks.length > 0) {
-                subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + textTracks.map(t => `<option value="${t.id}">${(t.language || t.label || 'Sub').toUpperCase()}</option>`).join('');
-                const activeSub = textTracks.find(t => t.active);
-                subSelect.value = shakaInstance.isTextTrackVisible() && activeSub ? activeSub.id : "-1";
-            } else { subSelect.innerHTML = ''; }
-
-            const tracks = shakaInstance.getVariantTracks();
-            const videoTracks = tracks.filter(t => t.type === 'variant' && t.videoId);
-            let uniqueHeights = [], options = [];
-            videoTracks.forEach(t => {
-                if (t.height && !uniqueHeights.includes(t.height)) { uniqueHeights.push(t.height); options.push({ id: t.id, height: t.height }); }
-            });
-            if (options.length > 1) {
-                options.sort((a, b) => b.height - a.height);
-                let html = '<option value="-1">AUTO</option>';
-                options.forEach(o => { html += `<option value="${o.id}">${o.height}p</option>`; });
-                qualitySelect.innerHTML = html;
-                if (shakaInstance.getConfiguration().abr.enabled) { qualitySelect.value = "-1"; } 
-                else { const activeTrack = tracks.find(t => t.active); if (activeTrack) qualitySelect.value = activeTrack.id; }
-            } else { qualitySelect.innerHTML = ''; }
-            
+            const a = shakaInstance.getAudioLanguagesAndRoles(); if (a && a.length > 1) { const uniqueLangs = Array.from(new Set(a.map(x => x.language))); audioSelect.innerHTML = uniqueLangs.map(l => `<option value="${l}">${l.toUpperCase()}</option>`).join(''); const act = shakaInstance.getVariantTracks().find(v => v.active); if (act && act.language) audioSelect.value = act.language; } else { audioSelect.innerHTML = ''; }
+            const t = shakaInstance.getTextTracks(); if (t && t.length > 0) { subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + t.map(x => `<option value="${x.id}">${(x.language || x.label || 'Sub').toUpperCase()}</option>`).join(''); const act = t.find(x => x.active); subSelect.value = shakaInstance.isTextTrackVisible() && act ? act.id : "-1"; } else { subSelect.innerHTML = ''; }
+            const tr = shakaInstance.getVariantTracks().filter(x => x.type === 'variant' && x.videoId); let heights = [], opts = []; tr.forEach(x => { if (x.height && !heights.includes(x.height)) { heights.push(x.height); opts.push({ id: x.id, height: x.height }); } });
+            if (opts.length > 1) { opts.sort((x, y) => y.height - x.height); let html = '<option value="-1">AUTO</option>'; opts.forEach(o => { html += `<option value="${o.id}">${o.height}p</option>`; }); qualitySelect.innerHTML = html; if (shakaInstance.getConfiguration().abr.enabled) { qualitySelect.value = "-1"; } else { const act = shakaInstance.getVariantTracks().find(x => x.active); if (act) qualitySelect.value = act.id; } } else { qualitySelect.innerHTML = ''; }
             updateTrackVisibility();
         }
 
-        function changeAudioTrack() {
-            const val = audioSelect.value;
-            if (hlsInstance) { hlsInstance.audioTrack = parseInt(val); } else if (shakaInstance) { shakaInstance.selectAudioLanguage(val); }
-        }
-        function changeSubTrack() {
-            const val = subSelect.value;
-            if (hlsInstance) { hlsInstance.subtitleTrack = parseInt(val); } 
-            else if (shakaInstance) {
-                if (val === "-1") { shakaInstance.setTextTrackVisibility(false); } 
-                else { const selected = shakaInstance.getTextTracks().find(t => t.id == parseInt(val)); if (selected) { shakaInstance.selectTextTrack(selected); shakaInstance.setTextTrackVisibility(true); } }
-            }
-        }
-        function changeQualityTrack() {
-            const val = parseInt(qualitySelect.value);
-            if (hlsInstance) { hlsInstance.currentLevel = val; } 
-            else if (shakaInstance) {
-                if (val === -1) { shakaInstance.configure({ abr: { enabled: true } }); } 
-                else { shakaInstance.configure({ abr: { enabled: false } }); const selected = shakaInstance.getVariantTracks().find(t => t.id === val); if (selected) shakaInstance.selectVariantTrack(selected, true); }
-            }
-        }
+        function changeAudioTrack() { const val = audioSelect.value; if (hlsInstance) { hlsInstance.audioTrack = parseInt(val); } else if (shakaInstance) { shakaInstance.selectAudioLanguage(val); } }
+        function changeSubTrack() { const val = subSelect.value; if (hlsInstance) { hlsInstance.subtitleTrack = parseInt(val); } else if (shakaInstance) { if (val === "-1") { shakaInstance.setTextTrackVisibility(false); } else { const sel = shakaInstance.getTextTracks().find(t => t.id == parseInt(val)); if (sel) { shakaInstance.selectTextTrack(sel); shakaInstance.setTextTrackVisibility(true); } } } }
+        function changeQualityTrack() { const val = parseInt(qualitySelect.value); if (hlsInstance) { hlsInstance.currentLevel = val; } else if (shakaInstance) { if (val === -1) { shakaInstance.configure({ abr: { enabled: true } }); } else { shakaInstance.configure({ abr: { enabled: false } }); const sel = shakaInstance.getVariantTracks().find(t => t.id === val); if (sel) shakaInstance.selectVariantTrack(sel, true); } } }
 
         function processM3UText(text) { channels = parseM3U(text); buildCategoryMenu(); applyFilters(); }
         function parseM3U(m3uText) {
             const lines = m3uText.split('\n'), result = []; let cur = {};
             for (let line of lines) {
                 line = line.trim();
-                if (line.startsWith('#EXTINF:')) {
-                    cur.logo = (line.match(/tvg-logo="([^"]+)"/) || [])[1] || '';
-                    cur.epgId = (line.match(/tvg-id="([^"]+)"/) || [])[1] || '';
-                    cur.category = (line.match(/group-title="([^"]+)"/) || [])[1] || 'Otros';
-                    cur.name = line.split(',').pop().trim();
-                } else if (line.startsWith('http')) {
-                    cur.url = line; result.push(cur); cur = {};
-                }
+                if (line.startsWith('#EXTINF:')) { cur.logo = (line.match(/tvg-logo="([^"]+)"/) || [])[1] || ''; cur.epgId = (line.match(/tvg-id="([^"]+)"/) || [])[1] || ''; cur.category = (line.match(/group-title="([^"]+)"/) || [])[1] || 'Otros'; cur.name = line.split(',').pop().trim(); } 
+                else if (line.startsWith('http')) { cur.url = line; result.push(cur); cur = {}; }
             }
             return result;
         }
 
         function buildCategoryMenu() {
-            const cats = [...new Set(channels.map(c => c.category))].sort();
-            categorySelect.innerHTML = '<option value="">Todas las categorías</option>';
+            const cats = [...new Set(channels.map(c => c.category))].sort(); categorySelect.innerHTML = '<option value="">Todas las categorías</option>';
             cats.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.innerText = cat; categorySelect.appendChild(opt); });
-            categorySelect.onchange = () => {
-                searchInput.value = "";
-                applyFilters();
-            };
+            categorySelect.onchange = () => { searchInput.value = ""; applyFilters(); };
         }
 
         function applyFilters() {
@@ -1176,98 +903,63 @@
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
             let data = await fetchFromTMDB(cleanQuery, detectedYear || null);
             if (!data || !data.results || data.results.length === 0) data = await fetchFromTMDB(cleanQuery, null);
-            if (data && data.results && data.results.length > 0 && data.results[0].poster_path && imgEl) {
-                imgEl.src = `https://image.tmdb.org/t/p/w300${data.results[0].poster_path}`;
-            }
+            if (data && data.results && data.results.length > 0 && data.results[0].poster_path && imgEl) { imgEl.src = `https://image.tmdb.org/t/p/w300${data.results[0].poster_path}`; }
         }
 
         function renderGrid(list) {
             channelGrid.innerHTML = '';
-            if (list.length === 0) {
-                channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#666; padding:30px; font-size:0.9rem;">No hay resultados para este filtro.</div>';
-                return;
-            }
-            const isMovie = currentSection === 'movies';
-            const fallback = isMovie ? FALLBACK_IMG_MOV : FALLBACK_IMG_TV;
-
+            if (list.length === 0) { channelGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#666; padding:30px; font-size:0.9rem;">No hay resultados para este filtro.</div>'; return; }
+            const isMovie = currentSection === 'movies', fallback = isMovie ? FALLBACK_IMG_MOV : FALLBACK_IMG_TV;
             list.forEach(channel => {
                 const card = document.createElement('div'); card.className = 'channel-card';
                 const img = document.createElement('img'); img.src = channel.logo || fallback; img.alt = channel.name; img.onerror = function() { this.src = fallback; this.onerror = null; };
                 const name = document.createElement('span'); name.textContent = channel.name;
                 card.appendChild(img); card.appendChild(name); card.onclick = () => playMedia(channel);
-                channelGrid.appendChild(card);
-                if (isMovie) fetchGridIconFromTMDB(channel.name, img);
+                channelGrid.appendChild(card); if (isMovie) fetchGridIconFromTMDB(channel.name, img);
             });
         }
 
         async function playMedia(item) {
-            if (searchInput.value.trim() !== "") {
-                searchInput.value = "";
-                applyFilters();
-            }
-
-            clearTrackMenus(); 
-            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-            if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
+            if (searchInput.value.trim() !== "") { searchInput.value = ""; applyFilters(); }
+            clearTrackMenus(); if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; } if (shakaInstance) { await shakaInstance.destroy(); shakaInstance = null; }
             video.pause(); video.src = ''; video.load();
 
-            let targetUrl = item.url;
-            let isAce = false;
-            
+            let targetUrl = item.url, isAce = false;
             const urlLower = targetUrl.toLowerCase();
             if (urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8')) {
-                isAce = true;
-                const aceId = (targetUrl.match(/[?&]id=([^&]+)/) || targetUrl.match(/([a-fA-F0-9]{40})/) || [])[1];
-                if (aceId) {
-                    targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`;
-                }
+                isAce = true; const aceId = (targetUrl.match(/[?&]id=([^&]+)/) || targetUrl.match(/([a-fA-F0-9]{40})/) || [])[1];
+                if (aceId) { targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`; }
             }
-
             currentMediaUrl = targetUrl;
-            
-            // === AQUÍ SE SIVE EL BOTÓN DE CAST TAMBIÉN PARA LA PESTAÑA TV+ ===
             castBtn.style.display = (currentSection === 'movies' || currentSection === 'tvplus' || isAce) ? "block" : "none";
 
             const isClearKey = item.kid && item.key;
             if (isClearKey) {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
                 try {
-                    shakaInstance = new shaka.Player(video);
-                    shakaInstance.addEventListener('error', (e) => epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error Shaka.</span>`);
-                    shakaInstance.addEventListener('trackschanged', updateShakaTracks);
-                    shakaInstance.addEventListener('adaptation', updateShakaTracks);
+                    shakaInstance = new shaka.Player(video); shakaInstance.addEventListener('error', (e) => epgInfoElement.innerHTML = `<span style="color:#ff4d4d;">⚠️ Error Shaka.</span>`);
+                    shakaInstance.addEventListener('trackschanged', updateShakaTracks); shakaInstance.addEventListener('adaptation', updateShakaTracks);
                     await shakaInstance.configure({ streaming: { alwaysStreamText: true }, drm: { clearKeys: { [base64urlToHex(item.kid)]: base64urlToHex(item.key) } } });
-                    await shakaInstance.load(targetUrl);
-                    video.play().catch(() => {}); hideIdleOverlay(); wakeControls(); updateShakaTracks(); 
+                    await shakaInstance.load(targetUrl); video.play().catch(() => {}); hideIdleOverlay(); wakeControls(); updateShakaTracks(); 
                 } catch (err) {}
                 window.scrollTo({ top: 0, behavior: 'smooth' }); return;
             }
 
             const isHLS = targetUrl.includes('.m3u8') || ['tv','premium','runtime','rakuten'].includes(currentSection);
-            
             if (isHLS) {
                 timelineWrapper.style.display = "none"; liveIndicator.style.display = "block";
-                if (video.canPlayType('application/vnd.apple.mpegurl') && !Hls.isSupported()) {
-                    video.src = targetUrl; video.load(); video.play().catch(()=>{});
-                } else if (Hls.isSupported()) {
-                    hlsInstance = new Hls({ maxMaxBufferLength: 10, enableWorker: true });
-                    hlsInstance.loadSource(targetUrl); hlsInstance.attachMedia(video);
+                if (video.canPlayType('application/vnd.apple.mpegurl') && !Hls.isSupported()) { video.src = targetUrl; video.load(); video.play().catch(()=>{}); } 
+                else if (Hls.isSupported()) {
+                    hlsInstance = new Hls({ maxMaxBufferLength: 10, enableWorker: true }); hlsInstance.loadSource(targetUrl); hlsInstance.attachMedia(video);
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(()=>{}); wakeControls(); updateHlsTracks(); });
                     hlsInstance.on(Hls.Events.LEVEL_SWITCHED, updateHlsTracks);
                 } else { video.src = targetUrl; video.load(); video.play().catch(()=>{}); }
-                
                 updateEPGDisplay(item, isAce);
             } else {
                 if (currentSection === 'movies' || urlLower.includes('pixeldrain') || urlLower.includes('.mp4') || urlLower.includes('.mkv') || urlLower.includes('duckdns')) {
                     timelineWrapper.style.display = "flex"; liveIndicator.style.display = "none"; searchMovieInTMDB(item.name);
-                } else {
-                    timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce);
-                }
-                
-                video.src = targetUrl; 
-                video.load(); 
-                video.play().catch(()=>{}); 
-                wakeControls();
+                } else { timelineWrapper.style.display = "none"; liveIndicator.style.display = "block"; updateEPGDisplay(item, isAce); }
+                video.src = targetUrl; video.load(); video.play().catch(()=>{}); wakeControls();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1278,23 +970,15 @@
         }
 
         async function fetchFromTMDB(query, year = null) {
-            try {
-                let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=es-ES`;
-                if (year) url += `&year=${year}`;
-                const res = await fetch(url); return res.ok ? await res.json() : null;
-            } catch { return null; }
+            try { let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=es-ES`; if (year) url += `&year=${year}`; const res = await fetch(url); return res.ok ? await res.json() : null; } catch { return null; }
         }
 
         async function searchMovieInTMDB(rawName) {
             epgInfoElement.innerHTML = '<span style="color:#555; font-size:0.85rem;">Buscando en TMDB...</span>';
             const { cleanQuery, detectedYear } = cleanMovieName(rawName);
-            let data = await fetchFromTMDB(cleanQuery, detectedYear || null);
-            if (!data || !data.results || data.results.length === 0) data = await fetchFromTMDB(cleanQuery, null);
+            let data = await fetchFromTMDB(cleanQuery, detectedYear || null); if (!data || !data.results || data.results.length === 0) data = await fetchFromTMDB(cleanQuery, null);
             if (data && data.results && data.results.length > 0) {
-                const m = data.results[0];
-                const poster = m.poster_path ? `https://image.tmdb.org/t/p/w200${m.poster_path}` : FALLBACK_IMG_MOV;
-                const year = m.release_date ? m.release_date.split('-')[0] : '—';
-                const rating = m.vote_average ? `⭐ ${m.vote_average.toFixed(1)}` : '';
+                const m = data.results[0], poster = m.poster_path ? `https://image.tmdb.org/t/p/w200${m.poster_path}` : FALLBACK_IMG_MOV, year = m.release_date ? m.release_date.split('-')[0] : '—', rating = m.vote_average ? `⭐ ${m.vote_average.toFixed(1)}` : '';
                 epgInfoElement.innerHTML = `
                     <div class="movie-flex-container">
                         <img class="movie-poster" src="${poster}" alt="${m.title}">
@@ -1308,8 +992,7 @@
         }
 
         function cleanMovieName(rawName) {
-            const yearMatch = rawName.match(/\b(19\d{2}|20[0-2]\d)\b/);
-            const detectedYear = yearMatch ? yearMatch[1] : null;
+            const yearMatch = rawName.match(/\b(19\d{2}|20[0-2]\d)\b/), detectedYear = yearMatch ? yearMatch[1] : null;
             let cleanQuery = rawName.replace(/\.(mp4|mkv|avi|webm|mov|ts)$/i, '').replace(/[🍿🎬🎥📀▶►👇📢🌟✅🎭📺⭐🎞️🔹🔸🔴]/g, '').replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
                 .replace(/\b(1080p|720p|4k|2k|uhd|hd|sd|x264|h264|x265|h265|hevc|bluray|brrip|bdrip|dvdrip|hdrip|hdtv|webrip|webdl|web|rip|dual|audio|ac3|dts|aac|5\.1|vox|cine|esp|lat|castellano|spanish|sub|subs|subtitulado|multi|hdr|microhd|completa|pelicula|peli|full|torrent|descarga)\b/gi, '')
                 .replace(/[-_.,|:+\/*]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -1318,15 +1001,10 @@
 
         function getEPGEvents(channel) {
             if (!epgData) return [];
-            
             if (channel.epgId && epgData[channel.epgId]) return epgData[channel.epgId];
             if (epgData[channel.name]) return epgData[channel.name];
-            
             const normName = normalizeChannelName(channel.name);
-            for (const key in epgData) {
-                if (channel.epgId && key === channel.epgId) return epgData[key];
-                if (normalizeChannelName(key) === normName) return epgData[key];
-            }
+            for (const key in epgData) { if (channel.epgId && key === channel.epgId) return epgData[key]; if (normalizeChannelName(key) === normName) return epgData[key]; }
             return [];
         }
 
@@ -1334,11 +1012,21 @@
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             const events = getEPGEvents(channel);
             
-            // ADICIÓN DE BOTÓN DE CAST EXTRA EN CASO DE ERROR DE REPRODUCCIÓN EN PANTALLA
-            const castSubBtn = currentSection === 'tvplus' ? `<br><a href="wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}" style="display:inline-block; margin-top:8px; background:#4CAF50; color:#fff; padding:5px 10px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem;">📺 Lanzar TV+ desde iPhone (WVC)</a>` : '';
+            // Lógica de detección OS para enlaces VLC
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const vlcLink = isAndroid 
+                ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
+                : `vlc://${currentMediaUrl}`;
+
+            // Botones combinados (WVC y VLC) para la pestaña TV+
+            const extraBtns = currentSection === 'tvplus' ? `
+                <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                    <a href="wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}" style="display:inline-block; background:#4CAF50; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📺 WVC (Cast)</a>
+                    <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">🟠 Abrir en VLC</a>
+                </div>` : '';
 
             if (!epgData || events.length === 0) { 
-                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${castSubBtn}`; 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${extraBtns}`; 
                 return; 
             }
             
@@ -1349,7 +1037,7 @@
                         <strong>${channel.name}</strong> - ${ev.title}
                         <span style="color:#888; margin-left:8px; font-size:0.82rem;">${formatEPGTimeLabel(ev.start)} – ${formatEPGTimeLabel(ev.stop)}</span>
                         ${ev.desc ? `<div style="color:#aaa; font-size:0.85rem; margin-top:4px;">${ev.desc}</div>` : ''}
-                        ${aceHTML}${castSubBtn}`;
+                        ${aceHTML}${extraBtns}`;
                     return;
                 }
             }
@@ -1360,9 +1048,9 @@
                     <strong>${channel.name}</strong>
                     <span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>
                     <div style="color:#f5c518; font-size:0.78rem; margin-top:5px;">⚠️ Guía caducada (hasta el ${fechaLimite}).</div>
-                    ${aceHTML}${castSubBtn}`;
+                    ${aceHTML}${extraBtns}`;
             } else { 
-                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${castSubBtn}`; 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${extraBtns}`; 
             }
         }
 
