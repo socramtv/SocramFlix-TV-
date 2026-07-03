@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
@@ -19,7 +16,6 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.11/dist/shaka-player.compiled.js"></script>
     <style>
-        /* Puedes modificar estos colores si en tu versión tenías otros exactos */
         :root {
             --accent: #E50914;
             --accent2: #f5c518;
@@ -321,7 +317,6 @@
             width: 100%; cursor: pointer; 
         }
         
-        /* Ajuste de estilo para los optgroup dentro de select */
         optgroup {
             background: var(--bg-card);
             color: var(--accent2);
@@ -497,7 +492,6 @@
             </div>
             <div class="filter-item">
                 <label>Buscar / Recargar</label>
-                <!-- CONTENEDOR FLEXIBLE CORREGIDO -->
                 <div class="search-wrapper">
                     <input type="text" id="search-input" class="search-input-style" placeholder="Título, canal..." oninput="applyFilters()">
                     <button class="reload-btn" onclick="forceAppReload()" title="Limpiar caché y actualizar app">🔄</button>
@@ -611,7 +605,6 @@
             setupPlayerListeners();
         }
 
-        // ── BOTÓN DE ACTUALIZACIÓN (ANTI-CACHÉ) ──
         function forceAppReload() {
             if ('caches' in window) {
                 caches.keys().then(names => {
@@ -698,7 +691,6 @@
             }
         }
 
-        // ── LÓGICA DE CONTROLES, OCULTACIÓN Y MANEJO DE ERRORES ──
         function setupPlayerListeners() {
             video.addEventListener('timeupdate', () => {
                 if (currentSection !== 'movies' && video.duration && isFinite(video.duration) && video.duration > 0) {
@@ -779,9 +771,6 @@
             }, 4000);
         }
 
-        // ========================================================
-        // FUNCIÓN PARA CONSTRUIR MENÚ CON GRUPOS (OPTGROUP)
-        // ========================================================
         function buildSagaDropdown() {
             sagaSelect.innerHTML = '';
             let currentGroup = '';
@@ -1080,7 +1069,7 @@
 
             const subtitleTracks = hlsInstance.subtitleTracks;
             if (subtitleTracks && subtitleTracks.length > 0) {
-                subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + subtitleTracks.map((t, i) => `<option value="${t.name || 'Sub ' + (i+1)}</option>`).join('');
+                subSelect.innerHTML = `<option value="-1">Sub OFF</option>` + subtitleTracks.map((t, i) => `<option value="${i}">${t.name || 'Sub ' + (i+1)}</option>`).join('');
                 subSelect.value = hlsInstance.subtitleTrack;
             } else { subSelect.innerHTML = ''; }
 
@@ -1235,7 +1224,9 @@
             }
 
             currentMediaUrl = targetUrl;
-            castBtn.style.display = (currentSection === 'movies' || isAce) ? "block" : "none";
+            
+            // === AQUÍ SE SIVE EL BOTÓN DE CAST TAMBIÉN PARA LA PESTAÑA TV+ ===
+            castBtn.style.display = (currentSection === 'movies' || currentSection === 'tvplus' || isAce) ? "block" : "none";
 
             const isClearKey = item.kid && item.key;
             if (isClearKey) {
@@ -1343,8 +1334,11 @@
             const aceHTML = isAce ? `<br><div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>` : '';
             const events = getEPGEvents(channel);
             
+            // ADICIÓN DE BOTÓN DE CAST EXTRA EN CASO DE ERROR DE REPRODUCCIÓN EN PANTALLA
+            const castSubBtn = currentSection === 'tvplus' ? `<br><a href="wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}" style="display:inline-block; margin-top:8px; background:#4CAF50; color:#fff; padding:5px 10px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem;">📺 Lanzar TV+ desde iPhone (WVC)</a>` : '';
+
             if (!epgData || events.length === 0) { 
-                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}`; 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${castSubBtn}`; 
                 return; 
             }
             
@@ -1355,7 +1349,7 @@
                         <strong>${channel.name}</strong> - ${ev.title}
                         <span style="color:#888; margin-left:8px; font-size:0.82rem;">${formatEPGTimeLabel(ev.start)} – ${formatEPGTimeLabel(ev.stop)}</span>
                         ${ev.desc ? `<div style="color:#aaa; font-size:0.85rem; margin-top:4px;">${ev.desc}</div>` : ''}
-                        ${aceHTML}`;
+                        ${aceHTML}${castSubBtn}`;
                     return;
                 }
             }
@@ -1366,9 +1360,9 @@
                     <strong>${channel.name}</strong>
                     <span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>
                     <div style="color:#f5c518; font-size:0.78rem; margin-top:5px;">⚠️ Guía caducada (hasta el ${fechaLimite}).</div>
-                    ${aceHTML}`;
+                    ${aceHTML}${castSubBtn}`;
             } else { 
-                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}`; 
+                epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${castSubBtn}`; 
             }
         }
 
