@@ -646,6 +646,17 @@
         }
 
         async function changeSection(section) {
+            
+            // === PROTECCIÓN CON CONTRASEÑA PARA PREMIUM ===
+            if (section === 'premium') {
+                const password = prompt("🔐 Introduce la contraseña para acceder a Premium:");
+                if (password !== "7788") { 
+                    alert("❌ Contraseña incorrecta.");
+                    return; // Si falla, cancela la acción
+                }
+            }
+            // ==============================================
+
             currentSection = section;
             ['tv','tvplus','premium','runtime','rakuten','movies'].forEach(s => {
                 document.getElementById('tab-' + s).classList.toggle('active', s === section);
