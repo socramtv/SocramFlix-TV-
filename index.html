@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
@@ -382,6 +379,35 @@
         ::-webkit-scrollbar-track { background: var(--bg-deep); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* ─── BOTÓN INSTALAR PWA ─── */
+        .floating-install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(229,9,20,0.6);
+            cursor: pointer;
+            z-index: 9999;
+            display: none; /* Se activa mediante JS si es compatible */
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .floating-install-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: #f0141f;
+            box-shadow: 0 8px 25px rgba(229,9,20,0.8);
+        }
+        .floating-install-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
     </style>
 </head>
 <body class="body-tv-mode" id="main-body" onclick="closeSettingsMenu()">
@@ -485,6 +511,11 @@
         <div id="channel-grid"></div>
     </div>
 
+    <!-- BOTÓN INSTALAR FLOTANTE -->
+    <button id="install-pwa-btn" class="floating-install-btn" title="Instalar aplicación">
+        ⬇️ Instalar App
+    </button>
+
     <script>
         // === CONFIGURACIÓN PWA DINÁMICA ===
         const manifestJSON = {
@@ -508,6 +539,42 @@
             navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('PWA Error:', err));
         }
 
+        // === LÓGICA DEL BOTÓN FLOTANTE DE INSTALACIÓN ===
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-pwa-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Evita que Chrome muestre el mini-aviso por defecto
+            e.preventDefault();
+            // Guarda el evento para lanzarlo luego al pulsar el botón
+            deferredPrompt = e;
+            // Muestra el botón flotante
+            installBtn.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Muestra el prompt de instalación nativo
+                deferredPrompt.prompt();
+                // Espera a que el usuario responda
+                const { outcome } = await deferredPrompt.userChoice;
+                // Limpia la variable tras usarla
+                deferredPrompt = null;
+                // Oculta el botón
+                installBtn.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            // Si se instaló con éxito, ocultamos el botón definitivamente
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+            console.log('SocramFlix+ ha sido instalada');
+        });
+
+        // ========================================================
+        // ESTRUCTURA DE REPOSITORIO CON GRUPOS
+        // ========================================================
         const REPO_SAGAS = [
             { group: "Sagas y Colecciones", name: "Colección Pixar",                     file: "Coleccion Pixar.m3u" },
             { group: "Sagas y Colecciones", name: "Colección DreamWorks Animation",      file: "Coleccion DreamWorks Animation.m3u" },
@@ -935,7 +1002,6 @@
             }
             currentMediaUrl = targetUrl;
             
-            // Botón de Cast en barra
             const isTVPlus = currentSection === 'tvplus';
             castBtn.style.display = (currentSection === 'movies' || isTVPlus || isAce) ? "block" : "none";
 
@@ -946,7 +1012,7 @@
                     shakaInstance = new shaka.Player(video);
                     shakaInstance.addEventListener('error', (e) => {
                         console.error("Error DRM, intentando carga directa:", e);
-                        video.src = targetUrl; // Intento directo si falla
+                        video.src = targetUrl; 
                         video.load();
                     });
                     shakaInstance.addEventListener('trackschanged', updateShakaTracks); 
@@ -1026,7 +1092,6 @@
 
         function updateEPGDisplay(channel, isAce = false) {
             
-            // NUEVO: Botones de descarga de Ace Serve si es canal AceStream
             const aceHTML = isAce ? `
                 <br>
                 <div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>
