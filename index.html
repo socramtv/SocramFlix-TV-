@@ -395,7 +395,7 @@
             box-shadow: 0 6px 20px rgba(229,9,20,0.6);
             cursor: pointer;
             z-index: 9999;
-            display: none; /* Se activa mediante JS si es compatible */
+            display: none;
             align-items: center;
             gap: 8px;
             transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
@@ -544,37 +544,26 @@
         const installBtn = document.getElementById('install-pwa-btn');
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Evita que Chrome muestre el mini-aviso por defecto
             e.preventDefault();
-            // Guarda el evento para lanzarlo luego al pulsar el botón
             deferredPrompt = e;
-            // Muestra el botón flotante
             installBtn.style.display = 'flex';
         });
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
-                // Muestra el prompt de instalación nativo
                 deferredPrompt.prompt();
-                // Espera a que el usuario responda
                 const { outcome } = await deferredPrompt.userChoice;
-                // Limpia la variable tras usarla
                 deferredPrompt = null;
-                // Oculta el botón
                 installBtn.style.display = 'none';
             }
         });
 
         window.addEventListener('appinstalled', () => {
-            // Si se instaló con éxito, ocultamos el botón definitivamente
             installBtn.style.display = 'none';
             deferredPrompt = null;
             console.log('SocramFlix+ ha sido instalada');
         });
 
-        // ========================================================
-        // ESTRUCTURA DE REPOSITORIO CON GRUPOS
-        // ========================================================
         const REPO_SAGAS = [
             { group: "Sagas y Colecciones", name: "Colección Pixar",                     file: "Coleccion Pixar.m3u" },
             { group: "Sagas y Colecciones", name: "Colección DreamWorks Animation",      file: "Coleccion DreamWorks Animation.m3u" },
@@ -1095,9 +1084,12 @@
             const aceHTML = isAce ? `
                 <br>
                 <div class="acestream-warning">⚠️ Requiere Servidor AceStream Activo</div>
-                <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
-                    <a href="https://www.dropbox.com/scl/fi/12f6tn2gqgt1houm56bdh/org.free.aceserve-1.5.7-arm64.apk?rlkey=8b5mh80z8sio6yaqs4brd1dm2&st=d8a2e1cr&dl=1" target="_blank" style="display:inline-block; background:#007ee5; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📱 Descargar Ace Serve (Móvil)</a>
-                    <a href="https://www.dropbox.com/scl/fi/1u8iojs7kai79921j7snn/org.free.aceserve-1.5.7-arm.apk?rlkey=pvj02s4nmzc01nrq5h5tmzwty&st=ls6xu7a3&dl=1" target="_blank" style="display:inline-block; background:#007ee5; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📺 Descargar Ace Serve (TV)</a>
+                <div style="margin-top:10px;">
+                    <button onclick="const el = document.getElementById('ace-downloads'); el.style.display = el.style.display === 'none' ? 'flex' : 'none';" style="background: transparent; color: #ccc; border: 1px solid #444; border-radius: 4px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;">🔌 Instalar Motor AceStream ▾</button>
+                    <div id="ace-downloads" style="display:none; gap:8px; margin-top:8px; flex-wrap:wrap; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; border: 1px solid #333;">
+                        <a href="https://www.dropbox.com/scl/fi/12f6tn2gqgt1houm56bdh/org.free.aceserve-1.5.7-arm64.apk?rlkey=8b5mh80z8sio6yaqs4brd1dm2&st=d8a2e1cr&dl=1" target="_blank" style="display:inline-block; background:#007ee5; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📱 Móvil</a>
+                        <a href="https://www.dropbox.com/scl/fi/1u8iojs7kai79921j7snn/org.free.aceserve-1.5.7-arm.apk?rlkey=pvj02s4nmzc01nrq5h5tmzwty&st=ls6xu7a3&dl=1" target="_blank" style="display:inline-block; background:#007ee5; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📺 TV</a>
+                    </div>
                 </div>` : '';
             
             const events = getEPGEvents(channel);
