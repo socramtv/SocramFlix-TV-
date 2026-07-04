@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SocramFlix+ Pro</title>
     
-    <!-- PWA Etiquetas -->
     <meta name="theme-color" content="#E50914">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -415,7 +411,6 @@
 </head>
 <body class="body-tv-mode" id="main-body" onclick="closeSettingsMenu()">
 
-    <!-- Player section -->
     <div id="player-section">
         <div class="video-container show-controls" id="video-wrapper">
             <div id="app-header">
@@ -473,7 +468,6 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="navigation-tabs">
         <button id="tab-tv"      class="tab-button active" onclick="changeSection('tv')">📺 TV</button>
         <button id="tab-tvplus"  class="tab-button"        onclick="changeSection('tvplus')">📡 TV+ <span class="tvplus-badge">DRM</span></button>
@@ -483,7 +477,6 @@
         <button id="tab-movies"  class="tab-button"        onclick="changeSection('movies')">🍿 Cine</button>
     </div>
 
-    <!-- Content -->
     <div id="content-section">
         <div id="epg-container">
             <div class="epg-header">
@@ -514,7 +507,6 @@
         <div id="channel-grid"></div>
     </div>
 
-    <!-- BOTÓN INSTALAR FLOTANTE -->
     <button id="install-pwa-btn" class="floating-install-btn" title="Instalar aplicación">
         ⬇️ Instalar App
     </button>
@@ -591,9 +583,6 @@
         const FALLBACK_IMG_TV  = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"%3E%3Crect width="52" height="52" fill="%23222"/%3E%3Ctext x="26" y="30" text-anchor="middle" font-size="22" fill="%23555"%3E📺%3C/text%3E%3C/svg%3E';
         const FALLBACK_IMG_MOV = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300"%3E%3Crect width="200" height="300" fill="%231a1a1a"/%3E%3Ctext x="100" y="155" text-anchor="middle" font-size="48" fill="%23333"%3E🎬%3C/text%3E%3C/svg%3E';
 
-        const EPG_LIVE_URL  = 'https://www.tdtchannels.com/epg/TV.json';
-        const EPG_PREMIUM_URL = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv.xml';
-
         const video         = document.getElementById('video');
         const playPauseBtn  = document.getElementById('play-pause-btn');
         const seekBar       = document.getElementById('seek-bar');
@@ -640,6 +629,8 @@
         }
 
         function forceAppReload() {
+            // Al forzar la recarga de la app limpiamos el login por si quieres volver a bloquearla
+            localStorage.removeItem('premium_unlocked');
             if ('caches' in window) {
                 caches.keys().then(names => { names.forEach(name => caches.delete(name)); });
             }
@@ -650,15 +641,19 @@
 
         async function changeSection(section) {
             
-            // === PROTECCIÓN CON CONTRASEÑA PARA PREMIUM ===
+            // === PROTECCIÓN CON CONTRASEÑA INTELIGENTE (MEMORIA PERSISTENTE) ===
             if (section === 'premium') {
-                const password = prompt("🔐 Introduce la contraseña para acceder a Premium:");
-                if (password !== "7788") { 
-                    alert("❌ Contraseña incorrecta.");
-                    return; // Si falla, cancela la acción
+                if (localStorage.getItem('premium_unlocked') !== 'true') {
+                    const password = prompt("🔐 Introduce la contraseña para acceder a Premium:");
+                    if (password !== "7788") { 
+                        alert("❌ Contraseña incorrecta.");
+                        return; // Cancela la carga de la pestaña
+                    }
+                    // Si es correcta, se guarda el estado en memoria para siempre
+                    localStorage.setItem('premium_unlocked', 'true');
                 }
             }
-            // ==============================================
+            // ===================================================================
 
             currentSection = section;
             ['tv','tvplus','premium','runtime','rakuten','movies'].forEach(s => {
@@ -898,6 +893,7 @@
             } catch (e) {}
         }
 
+        // Modificado para evitar errores visuales
         function showLoadingSkeletons(isMovie) {
             const count = isMovie ? 12 : 24;
             channelGrid.innerHTML = Array.from({length: count}).map(() => `<div class="skeleton-card ${isMovie ? 'skeleton-movie' : 'skeleton-tv'}"></div>`).join('');
@@ -906,6 +902,7 @@
         function showIdleOverlay() { idleOverlay.classList.remove('hidden'); }
         function hideIdleOverlay() { idleOverlay.classList.add('hidden'); }
 
+        // Corregido togglePlay
         function togglePlay(e) { if (e) e.stopPropagation(); closeSettingsMenu(); video.paused ? video.play().catch(()=>{}) : video.pause(); wakeControls(video.paused); }
         function seekVideo() { if (isFinite(video.duration)) video.currentTime = seekBar.value; }
         function changeVolume() { video.volume = volumeBar.value; muteBtn.innerText = video.volume === 0 ? "🔇" : video.volume < 0.5 ? "🔉" : "🔊"; }
