@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>SocramFlix+ | TV en Vivo</title>
+    <!-- Shaka Player CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
+    <style>
+        :root {
+            --primary-color: #e50914; /* Rojo SocramFlix */
+            --bg-color: #141414;
+            --text-color: #ffffff;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 { margin-top: 0; color: var(--primary-color); }
+        
+        #video-container {
+            width: 100%;
+            max-width: 850px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        
+        .controls-container {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+        select:focus { border-color: var(--primary-color); }
+        
+        #status {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        #lista-canales {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 850px;
+        }
+        .btn-canal {
+            background-color: #333;
+            color: white;
+            border: 2px solid transparent;
+            padding: 12px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .btn-canal:hover {
+            background-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        .btn-canal.active {
+            background-color: var(--primary-color);
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>SocramFlix+ TV</h2>
+    
+    <div id="video-container">
+        <video id="video" controls autoplay></video>
+    </div>
+
+    <div class="controls-container">
+        <select id="filtro-categoria">
+            <option value="">Cargando categorías...</option>
+        </select>
+        <div id="status">Esperando selección...</div>
+    </div>
+
+    <div id="lista-canales">
+        <!-- Los botones se generarán aquí con JavaScript -->
+    </div>
+
+    <script>
+        let player;
+        let todosLosCanales = [];
+
+        async function initApp() {
+            shaka.polyfill.installAll();
+
+            if (!shaka.Player.isBrowserSupported()) {
+                document.getElementById('status').innerText = 'Tu navegador no soporta Shaka Player.';
+                return;
+            }
+
+            const video = document.getElementById('video');
+            player = new shaka.Player(video);
+            player.addEventListener('error', onErrorEvent);
+
+            await cargarJSON();
+        }
+
+        async function cargarJSON() {
+            try {
+                // Asegúrate de que canales.json esté en la misma carpeta
+                const respuesta = await fetch('canales.json');
+                todosLosCanales = await respuesta.json();
+                
+                procesarCategorias();
+            } catch (error) {
+                console.error('Error al cargar canales.json:', error);
+                document.getElementById('status').innerText = 'Error al cargar la lista de canales.';
+            }
+        }
+
+        function procesarCategorias() {
+            const select = document.getElementById('filtro-categoria');
+            select.innerHTML = ''; // Limpiar opciones
+
+            // Extraer categorías únicas de la lista
+            const categorias = [...new Set(todosLosCanales.map(c => c.categoria))];
+
+            categorias.forEach(cat => {
+                const opcion = document.createElement('option');
+                opcion.value = cat;
+                opcion.textContent = cat || 'Sin Categoría';
+                select.appendChild(opcion);
+            });
+
+            // Escuchar cambios en el menú desplegable
+            select.addEventListener('change', (e) => renderizarBotones(e.target.value));
+
+            // Renderizar la primera categoría por defecto
+            if (categorias.length > 0) {
+                renderizarBotones(categorias[0]);
+            }
+        }
+
+        function renderizarBotones(categoriaSeleccionada) {
+            const contenedorLista = document.getElementById('lista-canales');
+            contenedorLista.innerHTML = ''; // Limpiar botones actuales
+
+            const canalesFiltrados = todosLosCanales.filter(c => c.categoria === categoriaSeleccionada);
+
+            canalesFiltrados.forEach(canal => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-canal';
+                btn.innerText = canal.nombre;
+                btn.onclick = (e) => {
+                    // Quitar clase active de todos y ponerla al clickeado
+                    document.querySelectorAll('.btn-canal').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    reproducirCanal(canal);
+                };
+                contenedorLista.appendChild(btn);
+            });
+        }
+
+        async function reproducirCanal(canal) {
+            document.getElementById('status').innerText = 'Cargando: ' + canal.nombre + '...';
+
+            try {
+                // Verificar si el canal tiene claves ClearKey o es libre
+                if (canal.kid && canal.key) {
+                    const clearKeysConfig = {};
+                    clearKeysConfig[canal.kid] = canal.key;
+                    
+                    player.configure({
+                        drm: { clearKeys: clearKeysConfig }
+                    });
+                } else {
+                    // Si no tiene claves, vaciamos la configuración DRM para que no falle
+                    player.configure({
+                        drm: { clearKeys: {} }
+                    });
+                }
+
+                await player.load(canal.url);
+                document.getElementById('status').innerText = 'Reproduciendo: ' + canal.nombre;
+            } catch (e) {
+                onError(e);
+            }
+        }
+
+        function onErrorEvent(event) {
+            onError(event.detail);
+        }
+
+        function onError(error) {
+            console.error('Error Code:', error.code, 'Detalles:', error);
+            document.getElementById('status').innerText = 'Error al reproducir el canal (CORS o enlace caído).';
+        }
+
+        // Iniciar todo
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
+</body>
+</html>
