@@ -684,39 +684,43 @@
             categorySelect.innerHTML = '<option value="">Cargando...</option>';
             showLoadingSkeletons(section === 'movies');
             
-            epgInfoElement.innerHTML = `<span style="color:#f5c518; font-weight:bold;">⏳ Cargando canales...</span>`;
+            // --- RESTAURADO: Mensaje original del EPG ---
+            epgInfoElement.innerHTML = `<span style="color:#f5c518; font-weight:bold;">⏳ Cargando canales y sincronizando guía en segundo plano...</span>`;
 
             const EPG_ES = 'listas/epg-es.xml';
+            
+            // --- RESTAURADO: Variable de control del EPG ---
+            let epgTask = null; 
 
             if (section === 'tv') {
                 mainBody.className = "body-tv-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Categoría";
-                loadEPG('listas/epg.xml').then(() => { epgInfoElement.innerText = "Selecciona cualquier canal."; });
+                epgTask = loadEPG('listas/epg.xml');
                 loadM3UFromUrl('listas/tv.m3u'); 
             } else if (section === 'tvplus') {
                 mainBody.className = "body-tvplus-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Grupo";
-                loadEPG('listas/epg.xml', EPG_PREMIUM_URL).then(() => { epgInfoElement.innerText = "Selecciona cualquier canal."; });
+                epgTask = loadEPG('listas/epg.xml', EPG_PREMIUM_URL); 
                 loadTVPlusJSON('listas/tvplus.json');
             } else if (section === 'premium') {
                 mainBody.className = "body-premium-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Categoría";
-                loadEPG(EPG_ES, EPG_PREMIUM_URL).then(() => { epgInfoElement.innerText = "Selecciona cualquier canal."; });
+                epgTask = loadEPG(EPG_ES, EPG_PREMIUM_URL);
                 loadM3UFromUrl('listas/star+.m3u');
             } else if (section === 'runtime') {
                 mainBody.className = "body-runtime-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Categoría";
-                loadEPG(EPG_ES).then(() => { epgInfoElement.innerText = "Selecciona cualquier canal."; });
+                epgTask = loadEPG(EPG_ES);
                 loadM3UFromUrl('listas/TV RuntimeTV.m3u');
             } else if (section === 'rakuten') {
                 mainBody.className = "body-rakuten-mode";
                 sagaSelectWrapper.style.display = "none";
                 categoryLabelText.innerText = "Categoría";
-                loadEPG(EPG_ES).then(() => { epgInfoElement.innerText = "Selecciona cualquier canal."; });
+                epgTask = loadEPG(EPG_ES);
                 loadM3UFromUrl('listas/TV Rakuten TV.m3u');
             } else {
                 mainBody.className = "body-movie-mode";
@@ -724,6 +728,15 @@
                 categoryLabelText.innerText = "Sub-Categoría";
                 loadLocalSaga();
                 epgInfoElement.innerText = "Selecciona cualquier película para comenzar.";
+            }
+
+            // --- RESTAURADO: Condición de seguridad que evita que se borre el canal si ya has pulsado uno ---
+            if (epgTask && section !== 'movies') {
+                epgTask.then(() => {
+                    if (epgInfoElement.innerText.includes('Cargando canales')) {
+                        epgInfoElement.innerText = "Selecciona cualquier canal para comenzar.";
+                    }
+                });
             }
         }
 
