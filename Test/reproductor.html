@@ -107,7 +107,7 @@
         <select id="filtro-categoria">
             <option value="">Cargando categorías...</option>
         </select>
-        <div id="status">Esperando selección...</div>
+        <div id="status">Cargando lista de canales...</div>
     </div>
 
     <div id="lista-canales">
@@ -135,10 +135,17 @@
 
         async function cargarJSON() {
             try {
-                // Asegúrate de que canales.json esté en la misma carpeta
-                const respuesta = await fetch('canales.json');
+                // Aquí aplicamos el truco para evitar la caché de GitHub Pages
+                const urlJson = 'canales.json?nocache=' + new Date().getTime();
+                const respuesta = await fetch(urlJson);
+                
+                if (!respuesta.ok) {
+                    throw new Error('No se encontró el archivo JSON o hubo un error de red.');
+                }
+                
                 todosLosCanales = await respuesta.json();
                 
+                document.getElementById('status').innerText = 'Esperando selección...';
                 procesarCategorias();
             } catch (error) {
                 console.error('Error al cargar canales.json:', error);
@@ -150,13 +157,18 @@
             const select = document.getElementById('filtro-categoria');
             select.innerHTML = ''; // Limpiar opciones
 
-            // Extraer categorías únicas de la lista
-            const categorias = [...new Set(todosLosCanales.map(c => c.categoria))];
+            // Extraer categorías únicas de la lista, ignorando las vacías si las hay
+            const categorias = [...new Set(todosLosCanales.map(c => c.categoria).filter(Boolean))];
+
+            if (categorias.length === 0) {
+                document.getElementById('status').innerText = 'No se encontraron categorías en el JSON.';
+                return;
+            }
 
             categorias.forEach(cat => {
                 const opcion = document.createElement('option');
                 opcion.value = cat;
-                opcion.textContent = cat || 'Sin Categoría';
+                opcion.textContent = cat;
                 select.appendChild(opcion);
             });
 
@@ -164,9 +176,7 @@
             select.addEventListener('change', (e) => renderizarBotones(e.target.value));
 
             // Renderizar la primera categoría por defecto
-            if (categorias.length > 0) {
-                renderizarBotones(categorias[0]);
-            }
+            renderizarBotones(categorias[0]);
         }
 
         function renderizarBotones(categoriaSeleccionada) {
