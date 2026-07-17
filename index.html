@@ -573,6 +573,7 @@
             { group: "Sagas y Colecciones", name: "Colección DreamWorks Animation",      file: "Coleccion DreamWorks Animation.m3u" },
             { group: "Sagas y Colecciones", name: "Universo DC",                         file: "Universo DC.m3u" },
             { group: "Sagas y Colecciones", name: "Universo Marvel",                     file: "Universo Marvel.m3u" },
+            { group: "Sagas y Colecciones", name: "Sagas Batman(Animacion y Peliculas)", file: "Sagas Batman(Animacion y Peliculas).m3u" },
             { group: "Sagas y Colecciones", name: "Sagas Policíacas",                    file: "Sagas Policiacas.m3u" },
             { group: "Sagas y Colecciones", name: "Sagas Acción",                        file: "Sagas Accion.m3u" },
             { group: "Sagas y Colecciones", name: "Sagas Ciencia Ficción",               file: "Sagas Ciencia Ficion.m3u" },
@@ -641,7 +642,6 @@
         }
 
         function forceAppReload() {
-            // Al forzar la recarga limpiamos la memoria para que vuelva a pedir la clave
             localStorage.removeItem('premium_unlocked');
             if ('caches' in window) {
                 caches.keys().then(names => { names.forEach(name => caches.delete(name)); });
@@ -652,21 +652,18 @@
         }
 
         async function changeSection(section) {
-            
             console.log(`Versión ${VERSION_APP} - Cambiando a: ${section}`);
-
-            // === PROTECCIÓN CON CONTRASEÑA EN PREMIUM (MEMORIA PERSISTENTE) ===
+            
             if (section === 'premium') {
                 if (localStorage.getItem('premium_unlocked') !== 'true') {
                     const password = prompt("🔐 Introduce la contraseña para acceder a Premium:");
                     if (password !== "7788") { 
                         alert("❌ Contraseña incorrecta.");
-                        return; // Cancela la carga y se queda donde estaba
+                        return;
                     }
                     localStorage.setItem('premium_unlocked', 'true');
                 }
             }
-            // ==================================================================
 
             currentSection = section;
             ['tv','tvplus','premium','runtime','rakuten','movies'].forEach(s => {
