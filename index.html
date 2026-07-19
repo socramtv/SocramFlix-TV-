@@ -518,7 +518,7 @@
 
     <script>
         // === IDENTIFICADOR DE VERSIÓN ===
-        const VERSION_APP = "1.0.4";
+        const VERSION_APP = "1.0.5";
         console.log("SocramFlix+ Versión: " + VERSION_APP);
 
         // === CONFIGURACIÓN PWA DINÁMICA ===
@@ -759,14 +759,21 @@
 
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; hideIdleOverlay(); wakeControls(); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; wakeControls(true); });
+            
+            // === CORRECCIÓN DEL BUG DE MENSAJES INFINITOS ===
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
+                    // Evitamos que el mensaje se duplique si ya existe en pantalla
+                    if (document.getElementById('video-error-msg')) return;
+
                     const isAndroid = /Android/i.test(navigator.userAgent);
                     const vlcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `vlc://${currentMediaUrl}`;
                     const wvcLink = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+                    
+                    // Añadimos el ID 'video-error-msg' para tenerlo controlado
                     epgInfoElement.innerHTML += `
-                        <div style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
+                        <div id="video-error-msg" style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
                             <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace. Opciones recomendadas:</span>
                             <div style="display:flex; flex-wrap:wrap; gap:8px;">
                                 <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.8rem;">🟠 Ver en VLC</a>
@@ -776,6 +783,7 @@
                         </div>`;
                 }
             });
+
             videoWrapper.addEventListener('mousemove', () => wakeControls());
             videoWrapper.addEventListener('touchstart', () => wakeControls());
             customControlsLayer.addEventListener('mouseenter', () => clearTimeout(hideControlsTimeout));
