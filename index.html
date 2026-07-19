@@ -489,7 +489,7 @@
                             </div>
                         </div>
 
-                        <!-- MODIFICADO: Ahora abre el Modal en lugar de lanzar WVC directamente -->
+                        <!-- Abre Modal de Cast -->
                         <button class="control-btn" id="cast-btn" onclick="openCastModal(event)" title="Enviar a TV">
                             <span class="cast-btn-inner">📺 TV</span>
                         </button>
@@ -581,7 +581,7 @@
 
     <script>
         // === IDENTIFICADOR DE VERSIÓN ===
-        const VERSION_APP = "1.0.6";
+        const VERSION_APP = "1.0.7";
         console.log("SocramFlix+ Versión: " + VERSION_APP);
 
         // === CONFIGURACIÓN PWA DINÁMICA ===
@@ -715,7 +715,6 @@
         }
 
         async function changeSection(section) {
-            console.log(`Versión ${VERSION_APP} - Cambiando a: ${section}`);
             
             if (section === 'premium') {
                 if (localStorage.getItem('premium_unlocked') !== 'true') {
@@ -823,7 +822,7 @@
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; hideIdleOverlay(); wakeControls(); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; wakeControls(true); });
             
-            // Corrección Error Infinito
+            // Corrección Error Infinito y links directos actualizados
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
@@ -831,7 +830,7 @@
                     
                     const isAndroid = /Android/i.test(navigator.userAgent);
                     const vlcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `vlc://${currentMediaUrl}`;
-                    const wvcLink = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+                    const wvcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=com.instantbits.cast.webvideo;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
                     
                     epgInfoElement.innerHTML += `
                         <div id="video-error-msg" style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
@@ -861,7 +860,7 @@
             hideControlsTimeout = setTimeout(() => { if (!video.paused) { videoWrapper.classList.remove('show-controls'); closeSettingsMenu(); } }, 4000);
         }
 
-        // === FUNCIONES MODAL TRANSMITIR ===
+        // === FUNCIONES MODAL TRANSMITIR Y LINKS FORZADOS (INTENT) ===
         function openCastModal(e) {
             if (e) e.stopPropagation();
             if (!currentMediaUrl) return;
@@ -879,11 +878,18 @@
 
         function executeCast(type) {
             if (!currentMediaUrl) return;
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            
             if (type === 'wvc') {
-                window.location.href = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+                // Al usar el Intent con package explícito forzamos la app de Web Video Caster saltándonos Chrome
+                const wvcLink = isAndroid
+                    ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=com.instantbits.cast.webvideo;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end`
+                    : `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+                window.location.href = wvcLink;
             } else if (type === 'vlc') {
-                const isAndroid = /Android/i.test(navigator.userAgent);
-                const vlcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `vlc://${currentMediaUrl}`;
+                const vlcLink = isAndroid 
+                    ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
+                    : `vlc://${currentMediaUrl}`;
                 window.location.href = vlcLink;
             } else if (type === 'copy') {
                 navigator.clipboard.writeText(currentMediaUrl).then(() => {
@@ -1214,7 +1220,6 @@
                     </div>
                 </div>` : '';
             
-            // Reemplazamos los botones sueltos por el nuevo botón que abre el modal
             const extraBtns = currentSection === 'tvplus' ? `
                 <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
                     <button onclick="openCastModal(event)" style="background:#4CAF50; border:none; color:#fff; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5); display:flex; align-items:center; gap:6px;">📺 Transmitir en TV</button>
