@@ -408,6 +408,35 @@
         .floating-install-btn:active {
             transform: translateY(0) scale(0.98);
         }
+
+        /* ─── MODAL TRANSMITIR (CAST) ─── */
+        #cast-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000;
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+            opacity: 0; transition: opacity 0.2s; pointer-events: none;
+        }
+        #cast-modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .cast-modal {
+            background: #1c1c1c; border: 1px solid #333; border-radius: 16px; width: 90%; max-width: 380px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9); transform: translateY(20px) scale(0.95); transition: all 0.2s ease-out;
+        }
+        #cast-modal-overlay.active .cast-modal { transform: translateY(0) scale(1); }
+        
+        .cast-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .cast-modal-header h3 { font-size: 1.1rem; margin: 0; color: #fff; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+        .cast-modal-header h3 span { color: #00e676; }
+        .close-modal-btn { background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
+        .close-modal-btn:hover { color: #fff; }
+        
+        .cast-modal-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .cast-option { display: flex; align-items: center; gap: 16px; padding: 14px 16px; background: #242424; border-radius: 12px; cursor: pointer; transition: background 0.2s, border-color 0.2s; border: 1px solid transparent; }
+        .cast-option:hover { background: #2d2d2d; border-color: #555; }
+        .cast-option:active { transform: scale(0.98); }
+        .cast-icon { font-size: 1.8rem; flex-shrink: 0; }
+        .cast-text { display: flex; flex-direction: column; gap: 4px; }
+        .cast-text h4 { margin: 0; color: #fff; font-size: 1rem; font-weight: 600; }
+        .cast-text p { margin: 0; color: #999; font-size: 0.78rem; line-height: 1.3; }
     </style>
 </head>
 <body class="body-tv-mode" id="main-body" onclick="closeSettingsMenu()">
@@ -460,7 +489,8 @@
                             </div>
                         </div>
 
-                        <button class="control-btn" id="cast-btn" onclick="sendToCast(event)" title="Enviar a TV">
+                        <!-- MODIFICADO: Ahora abre el Modal en lugar de lanzar WVC directamente -->
+                        <button class="control-btn" id="cast-btn" onclick="openCastModal(event)" title="Enviar a TV">
                             <span class="cast-btn-inner">📺 TV</span>
                         </button>
                         <button class="control-btn" onclick="toggleFullscreen(event)" title="Pantalla completa">🔲</button>
@@ -516,9 +546,42 @@
         ⬇️ Instalar App
     </button>
 
+    <!-- MODAL TRANSMITIR -->
+    <div id="cast-modal-overlay" style="display: none;" onclick="closeCastModal()">
+        <div class="cast-modal" onclick="event.stopPropagation()">
+            <div class="cast-modal-header">
+                <h3>📺 <span>Transmitir en Smart TV</span></h3>
+                <button class="close-modal-btn" onclick="closeCastModal()">✕</button>
+            </div>
+            <div class="cast-modal-body">
+                <div class="cast-option" onclick="executeCast('wvc')">
+                    <div class="cast-icon">🌐</div>
+                    <div class="cast-text">
+                        <h4>Web Video Caster</h4>
+                        <p>Recomendado para LG, Samsung, Chromecast</p>
+                    </div>
+                </div>
+                <div class="cast-option" onclick="executeCast('vlc')">
+                    <div class="cast-icon">🟠</div>
+                    <div class="cast-text">
+                        <h4>VLC Media Player</h4>
+                        <p>Casteo mediante botón de Chromecast integrado</p>
+                    </div>
+                </div>
+                <div class="cast-option" onclick="executeCast('copy')">
+                    <div class="cast-icon">📋</div>
+                    <div class="cast-text">
+                        <h4>Copiar Enlace HLS (.m3u8)</h4>
+                        <p>Para pegar en apps IPTV de tu Smart TV</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // === IDENTIFICADOR DE VERSIÓN ===
-        const VERSION_APP = "1.0.5";
+        const VERSION_APP = "1.0.6";
         console.log("SocramFlix+ Versión: " + VERSION_APP);
 
         // === CONFIGURACIÓN PWA DINÁMICA ===
@@ -760,18 +823,16 @@
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; hideIdleOverlay(); wakeControls(); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; wakeControls(true); });
             
-            // === CORRECCIÓN DEL BUG DE MENSAJES INFINITOS ===
+            // Corrección Error Infinito
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
-                    // Evitamos que el mensaje se duplique si ya existe en pantalla
                     if (document.getElementById('video-error-msg')) return;
-
+                    
                     const isAndroid = /Android/i.test(navigator.userAgent);
                     const vlcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `vlc://${currentMediaUrl}`;
                     const wvcLink = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
                     
-                    // Añadimos el ID 'video-error-msg' para tenerlo controlado
                     epgInfoElement.innerHTML += `
                         <div id="video-error-msg" style="margin-top:12px; padding:12px; background:rgba(229,9,20,0.15); border:1px solid #E50914; border-radius:6px;">
                             <span style="color:#ff4d4d; font-weight:bold; display:block; margin-bottom:8px;">⚠️ El navegador bloquea la reproducción de este enlace. Opciones recomendadas:</span>
@@ -799,6 +860,41 @@
         function startHideControlsTimer() {
             hideControlsTimeout = setTimeout(() => { if (!video.paused) { videoWrapper.classList.remove('show-controls'); closeSettingsMenu(); } }, 4000);
         }
+
+        // === FUNCIONES MODAL TRANSMITIR ===
+        function openCastModal(e) {
+            if (e) e.stopPropagation();
+            if (!currentMediaUrl) return;
+            closeSettingsMenu();
+            const modal = document.getElementById('cast-modal-overlay');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closeCastModal() {
+            const modal = document.getElementById('cast-modal-overlay');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 200);
+        }
+
+        function executeCast(type) {
+            if (!currentMediaUrl) return;
+            if (type === 'wvc') {
+                window.location.href = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
+            } else if (type === 'vlc') {
+                const isAndroid = /Android/i.test(navigator.userAgent);
+                const vlcLink = isAndroid ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` : `vlc://${currentMediaUrl}`;
+                window.location.href = vlcLink;
+            } else if (type === 'copy') {
+                navigator.clipboard.writeText(currentMediaUrl).then(() => {
+                    alert("✅ Enlace copiado al portapapeles correctamente.");
+                }).catch(err => {
+                    alert("❌ No se pudo copiar el enlace automáticamente.");
+                });
+            }
+            closeCastModal();
+        }
+        // ===================================
 
         function buildSagaDropdown() {
             sagaSelect.innerHTML = ''; let currentGroup = ''; let optgroupEl = null;
@@ -929,7 +1025,6 @@
             return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${p(m)}:${p(sec)}`;
         }
         function toggleFullscreen(e) { if (e) e.stopPropagation(); closeSettingsMenu(); document.fullscreenElement ? document.exitFullscreen() : videoWrapper.requestFullscreen().catch(()=>{}); }
-        function sendToCast(e) { if (e) e.stopPropagation(); if (!currentMediaUrl) return; window.location.href = `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`; }
         function toggleSettings() { settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'flex' : 'none'; }
         function closeSettingsMenu() { settingsMenu.style.display = 'none'; }
 
@@ -1119,19 +1214,14 @@
                     </div>
                 </div>` : '';
             
-            const events = getEPGEvents(channel);
-            
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const vlcLink = isAndroid 
-                ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=org.videolan.vlc;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end` 
-                : `vlc://${currentMediaUrl}`;
-
+            // Reemplazamos los botones sueltos por el nuevo botón que abre el modal
             const extraBtns = currentSection === 'tvplus' ? `
                 <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
-                    <a href="wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}" style="display:inline-block; background:#4CAF50; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">📺 WVC (Cast)</a>
-                    <a href="${vlcLink}" style="display:inline-block; background:#f58220; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">🟠 Abrir en VLC</a>
+                    <button onclick="openCastModal(event)" style="background:#4CAF50; border:none; color:#fff; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.75rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5); display:flex; align-items:center; gap:6px;">📺 Transmitir en TV</button>
                 </div>` : '';
 
+            const events = getEPGEvents(channel);
+            
             if (!epgData || events.length === 0) { 
                 epgInfoElement.innerHTML = `<strong>${channel.name}</strong><span style="color:#888; margin-left:8px; font-size:0.82rem;">En directo</span>${aceHTML}${extraBtns}`; 
                 return; 
