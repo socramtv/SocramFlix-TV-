@@ -581,7 +581,7 @@
 
     <script>
         // === IDENTIFICADOR DE VERSIÓN ===
-        const VERSION_APP = "1.0.7";
+        const VERSION_APP = "1.0.8";
         console.log("SocramFlix+ Versión: " + VERSION_APP);
 
         // === CONFIGURACIÓN PWA DINÁMICA ===
@@ -822,7 +822,6 @@
             video.addEventListener('play', () => { playPauseBtn.innerText = "⏸"; hideIdleOverlay(); wakeControls(); });
             video.addEventListener('pause', () => { playPauseBtn.innerText = "▶"; wakeControls(true); });
             
-            // Corrección Error Infinito y links directos actualizados
             video.addEventListener('error', () => {
                 const err = video.error;
                 if (err && currentMediaUrl) {
@@ -860,7 +859,6 @@
             hideControlsTimeout = setTimeout(() => { if (!video.paused) { videoWrapper.classList.remove('show-controls'); closeSettingsMenu(); } }, 4000);
         }
 
-        // === FUNCIONES MODAL TRANSMITIR Y LINKS FORZADOS (INTENT) ===
         function openCastModal(e) {
             if (e) e.stopPropagation();
             if (!currentMediaUrl) return;
@@ -881,7 +879,6 @@
             const isAndroid = /Android/i.test(navigator.userAgent);
             
             if (type === 'wvc') {
-                // Al usar el Intent con package explícito forzamos la app de Web Video Caster saltándonos Chrome
                 const wvcLink = isAndroid
                     ? `intent://${currentMediaUrl.replace(/^https?:\/\//, '')}#Intent;package=com.instantbits.cast.webvideo;scheme=${currentMediaUrl.startsWith('https') ? 'https' : 'http'};type=video/*;end`
                     : `wvc-x-callback://open?url=${encodeURIComponent(currentMediaUrl)}`;
@@ -900,7 +897,6 @@
             }
             closeCastModal();
         }
-        // ===================================
 
         function buildSagaDropdown() {
             sagaSelect.innerHTML = ''; let currentGroup = ''; let optgroupEl = null;
@@ -1113,10 +1109,24 @@
 
             let targetUrl = item.url, isAce = false;
             const urlLower = targetUrl.toLowerCase();
+            
+            // === DETECCIÓN Y ADAPTACIÓN AUTOMÁTICA DE ACESTREAM (ID o INFOHASH) ===
             if (urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8')) {
-                isAce = true; const aceId = (targetUrl.match(/[?&]id=([^&]+)/) || targetUrl.match(/([a-fA-F0-9]{40})/) || [])[1];
-                if (aceId) { targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${aceId}`; }
+                isAce = true;
+                const idMatch = targetUrl.match(/[?&]id=([^&]+)/);
+                const hashMatch = targetUrl.match(/[?&]infohash=([^&]+)/);
+                const rawHashMatch = targetUrl.match(/([a-fA-F0-9]{40})/);
+
+                if (idMatch && idMatch[1]) {
+                    targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?id=${idMatch[1]}`;
+                } else if (hashMatch && hashMatch[1]) {
+                    targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?infohash=${hashMatch[1]}`;
+                } else if (rawHashMatch && rawHashMatch[1]) {
+                    targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?infohash=${rawHashMatch[1]}`;
+                }
             }
+            // ====================================================================
+
             currentMediaUrl = targetUrl;
             
             const isTVPlus = currentSection === 'tvplus';
