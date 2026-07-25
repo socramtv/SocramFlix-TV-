@@ -44,6 +44,8 @@ http://127.0.0.1:6878/ace/getstream?infohash=db00212f682521825fd027599490f0a010d
 http://127.0.0.1:6878/ace/getstream?infohash=9f4168996090c3a0c2e8a8373b88991e30927d28
 #EXTINF:-1 tvg-id="La1.es" tvg-name="La 1" tvg-logo="https://i.ibb.co/Vf2GT70/la1.png" group-title="TDT",La 1 TVE
 http://127.0.0.1:6878/ace/getstream?id=979d3b873871a5a9a56d3eb481ca77b707e01102
+#EXTINF:-1 tvg-id="La1.es" tvg-name="La 1" tvg-logo="https://i.ibb.co/Vf2GT70/la1.png" group-title="TDT",prueba
+http://127.0.0.1:6878/ace/manifest.m3u8?infohash=28e3a4ee2f3d9876435c534a49e34e1a4ced0f12
 
 # ==========================================
 # 👶 Infantil
