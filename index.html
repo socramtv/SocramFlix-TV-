@@ -581,7 +581,7 @@
 
     <script>
         // === IDENTIFICADOR DE VERSIÓN ===
-        const VERSION_APP = "1.0.8";
+        const VERSION_APP = "1.0.9";
         console.log("SocramFlix+ Versión: " + VERSION_APP);
 
         // === CONFIGURACIÓN PWA DINÁMICA ===
@@ -645,6 +645,7 @@
             { group: "Sagas y Colecciones", name: "Sagas Suspense",                      file: "Sagas Suspense.m3u" },
             { group: "Sagas y Colecciones", name: "Sagas Artes Marciales",               file: "Sagas_Artes_Marciales_por_actor.m3u" },
             { group: "Sagas y Colecciones", name: "Sagas Comedia",                       file: "Sagas Comedia.m3u" },
+            { group: "Sagas y Colecciones", name: "Cine Bélico",                         file: "Cine Belico.m3u" },
             { group: "Sagas y Colecciones", name: "Colección Illumination",              file: "Coleccion Illumination.m3u" },
             { group: "Sagas y Colecciones", name: "Colección Blue Sky",                  file: "Coleccion Blue Sky.m3u" },
             { group: "Infantiles", name: "Érase una vez el hombre",        file: "infantiles/Erase una vez el hombre.m3u" },
@@ -1110,7 +1111,6 @@
             let targetUrl = item.url, isAce = false;
             const urlLower = targetUrl.toLowerCase();
             
-            // === DETECCIÓN Y ADAPTACIÓN AUTOMÁTICA DE ACESTREAM (ID o INFOHASH) ===
             if (urlLower.includes('6878') || urlLower.includes('ace/getstream') || urlLower.includes('acestream') || urlLower.includes('ace/manifest.m3u8')) {
                 isAce = true;
                 const idMatch = targetUrl.match(/[?&]id=([^&]+)/);
@@ -1125,7 +1125,6 @@
                     targetUrl = `http://127.0.0.1:6878/ace/manifest.m3u8?infohash=${rawHashMatch[1]}`;
                 }
             }
-            // ====================================================================
 
             currentMediaUrl = targetUrl;
             
