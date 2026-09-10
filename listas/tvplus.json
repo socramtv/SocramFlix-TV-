@@ -550,6 +550,364 @@
       }
     ]
   },
+
+
+
+  {
+    "name": "⚽ DEPORTES VARIOS",
+    "samples": [ 
+
+  
+  
+    {
+    "name": "DAZN LIGA 1",
+    "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r4/__c/DAZN_LALIGA1/__op/dash-wv/__f/manifest.mpd",
+    "kid": "Vdb7mHIe21uoEDqc8hBx1A",
+    "key": "SiFY2TLjFf/hP3LkSq1Ffg",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "DAZN LIGA 2",
+    "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:lv-r4/__c/DAZN_LALIGA2/__op/dash-wv/__f/manifest.mpd",
+    "kid": "z3Q92bEw+21UJQ1fkLV5ZQ",
+    "key": "OeDB+ZOKcRSiY7t15xUEKw",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "DAZN LIGA 3",
+    "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:live2/__c/DAZN_LALIGA3/__op/dash-wv/__f/manifest.mpd",
+    "kid": "enJW7+IMochRQp95hRODhQ",
+    "key": "DfaPHH1SleLHkpafpwrgbg",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "DAZN LIGA 4",
+    "uri": "https://requestrouter3.cdn.agiletv.net/__cl/cg:live2/__c/DAZN_LALIGA4/__op/dash-wv/__f/manifest.mpd",
+    "kid": "X/KeeR8FEij5W7ENFaR0VQ",
+    "key": "W4X1b2Jhyy/nD8FyIQnX5A",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  }, 
+  
+ 
+  
+  {
+    "name": "Liga SmartBank",
+    "uri": "https://cache2.zapitv.com/live/eds_c2/HYPERMOTION1/dash_live_ez/HYPERMOTION1.mpd",
+    "kid": "qIYX6QRQTuKR9J8OYKUdSQ",
+    "key": "F/ktWf3jttK/T/tI6MpyCg",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "Liga SmartBank 2",
+    "uri": "https://cache4.zapitv.com/live/eds_c2/HYPERMOTION2/dash_live_ez/HYPERMOTION2.mpd",
+    "kid": "X8jai5TER0aP/jkhV/jHXg",
+    "key": "MzuTT93kwe6H5/HF2sTLjw",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "Liga SmartBank 3",
+    "uri": "https://cache2.zapitv.com/live/eds_c2/HYPERMOTION3/dash_live_ez/HYPERMOTION3.mpd",
+    "kid": "UERApeg/QZyBbYx2fH9wOw",
+    "key": "Wa/0DjSuifTjr0dY8koNjA",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "ESPN 8 THE OCHO",
+    "uri": "https://d3b6q2ou5kp8ke.cloudfront.net/ESPNTheOcho_5.m3u8"
+  },
+  {
+    "name": "FIFA+",
+    "uri": "https://6c849fb3.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctbXhfRklGQVBsdXNTcGFuaXNoLTFfSExT/playlist.m3u8"
+  },
+  {
+    "name": "MOTOGP",
+    "uri": "https://otte.live.fly.ww.aiv-cdn.net/pdx-nitro/live/clients/dash/enc/wjeweupwyc/out/v1/8197c8e055c94a868623653ac55c10bf/cenc.mpd",
+    "kid": "4D8wLsTavMzKgsyfdnMeyQ",
+    "key": "U+oQJ9K/KJOlUs8VvANm3g",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  }
+  
+ , 
+ 
+ 
+  {
+    "name": "Tudn",
+    "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/26hxutyti4/out/v1/c7064d5b251a4564b53e0854426b9c8f/cenc.mpd",
+    "kid": "djzh68ryNQLIzzV8bvQj4Q",
+    "key": "DF5sCCCh6ih1NyHbACckEQ",
+    "drm_scheme": "clearkey",
+    "extension": ""
+  },
+  {
+    "name": "Tudn**",
+    "uri": "http://38.68.134.207/live/ry6utrh/s.m3u8"
+  }
+ , 
+      {
+          "name": "Claro Sports",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/4eia4ypjxr/out/v1/2c628105d22c47dcb532e26968706a83/cenc.mpd",
+          "kid": "Sy5fXUJ3ESHQ3F9sn3SsMA",
+          "key": "YEYPpDJXxTe6Gaf3NdgXfA",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        } 
+       , 
+           {
+          "name": "Fox Deportes Argentina",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/dash/enc/vkpoljjpkj/out/v1/502bcf68b3514cd28a220e6f0a43816f/cenc.mpd",
+          "kid": "0aFjkU24_60sPpT5eYlqDQ",
+          "key": "lyiACjlZqv3VsLz783aIEQ",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        } 
+
+  
+
+
+
+
+
+
+      
+  
+  
+  
+
+  
+
+  
+  
+  ]
+  }, 
+  
+  
+  
+    {
+      "name": "⚽ DEPORTES BRASIL 🇧🇷 ",
+      "samples": [
+        {
+          "name": "SPORTV",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/w8kwdfmlgs/out/v1/3aa321e477504937a439b602e078eb18/cenc.mpd",
+          "kid": "UcDvI7Fyl-XAHNfzbdCmzg",
+          "key": "iCP3E7pv25u-CirYLTCaSw",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "SPORTV 2",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/dash/enc/dsa3hwuhd1/out/v1/631b48c8d9ea437e8309d1a4b55acef5/cenc.mpd",
+          "kid": "PeAo6vs7LK_-wDvhwcgYsw",
+          "key": "j73Yqa5nSGlrsT5Ue7CT_A",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "SPORTV 3",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/dash/enc/6otiglnptp/out/v1/add7499679b0422cb6791f7701f95ecc/cenc.mpd",
+          "kid": "kC5ewOPQXmZdqjL8I_T1ng",
+          "key": "eyMionOEOSGkPixh2sfK4w",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        }
+      ]
+    },
+    {
+      "name": "⚽ TNT SPORTS REINO UNIDO 🇬🇧 ",
+      "samples": [
+        {
+          "name": "TNT SPORTS 1",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/rhf2dwosdt/out/v1/ee550d2a68d846c797e6ce4de2e8b76d/cenc.mpd",
+          "kid": "aaWqg1oGHOZKYw0QRnJ-QA",
+          "key": "0C_qyKmZvQa_QFm_M0EXSQ",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "TNT SPORTS 2",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/puehlftk5j/out/v1/f7f0da1ee112481ca0024e6d4dd97f4a/cenc.mpd",
+          "kid": "8994QwgK50O_hl3F_fZMaA",
+          "key": "VnyGO8Eut0eI6nSIjAQuGw",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "TNT SPORTS 3",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/dev1hjwzh9/out/v1/a5f0ee7ad7b24906b14f43bebbbe4678/cenc.mpd",
+          "kid": "zJFQgyTOncr0JaQ9WPHZ1A",
+          "key": "ZD5UdNnt2Hx9kJHIyXmUyg",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "TNT SPORTS 4",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/tdijwiga2k/out/v1/f5fde318678f4f7583bf27b7231bde1f/cenc.mpd",
+          "kid": "-jT6jJAzbdUox6I4ccrR_g",
+          "key": "VSp40a63TxZQ1oJVxXSUCA",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        }
+      ]
+    },
+    {
+      "name": "⚽ DEPORTE INTERNACIONAL",
+      "samples": [
+        {
+          "name": "Premier Sports 1",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/m6sqanvm2m/out/v1/f6beb46c6e9a4132ad739f3ca27df6aa/cenc.mpd",
+          "kid": "FET0I1Up8YPwpaSGvv6c2w",
+          "key": "5eP-xnobs0cqIInIoKJVfw",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Premier Sports 2",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/bcj3iscpd6/out/v1/fcd137b391214f7cb99dd4d7be90ca87/cenc.mpd",
+          "kid": "Gl31NgnryYV4mMSQ9HJJGA",
+          "key": "d_YpgNWC7FQSgHlqz4stGQ",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Bein Sports 1",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/ghwcl6hv68/out/v1/83536910d8034e9b9895a20fbe1c1687/cenc.mpd",
+          "kid": "M12td4EJlUUD3Lsh3JIBXw",
+          "key": "JL_XXUNsv3MWiiotzNQCgQ",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Bein Sports 2",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/8m8cd46i1t/out/v1/83985c68e4174e90a58a1f2c024be4c9/cenc.mpd",
+          "kid": "C0K-JmTX6BHQTz5QTgkkxQ",
+          "key": "riQJASO4xyrFQE3BUoR8uA",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Bein Sports 3",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/q4u5nwaogz/out/v1/18de6d3e65934f3a8de4358e69eab86c/cenc.mpd",
+          "kid": "eZXHJKE3SO2XCECoq1u5sw",
+          "key": "Z72vHiF1uf9oL83w4jVLHg",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        }
+      ]
+    },
+   
+    {
+      "name": "⚽ Dsports",
+      "samples": [
+        {
+          "name": "Dsports 🇦🇷",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/x0srg3jjpz/out/v1/f779c49314394d61886d63f58d9d52e4/cenc.mpd",
+          "kid": "T0w6mRLqdS6I9El4ZKG8iw",
+          "key": "J4EoAE/oxv+yzSoMFUokGg",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Dsports 🇨🇱",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/cardt9ai8g/out/v1/a85c58beee18435e82a57a0fb9d2f681/cenc.mpd",
+          "kid": "Yvnglehy1DC5MbatNb4haA",
+          "key": "QV60dwUqpC0BB2jVfMlTWg",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Dsports 🇨🇴",
+          "uri": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/rgilyeubta/out/v1/09a67027b18f4fd78aaa3794a2aacfe8/cenc.mpd",
+          "kid": "+LIHwQ8/dq66MqNg7FK55A",
+          "key": "r61J0g6zlnDpPjccHWaZIQ",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        },
+        {
+          "name": "Dsports 2",
+          "uri": "http://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/dash/enc/rgilyeubta/out/v1/09a67027b18f4fd78aaa3794a2aacfe8/cenc.mpd",
+          "kid": "A_Etaj2_06b6fdf2QX4MEQ",
+          "key": "6ge4es3y5FvoJM3koc81BA",
+          "drm_scheme": "clearkey",
+          "extension": "mpd"
+        }
+      ]
+    }
+, 
+
+{
+  "name": "⚽  LPF PLAY ARGENTINA 🇦🇷 ",
+  "samples": [
+    {
+      "name": "(PLAY 1)",
+      "uri": "https://emitiendoenvivo.com:443/lpf/1.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "PLAY 1",
+      "uri": "https://emitiendoenvivo.com:443/lpf/2.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "(PLAY 2)",
+      "uri": "https://emitiendoenvivo.com:443/lpf/3.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "PLAY 2",
+      "uri": "https://emitiendoenvivo.com:443/lpf/4.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "(PLAY 3)",
+      "uri": "https://emitiendoenvivo.com:443/lpf/5.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "PLAY 3",
+      "uri": "https://emitiendoenvivo.com:443/lpf/6.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "(PLAY 4)",
+      "uri": "https://emitiendoenvivo.com:443/lpf/7.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "PLAY 4",
+      "uri": "https://emitiendoenvivo.com:443/lpf/8.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "(PLAY 5)",
+      "uri": "https://emitiendoenvivo.com:443/lpf/9.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "PLAY 5",
+      "uri": "https://emitiendoenvivo.com:443/lpf/10.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "(PLAY 6)",
+      "uri": "https://emitiendoenvivo.com:443/lpf/11.m3u8",
+      "extension": "m3u8"
+    },
+    {
+      "name": "PLAY 6",
+      "uri": "https://emitiendoenvivo.com:443/lpf/12.m3u8",
+      "extension": "m3u8"
+    }
+  ]
+}, 
+
+
   {
     "name": "🎬 CINE Y SERIES",
     "samples": [
