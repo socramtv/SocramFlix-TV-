@@ -2,6 +2,16 @@
   {
     "name": "📺 NACIONALES",
     "samples": [
+
+
+{
+  "name": "SKY SPORTS 16 HD (H265)",
+  "uri": "https://nog-live1-ott.izzigo.tv/7/out/u/dash/SKY-SPORTS-16-HD-H265/default.mpd",
+  "kid": "lbUtFtNEr1Oc6cLJ_5VXGg",
+  "key": "XwNdnEoXgiH4nSQ5Qmsumg",
+  "drm_scheme": "clearkey",
+  "extension": "mpd"
+}, 
       {
         "name": "La 1 (opc.1)",
         "uri": "https://bl01.cdn.avatel.tv/live/eds/la1/MPEG-DASH_Scrambled_High/la1.mpd",
